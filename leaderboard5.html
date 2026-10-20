@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Generador de Leaderboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#0d0f14;--card:#171a22;--line:#2a2f3b;--tx:#eef0f4;--mute:#9aa1b0;--acc:#ff8a2a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;padding:20px}
+.wrap{max-width:1150px;margin:0 auto;display:grid;gap:16px}
+h1{font-size:20px;margin:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+label{display:block;font-size:13px;color:var(--mute);margin-bottom:4px}
+input[type=text],select,textarea{width:100%;background:#0d0f14;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit}
+textarea{font-family:ui-monospace,Consolas,monospace;font-size:13px;min-height:190px;resize:vertical;white-space:pre}
+.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+button,.file{background:#222733;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:8px 14px;font:inherit;cursor:pointer}
+button.p{background:var(--acc);color:#1a1005;border-color:var(--acc);font-weight:600}
+.file input{display:none}
+.hint{font-size:13px;color:var(--mute);margin:8px 0 0}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{flex:1;border:0;border-radius:0;background:#0d0f14;padding:9px 6px;font-size:13px}
+.seg button.on{background:var(--acc);color:#1a1005;font-weight:700}
+.prev{overflow-x:auto}
+.prev svg{display:block;width:100%;height:auto;border-radius:12px}
+@media(max-width:750px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Generador de Leaderboard</h1>
+<div class="card">
+  <div class="row">
+    <div><label>Título (línea 1)</label><input type="text" id="t1" value="LEADERBOARD COMPLETA"></div>
+    <div><label>Título (línea 2)</label><input type="text" id="t2" value="MÁXIMOS - CALISTENIA"></div>
+    <div>
+      <label>Sistema de puntaje (posiciones generales)</label>
+      <div class="seg" id="gseg"><button data-v="pos" class="on">Puntos fijos</button><button data-v="rel">Porcentual</button><button data-v="none">Ocultar</button></div>
+      <input type="hidden" id="gmode" value="pos">
+    </div>
+  </div>
+  <label>Datos: primera fila = ejercicios, primera columna = nombres (pegá desde Excel o separá con coma, punto y coma o tab)</label>
+  <textarea id="data" spellcheck="false"></textarea>
+  <div class="btns">
+    <label class="file">📂 Cargar Excel / CSV<input type="file" id="file" accept=".xlsx,.xls,.csv,.tsv"></label>
+    <button class="p" id="svg">⬇ Descargar SVG</button>
+    <button id="png">⬇ Descargar PNG</button>
+  </div>
+  <p class="hint">Los íconos se eligen solos según el nombre del ejercicio. Se ordena de mayor a menor automáticamente. Los empates comparten puesto (1º, 2º, 2º, 4º…). Las celdas vacías se omiten.</p>
+</div>
+<div class="card prev" id="prev"></div>
+</div>
+<script>
+const SAMPLE=`Nombre\tDominadas pronas\tFondos paralelas\tLagartijas\tDominadas supinas
+F😀\t27\t43\t40\t21
+ANT\t17\t17\t28\t16
+LD🙂\t14\t12\t40\t13
+JP\t13\t11\t14\t12
+HS\t13\t23\t41\t10
+S\t12\t17\t36\t13
+RT\t11\t17\t33\t11
+BO\t11\t18\t40\t9
+T\t9\t18\t24\t10`;
+
+const COLORS = ['#ff8a2a', '#818cf8', '#2dd4bf', '#38bdf8'];
+const MEDAL={1:'#f5c542',2:'#c9ced6',3:'#cd7f32'};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+$('data').value=SAMPLE;
+$('gseg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$('gmode').value=b.dataset.v;[...$('gseg').children].forEach(x=>x.classList.toggle('on',x===b));render();});
+
+function splitLeadingEmoji(str){
+  const s=String(str||'').trim();
+  if(!s) return {em:'', text:''};
+  const m=s.match(/^(\p{Extended_Pictographic}\uFE0F?)\s*/u);
+  if(m) return {em:m[1], text:s.slice(m[0].length)};
+  return {em:'', text:s};
+}
+
+function parse(txt){
+  const lines=String(txt||'').split(/\r?\n/).filter(l=>l.trim()!=='');
+  if(!lines.length) return [];
+  const first=lines[0];
+  const d=first.includes('\t')?'\t':first.includes(';')?';':first.includes(',')?',':'\t';
+  return lines.map(l=>l.split(d).map(c=>c.trim()));
+}
+
+function parseNum(val){
+  if(val===undefined||val===null) return NaN;
+  const clean=String(val).trim().replace(',','.');
+  if(clean==='') return NaN;
+  const m=clean.match(/-?\d+(\.\d+)?/);
+  return m ? parseFloat(m[0]) : NaN;
+}
+
+function icon(h,x,y,col){
+  const k=h.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const g=`<g transform="translate(${x},${y})" fill="none" stroke="${col}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">`;
+  const dumb=g+'<path d="M10 20H30M10 11V29M30 11V29M5 15V25M35 15V25"/></g>';
+  if(/pesa|press|curl/.test(k)) return dumb;
+  if(/domin|pull|barra/.test(k)) return g+'<path d="M3 6H37M7 6V37M33 6V37"/></g>';
+  if(/fondo|dip|paralela/.test(k)) return g+'<path d="M5 13H18M11 13V37M22 13H35M29 13V37"/></g>';
+  if(/lagart|flexion|push|plancha/.test(k)) return g+'<circle cx="8" cy="15" r="3.5"/><path d="M13 19L35 27M15 21V33M3 35H38"/></g>';
+  return dumb;
+}
+
+function wrap(h){
+  if(h.length<=14||!h.includes(' ')) return [h];
+  const mid=h.length/2;let best=-1;
+  for(let i=0;i<h.length;i++) if(h[i]===' '&&(best<0||Math.abs(i-mid)<Math.abs(best-mid))) best=i;
+  return [h.slice(0,best),h.slice(best+1)];
+}
+
+function splitMid(h){
+  const parts=h.split(/\s+/);
+  if(parts.length<2) return [h];
+  const mid=h.length/2;let acc=0,cut=1;
+  for(let i=0;i<parts.length-1;i++){acc+=parts[i].length+1;if(acc<=mid+2)cut=i+1}
+  return [parts.slice(0,cut).join(' '),parts.slice(cut).join(' ')];
+}
+
+function build(){
+  const rows=parse($('data').value);
+  if(rows.length<2) return null;
+
+  const rawHeads=rows[0].slice(1);
+  const cols=[];
+  rawHeads.forEach((h,idx)=>{
+    if(!h) return;
+    const colIdx=idx+1;
+    const list=rows.slice(1).map(r=>({
+      n:r[0],
+      v:parseNum(r[colIdx])
+    })).filter(x=>x.n && !isNaN(x.v));
+    list.sort((a,b)=>b.v-a.v);
+    list.forEach((x,k)=>{x.r=(k&&list[k-1].v===x.v)?list[k-1].r:k+1});
+    if(list.length>0) cols.push({h,list});
+  });
+
+  if(!cols.length) return null;
+
+  const CW=250,GAP=22,PAD=36,RH=58,PER=4,TOP=150;
+  const n=Math.min(cols.length,PER);
+  const W=Math.max(750,PAD*2+n*CW+(n-1)*GAP);
+  let y=TOP,body='';
+
+  // --- 1. COLUMNAS DE LAS CATEGORÍAS INDIVIDUALES (PRIMERO ARRIBA) ---
+  const chunks=[];
+  for(let i=0;i<cols.length;i+=PER) chunks.push(cols.slice(i,i+PER));
+  let maxIndividualHeight = 0;
+  chunks.forEach((ch,ci)=>{
+    const mx=Math.max(...ch.map(c=>c.list.length),1);
+    const ph=84+mx*RH+10;
+    maxIndividualHeight = Math.max(maxIndividualHeight, ph);
+    const tw=ch.length*CW+(ch.length-1)*GAP;
+    const x0=(W-tw)/2;
+    ch.forEach((c,k)=>{
+      const x=x0+k*(CW+GAP),col=COLORS[(ci*PER+k)%4];
+      body+=`<rect x="${x}" y="${y}" width="${CW}" height="${ph}" rx="16" fill="#000" fill-opacity=".38" stroke="${col}" stroke-width="2.5"/>`;
+      const sp=splitLeadingEmoji(c.h);
+      const label=sp.text;
+      body+=sp.em?`<text x="${x+34}" y="${y+45}" text-anchor="middle" font-size="30">${esc(sp.em)}</text>`:icon(c.h,x+14,y+14,col);
+      const hl=wrap(label.toUpperCase());
+      hl.forEach((t,j)=>body+=`<text x="${x+62}" y="${y+(hl.length>1?34+j*22:46)}" text-anchor="start" font-size="19" font-weight="800" font-style="italic" fill="#fff">${esc(t)}</text>`);
+      c.list.forEach((p,j)=>{
+        const yy=y+76+j*RH,bx=x+60;
+        if(p.r<=3) body+=`<circle cx="${x+34}" cy="${yy+25}" r="19" fill="${MEDAL[p.r]}" stroke="#fff" stroke-opacity=".5"/><text x="${x+34}" y="${yy+33}" text-anchor="middle" font-size="22" font-weight="800" fill="#1b1b1b">${p.r}</text>`;
+        else body+=`<text x="${x+34}" y="${yy+34}" text-anchor="middle" font-size="24" font-weight="800" fill="#fff">${p.r}º</text>`;
+        const hi=p.r<=3;
+        body+=`<rect x="${bx}" y="${yy}" width="176" height="50" rx="8" fill="#1a1d26" stroke="${hi?col:'#3a4050'}" stroke-width="${hi?2:1.5}"/>`;
+        body+=`<rect x="${bx+120}" y="${yy+1}" width="55" height="48" rx="7" fill="#07080b"/>`;
+        const fs=p.n.length>10?15:p.n.length>6?20:26;
+        body+=`<text x="${bx+60}" y="${yy+25+fs*0.35}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
+        body+=`<text x="${bx+148}" y="${yy+34}" text-anchor="middle" font-size="26" font-weight="800" fill="${col}">${esc(+p.v.toFixed(2))}</text>`;
+      });
+    });
+    y+=ph+GAP;
+  });
+
+  // --- 2. BLOQUE LEADERBOARD GENERAL (ABAJO) ---
+  const gmode=$('gmode').value;
+  if(gmode!=='none' && cols.length>0){
+    const names=[];
+    rows.slice(1).forEach(r=>{
+      if(r[0] && !names.includes(r[0])) names.push(r[0]);
+    });
+    const totalAthletes=names.length;
+
+    const glist=names.map(name=>{
+      let pts=0;
+      const reps=cols.map(c=>{
+        const maxV=c.list[0] ? c.list[0].v : 0;
+        const entry=c.list.find(x=>x.n===name);
+        if(entry && maxV>0){
+          if(gmode==='pos') pts+=(totalAthletes - entry.r + 1);
+          else if(gmode==='rel') pts+=(entry.v / maxV)*(100 / cols.length);
+          return {v:entry.v, r:entry.r};
+        }
+        return null;
+      });
+      return {n:name, pts, reps};
+    }).filter(x=>x.pts>0);
+
+    glist.sort((a,b)=>b.pts-a.pts);
+    glist.forEach((x,k)=>{
+      x.r=(k && Math.abs(glist[k-1].pts - x.pts)<0.001)?glist[k-1].r:k+1;
+    });
+
+    const GW = n*CW + (n-1)*GAP;
+    const gx0 = (W - GW)/2;
+    const GCOL = '#f5c542'; 
+    const GR=52;
+    const sub = gmode==='pos'
+      ? `Puntos fijos: el 1º de cada ejercicio suma ${totalAthletes} pts, el 2º ${totalAthletes-1}, y así sucesivamente`
+      : `Porcentual: cada ejercicio aporta hasta ${+(100/cols.length).toFixed(1)} pts según la marca respecto al 1º`;
+    y += 12;
+    body+=`<text x="${W/2}" y="${y+34}" text-anchor="middle" font-size="36" font-weight="900" font-style="italic" fill="#fff">POSICIONES GENERALES</text>`;
+    body+=`<rect x="${W/2-44}" y="${y+46}" width="88" height="4" rx="2" fill="${GCOL}"/>`;
+    body+=`<text x="${W/2}" y="${y+74}" text-anchor="middle" font-size="14" fill="#9aa1b0">${esc(sub)}</text>`;
+    y += 98;
+    const gph = 100 + glist.length*GR + 10;
+
+    // Tarjeta general con borde dorado reforzado (stroke-width=3.5)
+    body+=`<rect x="${gx0}" y="${y}" width="${GW}" height="${gph}" rx="16" fill="#000" fill-opacity=".5" stroke="${GCOL}" stroke-width="3.5"/>`;
+    body+=`<text x="${gx0+38}" y="${y+44}" text-anchor="middle" font-size="28">🏆</text>`;
+    const gTitle = gmode==='pos' ? 'PUNTOS ACUMULADOS' : 'ÍNDICE PORCENTUAL';
+    body+=`<text x="${gx0+68}" y="${y+43}" text-anchor="start" font-size="20" font-weight="900" font-style="italic" fill="${GCOL}">${esc(gTitle)}</text>`;
+
+    const rowX = gx0 + 20;
+    const rowW = GW - 40;
+    const ptsW = 105;
+    const nameW = Math.min(230, Math.max(150, Math.floor(rowW * 0.28)));
+    const exAreaW = rowW - nameW - ptsW;
+    const exW = cols.length > 0 ? exAreaW / cols.length : 0;
+
+    cols.forEach((c, ci)=>{
+      const cx = rowX + nameW + ci*exW + exW/2;
+      const fs=exW<100?10:12, mc=Math.max(5,Math.floor(exW/(fs*0.68)));
+      const lines=splitMid(splitLeadingEmoji(c.h).text.toUpperCase()).map(t=>t.length>mc?t.slice(0,mc-1)+'.':t);
+      lines.forEach((t,j)=>body+=`<text x="${cx}" y="${y+(lines.length>1?68:75)+j*14}" text-anchor="middle" font-size="${fs}" font-weight="700" fill="${COLORS[ci%4]}" letter-spacing="0.5">${esc(t)}</text>`);
+    });
+    const ptsLabel = gmode==='pos' ? 'PTS' : 'ÍNDICE';
+    body+=`<text x="${rowX + rowW - ptsW/2}" y="${y+75}" text-anchor="middle" font-size="12" font-weight="900" fill="${GCOL}" letter-spacing="0.5">${ptsLabel}</text>`;
+
+    glist.forEach((p, j)=>{
+      const yy = y + 92 + j*GR;
+      const hi = p.r <= 3;
+      const rowBg = j%2===0 ? '#141720' : '#11141b';
+
+      body+=`<rect x="${rowX}" y="${yy}" width="${rowW}" height="44" rx="6" fill="${rowBg}" stroke="${hi?MEDAL[p.r]:'#222733'}" stroke-width="${hi?1.5:1}"/>`;
+
+      if(hi){
+        body+=`<circle cx="${rowX+22}" cy="${yy+22}" r="15" fill="${MEDAL[p.r]}" stroke="#fff" stroke-opacity=".4"/>`;
+        body+=`<text x="${rowX+22}" y="${yy+28}" text-anchor="middle" font-size="16" font-weight="800" fill="#1b1b1b">${p.r}</text>`;
+      }else{
+        body+=`<text x="${rowX+22}" y="${yy+28}" text-anchor="middle" font-size="16" font-weight="700" fill="#8b93a6">${p.r}º</text>`;
+      }
+
+      body+=`<text x="${rowX+50}" y="${yy+28}" text-anchor="start" font-size="17" font-weight="700" fill="#fff">${esc(p.n)}</text>`;
+
+      p.reps.forEach((rep, ci)=>{
+        const cellX = rowX + nameW + ci*exW;
+        const cx = cellX + exW/2;
+        if(rep){
+          const rStr = `${+rep.v.toFixed(1)}`;
+          body+=`<text x="${cx}" y="${yy+28}" text-anchor="middle" font-size="15" font-weight="600" fill="#9aa1b0">${esc(rStr)}</text>`;
+        }else{
+          body+=`<text x="${cx}" y="${yy+28}" text-anchor="middle" font-size="15" font-weight="600" fill="#444">-</text>`;
+        }
+      });
+
+      const ptsX = rowX + rowW - ptsW;
+      const valStr = gmode==='pos' ? String(Math.round(p.pts)) : p.pts.toFixed(1);
+      body+=`<text x="${ptsX + ptsW/2}" y="${yy+29}" text-anchor="middle" font-size="20" font-weight="900" fill="${GCOL}">${esc(valStr)}</text>`;
+    });
+
+    y += gph + GAP + 6;
+  }
+
+  const H=y-GAP+34;
+  const head=`<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1f2b"/><stop offset=".5" stop-color="#0b0d12"/><stop offset="1" stop-color="#05060a"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#bg)"/><text x="${W/2}" y="70" text-anchor="middle" font-size="46" font-weight="900" font-style="italic" fill="#fff">${esc($('t1').value)}</text><text x="${W/2}" y="124" text-anchor="middle" font-size="46" font-weight="900" font-style="italic" fill="#fff">${esc($('t2').value)}</text>`;
+  return {svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif">${head}${body}</svg>`,W,H};
+}
+
+let cur=null;
+function render(){
+  try{
+    cur=build();
+    $('prev').innerHTML=cur?cur.svg:'<p class="hint">Agregá al menos una fila de encabezados y una de datos válidos.</p>';
+  }catch(e){
+    $('prev').innerHTML='<p class="hint" style="color:#ff6b6b">Error al procesar los datos: '+esc(e.message)+'</p>';
+  }
+}
+['t1','t2','data','gmode'].forEach(i=>$(i).addEventListener('input',render));
+
+$('file').addEventListener('change',async e=>{
+  const f=e.target.files[0];if(!f) return;
+  try{
+    const wb=XLSX.read(await f.arrayBuffer(),{type:'array'});
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});
+    $('data').value=rows.map(r=>r.join('\t')).join('\n');
+    render();
+  }catch(err){alert('No pude leer el archivo.')}
+  e.target.value='';
+});
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+$('svg').onclick=()=>{if(cur) dl(new Blob([cur.svg],{type:'image/svg+xml'}),'leaderboard.svg')};$('png').onclick=()=>{
+  if(!cur) return;
+  const s=cur.svg.replace('<svg ',`<svg width="${cur.W}" height="${cur.H}" `);
+  const img=new Image();
+  img.onload=()=>{
+    const c=document.createElement('canvas');c.width=cur.W*2;c.height=cur.H*2;
+    const x=c.getContext('2d');x.scale(2,2);x.drawImage(img,0,0,cur.W,cur.H);
+    c.toBlob(b=>dl(b,'leaderboard.png'));
+  };
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s);
+};
+render();
+</script>
+</body>
+</html>
