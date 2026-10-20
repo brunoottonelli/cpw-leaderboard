@@ -1,0 +1,20 @@
+{
+  "exercises": [
+    {
+      "id": "dominadas_pronas",
+      "name": "Dominadas pronas"
+    },
+    {
+      "id": "fondos",
+      "name": "Fondos en paralelas"
+    },
+    {
+      "id": "lagartijas",
+      "name": "Lagartijas"
+    },
+    {
+      "id": "dominadas_supinas",
+      "name": "Dominadas supinas"
+    }
+  ]
+}

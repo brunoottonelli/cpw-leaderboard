@@ -1,0 +1,95 @@
+{
+  "period": "2026-10-19",
+  "athletes": [
+    {
+      "name": "Fabri",
+      "es_profe": true,
+      "results": {
+        "dominadas_pronas": 27,
+        "fondos": 43,
+        "lagartijas": 40,
+        "dominadas_supinas": 21
+      }
+    },
+    {
+      "name": "Tadeo",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 17,
+        "fondos": 17,
+        "lagartijas": 28,
+        "dominadas_supinas": 16
+      }
+    },
+    {
+      "name": "Lucía",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 14,
+        "fondos": 12,
+        "lagartijas": 40,
+        "dominadas_supinas": 13
+      }
+    },
+    {
+      "name": "Joaquín",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 13,
+        "fondos": 11,
+        "lagartijas": 14,
+        "dominadas_supinas": 12
+      }
+    },
+    {
+      "name": "Maxi",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 13,
+        "fondos": 23,
+        "lagartijas": 41,
+        "dominadas_supinas": 10
+      }
+    },
+    {
+      "name": "S",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 12,
+        "fondos": 17,
+        "lagartijas": 36,
+        "dominadas_supinas": 13
+      }
+    },
+    {
+      "name": "RT",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 11,
+        "fondos": 17,
+        "lagartijas": 33,
+        "dominadas_supinas": 11
+      }
+    },
+    {
+      "name": "Bruno",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 11,
+        "fondos": 18,
+        "lagartijas": 40,
+        "dominadas_supinas": 9
+      }
+    },
+    {
+      "name": "Tony",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 9,
+        "fondos": 18,
+        "lagartijas": 24,
+        "dominadas_supinas": 10
+      }
+    }
+  ]
+}
