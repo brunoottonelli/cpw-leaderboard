@@ -1,10 +1,15 @@
 // Criterios de puntuación para el Leaderboard General
 // Cada criterio define su etiqueta en el selector, el título de la tarjeta,
-// la descripción (subtítulo) y la función que calcula los puntos de un atleta por ejercicio.
+// la descripción (subtítulo) y la función que calcula los puntos de un atleta.
+//
+// PARÁMETRO 'enabled':
+// Si se establece en false, ese criterio no es tenido en cuenta (queda completamente
+// deshabilitado: no aparece en el selector y se omite en todos los cálculos).
 
 window.SCORING_CRITERIA = {
   pos: {
     id: 'pos',
+    enabled: true, // Si es false, este criterio queda deshabilitado
     btnLabel: 'PUNTOS FIJOS',
     cardTitle: 'PUNTOS ACUMULADOS',
     ptsColumnHeader: 'PTS',
@@ -38,6 +43,7 @@ window.SCORING_CRITERIA = {
 
   rel: {
     id: 'rel',
+    enabled: false, // Si es false, este criterio queda deshabilitado
     btnLabel: 'RELATIVO AL LÍDER',
     cardTitle: 'ÍNDICE RELATIVO AL LÍDER',
     ptsColumnHeader: 'ÍNDICE',
@@ -54,6 +60,44 @@ window.SCORING_CRITERIA = {
       if (maxV <= 0) return 0;
       const weight = 100 / totalExercises;
       return (entry.v / maxV) * weight;
+    }
+  },
+
+  geom: {
+    id: 'geom',
+    enabled: true, // Si es false, este criterio queda deshabilitado
+    btnLabel: 'BALANCEADO',
+    cardTitle: 'PUNTUACIÓN BALANCEADA',
+    ptsColumnHeader: 'PTS',
+    getSubtitle: function (totalAthletes, totalExercises) {
+      return `Para ser el mejor, hay que ser bueno en todo, no solo en algunos ejercicios.\n El ranking compara el rendimiento de cada atleta con el del mejor en cada ejercicio y luego los combina en un único resultado. De esta forma, un rendimiento destacado en un solo ejercicio no da tanta ventaja si no se obtienen buenos resultados en general.`;
+    },
+    formatScore: function (pts) {
+      return pts.toFixed(1);
+    },
+    // Proporción individual respecto al líder (de 0 a 1)
+    calcExercisePoints: function (entry, col, totalAthletes, totalExercises) {
+      const maxV = col.list[0] ? col.list[0].v : 0;
+      return maxV > 0 ? (entry.v / maxV) : 0;
+    },
+    // Calcula la media geométrica de los porcentajes contra el líder en cada ejercicio:
+    // (p1 * p2 * ... * pn)^(1/n) expresado en escala porcentual (0 a 100%)
+    calcAthleteScore: function (reps, cols, totalAthletes) {
+      const n = cols.length;
+      if (n === 0) return 0;
+      let product = 1;
+      let count = 0;
+      for (let i = 0; i < n; i++) {
+        const c = cols[i];
+        const maxV = c.list[0] ? c.list[0].v : 0;
+        const rep = reps[i];
+        const val = (rep && rep.v > 0) ? rep.v : 0;
+        const ratio = maxV > 0 ? (val / maxV) : 0;
+        product *= ratio;
+        if (val > 0) count++;
+      }
+      if (count === 0 || product <= 0) return 0;
+      return Math.pow(product, 1 / n) * 100;
     }
   }
 };

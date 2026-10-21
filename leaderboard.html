@@ -450,6 +450,28 @@
       return (text || '').length * 9.5;
     }
 
+    function wrapText(text, maxW, font) {
+      if (!text) return [];
+      const paragraphs = String(text).split('\n');
+      const lines = [];
+      paragraphs.forEach(p => {
+        const words = p.trim().split(/\s+/);
+        if (words.length === 0 || words[0] === '') return;
+        let curLine = words[0];
+        for (let i = 1; i < words.length; i++) {
+          const testLine = curLine + ' ' + words[i];
+          if (getTextWidth(testLine, font) <= maxW) {
+            curLine = testLine;
+          } else {
+            lines.push(curLine);
+            curLine = words[i];
+          }
+        }
+        if (curLine) lines.push(curLine);
+      });
+      return lines;
+    }
+
     function buildSvg(recordData, exercisesData, periodStr) {
       if (!recordData || !recordData.athletes || !recordData.athletes.length) return null;
 
@@ -563,8 +585,22 @@
       });
 
       // --- 2. BLOQUE LEADERBOARD GENERAL (ABAJO) ---
+      const rawCrit = window.SCORING_CRITERIA || { pos: { btnLabel: 'PUNTOS FIJOS' }, rel: { btnLabel: 'RELATIVO AL LÍDER' } };
+      const allCrit = {};
+      Object.keys(rawCrit).forEach(k => {
+        const c = rawCrit[k];
+        if (c && c.enabled !== false && c.activo !== false && c.habilitado !== false && !c.disabled) {
+          allCrit[k] = c;
+        }
+      });
+
+      const critKeys = Object.keys(allCrit);
+      if (!allCrit[currentGmode] && critKeys.length > 0) {
+        currentGmode = critKeys[0];
+      }
+
       const gmode = currentGmode;
-      const criteria = (window.SCORING_CRITERIA && window.SCORING_CRITERIA[gmode]) || {
+      const criteria = allCrit[gmode] || {
         btnLabel: gmode.toUpperCase(),
         cardTitle: 'POSICIONES GENERALES',
         ptsColumnHeader: 'PTS',
@@ -586,16 +622,23 @@
         const totalAthletes = athletesMap.size;
 
         const glist = Array.from(athletesMap.entries()).map(([name, es_profe]) => {
-          let pts = 0;
           const reps = cols.map(c => {
             const entry = c.list.find(x => x.n === name);
-            if (entry) {
-              const gained = criteria.calcExercisePoints(entry, c, totalAthletes, cols.length);
-              pts += gained;
-              return { v: entry.v, r: entry.r };
-            }
-            return null;
+            return entry ? { v: entry.v, r: entry.r } : null;
           });
+
+          let pts = 0;
+          if (typeof criteria.calcAthleteScore === 'function') {
+            pts = criteria.calcAthleteScore(reps, cols, totalAthletes);
+          } else {
+            cols.forEach((c, idx) => {
+              const entry = reps[idx];
+              if (entry) {
+                const gained = criteria.calcExercisePoints(entry, c, totalAthletes, cols.length);
+                pts += gained;
+              }
+            });
+          }
           return { n: name, es_profe, pts, reps };
         }).filter(x => x.pts > 0);
 
@@ -614,10 +657,15 @@
         y += 55;
         body += `<text x="${W / 2}" y="${y + 36}" text-anchor="middle" font-size="36" font-weight="900" font-style="italic" fill="#fff">POSICIONES GENERALES</text>`;
         body += `<rect x="${W / 2 - 44}" y="${y + 50}" width="88" height="4" rx="2" fill="${GCOL}"/>`;
-        body += `<text x="${W / 2}" y="${y + 80}" text-anchor="middle" font-size="14" fill="#9aa1b0">${esc(sub)}</text>`;
+        // Subtítulo más angosto y contenido en el centro
+        const maxSubW = Math.min(GW * 0.68, 700);
+        const subLines = wrapText(sub, maxSubW, "14px 'Segoe UI', Arial, sans-serif");
+        subLines.forEach((sLine, sIdx) => {
+          body += `<text x="${W / 2}" y="${y + 78 + sIdx * 20}" text-anchor="middle" font-size="14" fill="#9aa1b0">${esc(sLine)}</text>`;
+        });
 
         // Espacio generoso entre el subtítulo y la tarjeta dorada
-        y += 114;
+        y += 114 + (subLines.length > 1 ? (subLines.length - 1) * 20 : 0);
 
         // Tarjeta con más aire vertical interno
         const gph = 150 + glist.length * GR + 14;
@@ -626,9 +674,8 @@
         body += `<text x="${gx0 + 74}" y="${y + 47}" text-anchor="start" font-size="21" font-weight="900" font-style="italic" fill="${GCOL}">${esc(criteria.cardTitle)}</text>`;
 
         // Selector dinámico según los criterios disponibles
-        const allCrit = window.SCORING_CRITERIA || { pos: { btnLabel: 'PUNTOS FIJOS' }, rel: { btnLabel: 'RELATIVO AL LÍDER' } };
-        const critKeys = Object.keys(allCrit);
-        const btnGroupW = 280, btnGroupH = 34;
+        const btnGroupW = Math.min(GW - 360, Math.max(280, critKeys.length * 120));
+        const btnGroupH = 34;
         const btnGroupX = gx0 + GW - 24 - btnGroupW;
         const btnGroupY = y + 25;
         const btnW = btnGroupW / Math.max(critKeys.length, 1);
@@ -640,9 +687,11 @@
           const isSel = gmode === key;
           const crit = allCrit[key];
           const bx = idx * btnW;
+          const fs = btnW < 95 ? 9 : (btnW < 110 ? 10 : (btnW < 125 ? 10.5 : 11));
+          const ls = btnW < 110 ? 0.2 : 0.5;
           body += `<g class="svg-mode-btn" data-mode="${esc(key)}">
             <rect x="${bx + 2}" y="2" width="${btnW - 4}" height="${btnGroupH - 4}" rx="6" fill="${isSel ? '#f5c542' : 'transparent'}"/>
-            <text x="${bx + btnW / 2}" y="21" text-anchor="middle" font-size="11" font-weight="${isSel ? '800' : '600'}" fill="${isSel ? '#1a1005' : '#9aa1b0'}" letter-spacing="0.5">${esc(crit.btnLabel || key.toUpperCase())}</text>
+            <text x="${bx + btnW / 2}" y="21" text-anchor="middle" font-size="${fs}" font-weight="${isSel ? '800' : '600'}" fill="${isSel ? '#1a1005' : '#9aa1b0'}" letter-spacing="${ls}">${esc(crit.btnLabel || key.toUpperCase())}</text>
           </g>`;
         });
 
