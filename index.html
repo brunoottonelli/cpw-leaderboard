@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Leaderboard - Calistenia</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -43,17 +44,17 @@
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 12px
+      gap: 16px;
     }
 
     h1 {
-      font-size: 24px;
+      font-size: 22px;
       margin: 0;
       display: flex;
       align-items: center;
       gap: 10px;
       font-weight: 800;
-      letter-spacing: -0.5px
+      letter-spacing: -0.5px;
     }
 
     h1 span {
@@ -67,105 +68,154 @@
       padding: 20px 24px
     }
 
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
+    .header-controls {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .header-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-label {
+      font-size: 11px;
+      font-weight: 700;
       color: var(--mute);
-      margin-bottom: 8px;
       text-transform: uppercase;
-      letter-spacing: 0.6px
+      letter-spacing: 0.6px;
+      white-space: nowrap;
     }
 
     select {
-      width: 100%;
-      background: #0d0f14;
+      background: #171a22;
       color: var(--tx);
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 9px 14px;
+      padding: 7px 12px;
       font: inherit;
+      font-size: 13px;
       cursor: pointer;
       outline: none;
-      transition: border-color .15s ease
+      transition: border-color .15s ease;
     }
 
     select:focus {
-      border-color: var(--acc)
-    }
-
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 24px
-    }
-
-    .ctrl-left {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      gap: 28px
-    }
-
-    .ctrl-group {
-      min-width: 200px
-    }
-
-    .btns {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px
-    }
-
-    button {
-      background: #222733;
-      color: var(--tx);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 9px 16px;
-      font: inherit;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: all .15s ease
-    }
-
-    button:hover {
-      background: #2b3242;
-      border-color: #3d4557
-    }
-
-    button.p {
-      background: var(--acc);
-      color: #1a1005;
       border-color: var(--acc);
-      font-weight: 700
-    }
-
-    button.p:hover {
-      background: #ff9a47;
-      border-color: #ff9a47
     }
 
     .toggle-label {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      font-size: 14px;
+      gap: 7px;
+      font-size: 13px;
       color: var(--tx);
       cursor: pointer;
       user-select: none;
-      padding: 8px 0
+      background: #171a22;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 6px 12px;
+      transition: border-color .15s ease, background .15s ease;
+    }
+
+    .toggle-label:hover {
+      border-color: #3d4557;
     }
 
     .toggle-label input {
       accent-color: var(--acc);
-      width: 17px;
-      height: 17px;
-      cursor: pointer
+      width: 15px;
+      height: 15px;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    /* Export dropdown */
+    .export-dropdown {
+      position: relative;
+    }
+
+    .btn-export {
+      background: var(--acc);
+      color: #1a1005;
+      border: 1px solid var(--acc);
+      border-radius: 8px;
+      padding: 7px 13px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .15s ease, border-color .15s ease;
+    }
+
+    .btn-export:hover {
+      background: #ff9a47;
+      border-color: #ff9a47;
+    }
+
+    .btn-export svg {
+      width: 15px;
+      height: 15px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .export-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: #171a22;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      min-width: 150px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      padding: 6px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 100;
+    }
+
+    .export-menu.show {
+      display: flex;
+    }
+
+    .export-menu button {
+      background: transparent;
+      border: none;
+      color: var(--tx);
+      border-radius: 6px;
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background .15s ease, color .15s ease;
+    }
+
+    .export-menu button:hover {
+      background: #252b38;
+      color: var(--acc);
+    }
+
+    .export-menu button span.ext {
+      font-size: 11px;
+      color: var(--mute);
+      text-transform: uppercase;
+      font-weight: 600;
     }
 
     .prev {
@@ -229,21 +279,14 @@
     }
 
     @media(max-width:750px) {
-      .controls {
+      .header {
         flex-direction: column;
-        align-items: stretch;
-        gap: 16px
+        align-items: flex-start;
+        gap: 14px;
       }
-      .ctrl-left {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 16px
-      }
-      .btns {
-        width: 100%
-      }
-      .btns button {
-        flex: 1
+      .header-controls {
+        width: 100%;
+        justify-content: space-between;
       }
     }
   </style>
@@ -253,32 +296,38 @@
   <div class="wrap">
     <div class="header">
       <h1>🏆 <span>CPW</span> LEADERBOARD</h1>
-    </div>
 
-    <div class="card">
-      <div class="controls">
-        <div class="ctrl-left">
-          <div class="ctrl-group">
-            <label for="periodSelect">Período / Fecha</label>
-            <select id="periodSelect">
-              <option value="">Cargando períodos...</option>
-            </select>
-          </div>
-
-          <div class="ctrl-group">
-            <label>Filtro</label>
-            <label class="toggle-label">
-              <input type="checkbox" id="profeCheck" checked>
-              <span>Incluir profesores</span>
-            </label>
-          </div>
+      <div class="header-controls">
+        <div class="header-item">
+          <label class="header-label" for="periodSelect">Período:</label>
+          <select id="periodSelect">
+            <option value="">Cargando períodos...</option>
+          </select>
         </div>
 
-        <div class="ctrl-group">
-          <label>Exportar</label>
-          <div class="btns">
-            <button class="p" id="svgBtn">⬇ SVG</button>
-            <button id="pngBtn">⬇ PNG</button>
+        <label class="toggle-label" title="Mostrar u ocultar profesores">
+          <input type="checkbox" id="profeCheck" checked>
+          <span>Profesores</span>
+        </label>
+
+        <div class="export-dropdown">
+          <button class="btn-export" id="exportBtn" type="button" aria-haspopup="true" aria-expanded="false" title="Exportar leaderboard">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            <span>Exportar</span>
+          </button>
+          <div class="export-menu" id="exportMenu">
+            <button type="button" id="pdfBtn">
+              <span>Documento</span>
+              <span class="ext">PDF</span>
+            </button>
+            <button type="button" id="pngBtn">
+              <span>Imagen</span>
+              <span class="ext">PNG</span>
+            </button>
+            <button type="button" id="svgBtn">
+              <span>Vector</span>
+              <span class="ext">SVG</span>
+            </button>
           </div>
         </div>
       </div>
@@ -737,6 +786,23 @@
         }
       });
 
+      // Export Dropdown
+      const exportBtn = $('exportBtn');
+      const exportMenu = $('exportMenu');
+
+      exportBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = exportMenu.classList.toggle('show');
+        exportBtn.setAttribute('aria-expanded', isOpen);
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.export-dropdown')) {
+          exportMenu.classList.remove('show');
+          exportBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+
       // Download buttons
       function dl(blob, name) {
         const a = document.createElement('a');
@@ -747,6 +813,8 @@
       }
 
       $('svgBtn').onclick = () => {
+        exportMenu.classList.remove('show');
+        exportBtn.setAttribute('aria-expanded', 'false');
         if (curSvg) {
           const filename = `leaderboard-${currentPeriod || 'export'}.svg`;
           dl(new Blob([curSvg.svg], { type: 'image/svg+xml' }), filename);
@@ -754,6 +822,8 @@
       };
 
       $('pngBtn').onclick = () => {
+        exportMenu.classList.remove('show');
+        exportBtn.setAttribute('aria-expanded', 'false');
         if (!curSvg) return;
         const s = curSvg.svg.replace('<svg ', `<svg width="${curSvg.W}" height="${curSvg.H}" `);
         const img = new Image();
@@ -765,6 +835,36 @@
           x.scale(2, 2);
           x.drawImage(img, 0, 0, curSvg.W, curSvg.H);
           c.toBlob(b => dl(b, `leaderboard-${currentPeriod || 'export'}.png`));
+        };
+        img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
+      };
+
+      $('pdfBtn').onclick = () => {
+        exportMenu.classList.remove('show');
+        exportBtn.setAttribute('aria-expanded', 'false');
+        if (!curSvg) return;
+
+        const s = curSvg.svg.replace('<svg ', `<svg width="${curSvg.W}" height="${curSvg.H}" `);
+        const img = new Image();
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = curSvg.W * 2;
+          c.height = curSvg.H * 2;
+          const x = c.getContext('2d');
+          x.scale(2, 2);
+          x.drawImage(img, 0, 0, curSvg.W, curSvg.H);
+
+          const imgData = c.toDataURL('image/png');
+          const orientation = curSvg.W > curSvg.H ? 'l' : 'p';
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({
+            orientation,
+            unit: 'px',
+            format: [curSvg.W, curSvg.H]
+          });
+
+          pdf.addImage(imgData, 'PNG', 0, 0, curSvg.W, curSvg.H);
+          pdf.save(`leaderboard-${currentPeriod || 'export'}.pdf`);
         };
         img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
       };
