@@ -567,7 +567,7 @@
         const GR = 54;
         const sub = gmode === 'pos'
           ? `Puntos fijos: el 1º de cada ejercicio suma ${totalAthletes} pts, el 2º ${totalAthletes - 1}, y así sucesivamente`
-          : `Porcentual: cada ejercicio aporta hasta ${+(100 / cols.length).toFixed(1)} pts según la marca respecto al 1º`;
+          : `Relativo al líder: cada ejercicio aporta hasta ${+(100 / cols.length).toFixed(1)} pts según la marca respecto al 1º`;
 
         // Más aire antes de POSICIONES GENERALES
         y += 55;
@@ -582,11 +582,11 @@
         const gph = 150 + glist.length * GR + 14;
         body += `<rect x="${gx0}" y="${y}" width="${GW}" height="${gph}" rx="18" fill="#000" fill-opacity=".5" stroke="${GCOL}" stroke-width="3.5"/>`;
         body += `<text x="${gx0 + 42}" y="${y + 48}" text-anchor="middle" font-size="28">🏆</text>`;
-        const gTitle = gmode === 'pos' ? 'PUNTOS ACUMULADOS' : 'ÍNDICE PORCENTUAL';
+        const gTitle = gmode === 'pos' ? 'PUNTOS ACUMULADOS' : 'ÍNDICE RELATIVO AL LÍDER';
         body += `<text x="${gx0 + 74}" y="${y + 47}" text-anchor="start" font-size="21" font-weight="900" font-style="italic" fill="${GCOL}">${esc(gTitle)}</text>`;
 
         // Selector con más ancho y padding para que respire
-        const btnGroupW = 236, btnGroupH = 34;
+        const btnGroupW = 280, btnGroupH = 34;
         const btnGroupX = gx0 + GW - 24 - btnGroupW;
         const btnGroupY = y + 25;
         const btnW = btnGroupW / 2;
@@ -595,11 +595,11 @@
           <rect width="${btnGroupW}" height="${btnGroupH}" rx="8" fill="#0d0f14" stroke="#3a4050" stroke-width="1.5"/>
           <g class="svg-mode-btn" data-mode="pos">
             <rect x="2" y="2" width="${btnW - 2}" height="${btnGroupH - 4}" rx="6" fill="${gmode === 'pos' ? '#f5c542' : 'transparent'}"/>
-            <text x="${btnW / 2}" y="21" text-anchor="middle" font-size="11.5" font-weight="${gmode === 'pos' ? '800' : '600'}" fill="${gmode === 'pos' ? '#1a1005' : '#9aa1b0'}" letter-spacing="0.5">PUNTOS FIJOS</text>
+            <text x="${btnW / 2}" y="21" text-anchor="middle" font-size="11" font-weight="${gmode === 'pos' ? '800' : '600'}" fill="${gmode === 'pos' ? '#1a1005' : '#9aa1b0'}" letter-spacing="0.5">PUNTOS FIJOS</text>
           </g>
           <g class="svg-mode-btn" data-mode="rel">
             <rect x="${btnW}" y="2" width="${btnW - 2}" height="${btnGroupH - 4}" rx="6" fill="${gmode === 'rel' ? '#f5c542' : 'transparent'}"/>
-            <text x="${btnW + btnW / 2}" y="21" text-anchor="middle" font-size="11.5" font-weight="${gmode === 'rel' ? '800' : '600'}" fill="${gmode === 'rel' ? '#1a1005' : '#9aa1b0'}" letter-spacing="0.5">PORCENTUAL</text>
+            <text x="${btnW + btnW / 2}" y="21" text-anchor="middle" font-size="11" font-weight="${gmode === 'rel' ? '800' : '600'}" fill="${gmode === 'rel' ? '#1a1005' : '#9aa1b0'}" letter-spacing="0.5">RELATIVO AL LÍDER</text>
           </g>
         </g>`;
 
@@ -674,8 +674,8 @@
     </linearGradient>
   </defs>
   <rect width="${W}" height="${H}" fill="url(#bg)"/>
-  <text x="${W / 2}" y="64" text-anchor="middle" font-size="44" font-weight="900" font-style="italic" fill="#fff">LEADERBOARD COMPLETA</text>
-  <text x="${W / 2}" y="110" text-anchor="middle" font-size="38" font-weight="900" font-style="italic" fill="#ff8a2a">MÁXIMOS - CALISTENIA</text>
+  <text x="${W / 2}" y="64" text-anchor="middle" font-size="38" font-weight="900" font-style="italic" fill="#ff8a2a">MÁXIMOS - CALISTENIA</text>
+  <text x="${W / 2}" y="110" text-anchor="middle" font-size="44" font-weight="900" font-style="italic" fill="#fff">RANKING POR EJERCICIO</text>
   ${periodLabel ? `<text x="${W / 2}" y="145" text-anchor="middle" font-size="15" font-weight="800" fill="#9aa1b0" letter-spacing="1.5">${esc(periodLabel.toUpperCase())}</text>` : ''}`;
 
       return {
