@@ -452,24 +452,35 @@
 
     function wrapText(text, maxW, font) {
       if (!text) return [];
-      const paragraphs = String(text).split('\n');
-      const lines = [];
-      paragraphs.forEach(p => {
-        const words = p.trim().split(/\s+/);
-        if (words.length === 0 || words[0] === '') return;
-        let curLine = words[0];
-        for (let i = 1; i < words.length; i++) {
-          const testLine = curLine + ' ' + words[i];
-          if (getTextWidth(testLine, font) <= maxW) {
-            curLine = testLine;
-          } else {
-            lines.push(curLine);
-            curLine = words[i];
+      // Dividir por párrafos (doble salto de línea: \n\n)
+      const paragraphs = String(text).split(/\n\s*\n/);
+      const result = [];
+      paragraphs.forEach((p, pIdx) => {
+        // Dentro de cada párrafo puede haber saltos de línea simples (\n)
+        const subLines = p.split('\n');
+        let firstLineInPara = true;
+        subLines.forEach(lineText => {
+          const words = lineText.trim().split(/\s+/);
+          if (words.length === 0 || words[0] === '') return;
+          let curLine = words[0];
+          const wrapped = [];
+          for (let i = 1; i < words.length; i++) {
+            const testLine = curLine + ' ' + words[i];
+            if (getTextWidth(testLine, font) <= maxW) {
+              curLine = testLine;
+            } else {
+              wrapped.push(curLine);
+              curLine = words[i];
+            }
           }
-        }
-        if (curLine) lines.push(curLine);
+          if (curLine) wrapped.push(curLine);
+          wrapped.forEach(wLine => {
+            result.push({ text: wLine, isNewParagraph: firstLineInPara && pIdx > 0 });
+            firstLineInPara = false;
+          });
+        });
       });
-      return lines;
+      return result;
     }
 
     function buildSvg(recordData, exercisesData, periodStr) {
@@ -657,15 +668,21 @@
         y += 55;
         body += `<text x="${W / 2}" y="${y + 36}" text-anchor="middle" font-size="36" font-weight="900" font-style="italic" fill="#fff">POSICIONES GENERALES</text>`;
         body += `<rect x="${W / 2 - 44}" y="${y + 50}" width="88" height="4" rx="2" fill="${GCOL}"/>`;
-        // Subtítulo más angosto y contenido en el centro
+        // Subtítulo más angosto y contenido en el centro con interlineado de párrafo
         const maxSubW = Math.min(GW * 0.68, 700);
         const subLines = wrapText(sub, maxSubW, "14px 'Segoe UI', Arial, sans-serif");
-        subLines.forEach((sLine, sIdx) => {
-          body += `<text x="${W / 2}" y="${y + 78 + sIdx * 20}" text-anchor="middle" font-size="14" fill="#9aa1b0">${esc(sLine)}</text>`;
+        let curSubY = y + 78;
+        subLines.forEach((item, sIdx) => {
+          if (item.isNewParagraph) {
+            curSubY += 12; // interlineado adicional de cambio de párrafo
+          }
+          body += `<text x="${W / 2}" y="${curSubY}" text-anchor="middle" font-size="14" fill="#9aa1b0">${esc(item.text)}</text>`;
+          curSubY += 20; // interlineado dentro del mismo párrafo
         });
 
         // Espacio generoso entre el subtítulo y la tarjeta dorada
-        y += 114 + (subLines.length > 1 ? (subLines.length - 1) * 20 : 0);
+        const extraH = Math.max(0, curSubY - (y + 78) - 20);
+        y += 114 + extraH;
 
         // Tarjeta con más aire vertical interno
         const gph = 150 + glist.length * GR + 14;

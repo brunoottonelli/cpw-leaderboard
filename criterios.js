@@ -28,7 +28,7 @@ window.SCORING_CRITERIA = {
     },
     defaultPoints: 0,
     getSubtitle: function (totalAthletes, totalExercises) {
-      return 'Puntos fijos por puesto: 1º: 10 pts, 2º: 8 pts, 3º: 7 pts, 4º: 6 pts, 5º: 5 pts, 6º: 4 pts, 7º: 3 pts, 8º: 2 pts, 9º: 1 pt';
+      return 'Como en una competición, se asignan puntos según la posición en la tabla en cada ejercicio y se suman al final. \n\n La puntuación se asigna de la siguiente forma:\n 1º: 10 pts | 2º: 8 pts | 3º: 7 pts | 4º: 6 pts | 5º: 5 pts | 6º: 4 pts | 7º: 3 pts | 8º: 2 pts | 9º: 1 pt';
     },
     formatScore: function (pts) {
       return String(Math.round(pts));
@@ -70,7 +70,7 @@ window.SCORING_CRITERIA = {
     cardTitle: 'PUNTUACIÓN BALANCEADA',
     ptsColumnHeader: 'PTS',
     getSubtitle: function (totalAthletes, totalExercises) {
-      return `Para ser el mejor, hay que ser bueno en todo, no solo en algunos ejercicios.\n El ranking compara el rendimiento de cada atleta con el del mejor en cada ejercicio y luego los combina en un único resultado. De esta forma, un rendimiento destacado en un solo ejercicio no da tanta ventaja si no se obtienen buenos resultados en general.`;
+      return `Para ser el mejor, hay que ser bueno en todo, no solo en algunos ejercicios.\n\n El ranking compara el rendimiento de cada atleta con el del mejor en cada ejercicio y luego los combina en un único resultado. De esta forma, un rendimiento destacado en un solo ejercicio no da tanta ventaja si no se obtienen buenos resultados en general.`;
     },
     formatScore: function (pts) {
       return pts.toFixed(1);
