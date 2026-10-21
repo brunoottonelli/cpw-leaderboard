@@ -1,0 +1,59 @@
+// Criterios de puntuación para el Leaderboard General
+// Cada criterio define su etiqueta en el selector, el título de la tarjeta,
+// la descripción (subtítulo) y la función que calcula los puntos de un atleta por ejercicio.
+
+window.SCORING_CRITERIA = {
+  pos: {
+    id: 'pos',
+    btnLabel: 'PUNTOS FIJOS',
+    cardTitle: 'PUNTOS ACUMULADOS',
+    ptsColumnHeader: 'PTS',
+    // Escala de puntos por puesto: 1º=10, 2º=8, 3º=7, etc.
+    // Si un participante queda del puesto 10º en adelante, recibe 0 pts (o cambia el valor por defecto).
+    scale: {
+      1: 10,
+      2: 8,
+      3: 7,
+      4: 6,
+      5: 5,
+      6: 4,
+      7: 3,
+      8: 2,
+      9: 1
+    },
+    defaultPoints: 0,
+    getSubtitle: function (totalAthletes, totalExercises) {
+      return 'Puntos fijos por puesto: 1º: 10 pts, 2º: 8 pts, 3º: 7 pts, 4º: 6 pts, 5º: 5 pts, 6º: 4 pts, 7º: 3 pts, 8º: 2 pts, 9º: 1 pt';
+    },
+    formatScore: function (pts) {
+      return String(Math.round(pts));
+    },
+    // Calcula los puntos que aporta un ejercicio:
+    // entry = { v: valor_repeticiones, r: posicion_en_ejercicio }
+    // col = { list: [atletas_ordenados] }
+    calcExercisePoints: function (entry, col, totalAthletes, totalExercises) {
+      return this.scale[entry.r] !== undefined ? this.scale[entry.r] : this.defaultPoints;
+    }
+  },
+
+  rel: {
+    id: 'rel',
+    btnLabel: 'RELATIVO AL LÍDER',
+    cardTitle: 'ÍNDICE RELATIVO AL LÍDER',
+    ptsColumnHeader: 'ÍNDICE',
+    getSubtitle: function (totalAthletes, totalExercises) {
+      const maxPerEx = totalExercises > 0 ? (100 / totalExercises).toFixed(1) : 0;
+      return `Relativo al líder: cada ejercicio aporta hasta ${+maxPerEx} pts según la marca respecto al 1º`;
+    },
+    formatScore: function (pts) {
+      return pts.toFixed(1);
+    },
+    // Cada ejercicio aporta hasta (100 / cantidad_ejercicios) en proporción a la marca del 1º
+    calcExercisePoints: function (entry, col, totalAthletes, totalExercises) {
+      const maxV = col.list[0] ? col.list[0].v : 0;
+      if (maxV <= 0) return 0;
+      const weight = 100 / totalExercises;
+      return (entry.v / maxV) * weight;
+    }
+  }
+};
