@@ -435,6 +435,21 @@
       return [parts.slice(0, cut).join(' '), parts.slice(cut).join(' ')];
     }
 
+    let _measureCtx = null;
+    function getTextWidth(text, font) {
+      try {
+        if (!_measureCtx) {
+          const c = document.createElement('canvas');
+          _measureCtx = c.getContext('2d');
+        }
+        if (_measureCtx) {
+          _measureCtx.font = font;
+          return _measureCtx.measureText(text).width;
+        }
+      } catch (e) {}
+      return (text || '').length * 9.5;
+    }
+
     function buildSvg(recordData, exercisesData, periodStr) {
       if (!recordData || !recordData.athletes || !recordData.athletes.length) return null;
 
@@ -529,8 +544,18 @@
             body += `<rect x="${bx}" y="${yy}" width="176" height="50" rx="8" fill="#1a1d26" stroke="${hi ? col : '#3a4050'}" stroke-width="${hi ? 2 : 1.5}"/>`;
             body += `<rect x="${bx + 120}" y="${yy + 1}" width="55" height="48" rx="7" fill="#07080b"/>`;
 
-            const fs = p.n.length > 10 ? 15 : p.n.length > 6 ? 20 : 26;
-            body += `<text x="${bx + 60}" y="${yy + 25 + fs * 0.35}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
+            if (p.es_profe) {
+              const fs = p.n.length > 8 ? 14 : p.n.length > 5 ? 17 : 19;
+              body += `<text x="${bx + 60}" y="${yy + 21}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
+              // Badge PROFE refinado abajo del nombre
+              const badgeW = 48, badgeH = 15, badgeX = bx + 60 - badgeW / 2, badgeY = yy + 28.5;
+              body += `<rect x="${badgeX}" y="${badgeY}" width="${badgeW}" height="${badgeH}" rx="7.5" fill="#ff8a2a" fill-opacity=".14" stroke="#ff8a2a" stroke-width="1" stroke-opacity=".75"/>`;
+              body += `<circle cx="${badgeX + 9}" cy="${badgeY + 7.5}" r="2" fill="#ff8a2a"/>`;
+              body += `<text x="${badgeX + 27}" y="${badgeY + 10.5}" text-anchor="middle" font-size="8" font-weight="900" fill="#ff9a47" letter-spacing="0.8">PROFE</text>`;
+            } else {
+              const fs = p.n.length > 10 ? 15 : p.n.length > 6 ? 20 : 26;
+              body += `<text x="${bx + 60}" y="${yy + 25 + fs * 0.35}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
+            }
             body += `<text x="${bx + 148}" y="${yy + 34}" text-anchor="middle" font-size="26" font-weight="800" fill="${col}">${esc(+p.v.toFixed(2))}</text>`;
           });
         });
@@ -552,13 +577,15 @@
       };
 
       if (cols.length > 0) {
-        const names = [];
+        const athletesMap = new Map();
         filteredAthletes.forEach(a => {
-          if (a.name && !names.includes(a.name)) names.push(a.name);
+          if (a.name && !athletesMap.has(a.name)) {
+            athletesMap.set(a.name, !!a.es_profe);
+          }
         });
-        const totalAthletes = names.length;
+        const totalAthletes = athletesMap.size;
 
-        const glist = names.map(name => {
+        const glist = Array.from(athletesMap.entries()).map(([name, es_profe]) => {
           let pts = 0;
           const reps = cols.map(c => {
             const entry = c.list.find(x => x.n === name);
@@ -569,7 +596,7 @@
             }
             return null;
           });
-          return { n: name, pts, reps };
+          return { n: name, es_profe, pts, reps };
         }).filter(x => x.pts > 0);
 
         glist.sort((a, b) => b.pts - a.pts);
@@ -661,6 +688,15 @@
           }
 
           body += `<text x="${rowX + 54}" y="${yy + 29}" text-anchor="start" font-size="17" font-weight="700" fill="#fff">${esc(p.n)}</text>`;
+          if (p.es_profe) {
+            const nw = getTextWidth(p.n, "700 17px 'Segoe UI', Arial, sans-serif");
+            const maxBadgeX = rowX + nameW - 56;
+            const badgeOffset = Math.min(rowX + 54 + Math.round(nw) + 10, maxBadgeX);
+            const badgeW = 50, badgeH = 17, badgeY = yy + 14.5;
+            body += `<rect x="${badgeOffset}" y="${badgeY}" width="${badgeW}" height="${badgeH}" rx="8.5" fill="#ff8a2a" fill-opacity=".14" stroke="#ff8a2a" stroke-width="1" stroke-opacity=".75"/>`;
+            body += `<circle cx="${badgeOffset + 9.5}" cy="${badgeY + 8.5}" r="2.2" fill="#ff8a2a"/>`;
+            body += `<text x="${badgeOffset + 28}" y="${badgeY + 12}" text-anchor="middle" font-size="8.5" font-weight="900" fill="#ff9a47" letter-spacing="0.8">PROFE</text>`;
+          }
 
           p.reps.forEach((rep, ci) => {
             const cellX = rowX + nameW + ci * exW;
