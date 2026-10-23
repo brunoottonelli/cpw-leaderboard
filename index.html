@@ -320,6 +320,11 @@
           <span>Profesores</span>
         </label>
 
+        <label class="toggle-label" title="Mostrar u ocultar grupos">
+          <input type="checkbox" id="groupBadgeCheck" checked>
+          <span>Mostrar grupos</span>
+        </label>
+
         <div class="export-dropdown">
           <button class="btn-export" id="exportBtn" type="button" aria-haspopup="true" aria-expanded="false"
             title="Exportar leaderboard">
@@ -359,6 +364,20 @@
     const MEDAL = { 1: '#f5c542', 2: '#c9ced6', 3: '#cd7f32' };
     const $ = id => document.getElementById(id);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    function formatGroup(g) {
+      if (!g) return '';
+      const s = String(g).trim();
+      const m = s.match(/^([a-zA-ZáéíóúÁÉÍÓÚñÑ]+)\s*(\d{1,4})$/);
+      if (m) {
+        const letters = m[1].toUpperCase();
+        let num = m[2];
+        if (num.length === 4) num = `${num.slice(0, 2)}:${num.slice(2)}`;
+        else if (num.length === 3) num = `0${num.slice(0, 1)}:${num.slice(1)}`;
+        else if (num.length <= 2) num = `${num}:00`;
+        return `${letters} ${num}`;
+      }
+      return s;
+    }
 
     let availablePeriods = [];
     let exercisesConfig = [];
@@ -410,7 +429,7 @@
       groups.forEach(g => {
         const opt = document.createElement('option');
         opt.value = g;
-        opt.textContent = g;
+        opt.textContent = formatGroup(g);
         groupSelect.appendChild(opt);
       });
 
@@ -527,6 +546,7 @@
       if (!recordData || !recordData.athletes || !recordData.athletes.length) return null;
 
       const includeProfe = $('profeCheck').checked;
+      const includeGroupBadges = $('groupBadgeCheck') ? $('groupBadgeCheck').checked : true;
       const selectedGroup = groupFilter !== undefined ? groupFilter : currentGroup;
 
       const filteredAthletes = recordData.athletes.filter(a => {
@@ -625,34 +645,32 @@
             body += `<rect x="${bx}" y="${yy}" width="176" height="50" rx="8" fill="#1a1d26" stroke="${hi ? col : '#3a4050'}" stroke-width="${hi ? 2 : 1.5}"/>`;
             body += `<rect x="${bx + 120}" y="${yy + 1}" width="55" height="48" rx="7" fill="#07080b"/>`;
 
-            const showGroupBadge = (selectedGroup === 'all' && p.grupo);
+            const showGroup = includeGroupBadges && Boolean(p.grupo);
+            const nameY = showGroup ? yy + 22 : yy + 31.5;
+            const fs = showGroup
+              ? (p.es_profe ? (p.n.length > 8 ? 12 : p.n.length > 5 ? 13.5 : 15) : (p.n.length > 8 ? 13.5 : p.n.length > 5 ? 15 : 17))
+              : (p.es_profe ? (p.n.length > 8 ? 13.5 : p.n.length > 5 ? 16 : 18) : (p.n.length > 8 ? 15 : p.n.length > 5 ? 18 : 22));
 
-            if (p.es_profe && showGroupBadge) {
-              const fs = p.n.length > 8 ? 13 : p.n.length > 5 ? 15 : 17;
-              body += `<text x="${bx + 60}" y="${yy + 20}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
-              const badgeY = yy + 28.5;
-              const badge1W = 44, badge1X = bx + 10;
-              body += `<rect x="${badge1X}" y="${badgeY}" width="${badge1W}" height="15" rx="7.5" fill="#ff8a2a" fill-opacity=".14" stroke="#ff8a2a" stroke-width="1" stroke-opacity=".75"/>`;
-              body += `<text x="${badge1X + badge1W / 2}" y="${badgeY + 10.5}" text-anchor="middle" font-size="7.5" font-weight="900" fill="#ff9a47" letter-spacing="0.5">PROFE</text>`;
-
-              const badge2W = 52, badge2X = bx + 58;
-              body += `<rect x="${badge2X}" y="${badgeY}" width="${badge2W}" height="15" rx="7.5" fill="#38bdf8" fill-opacity=".14" stroke="#38bdf8" stroke-width="1" stroke-opacity=".75"/>`;
-              body += `<text x="${badge2X + badge2W / 2}" y="${badgeY + 10.5}" text-anchor="middle" font-size="7.5" font-weight="900" fill="#7dd3fc" letter-spacing="0.5">${esc(p.grupo)}</text>`;
-            } else if (p.es_profe) {
-              const fs = p.n.length > 8 ? 14 : p.n.length > 5 ? 17 : 19;
-              body += `<text x="${bx + 60}" y="${yy + 21}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
-              const badgeW = 48, badgeH = 15, badgeX = bx + 60 - badgeW / 2, badgeY = yy + 28.5;
-              body += `<rect x="${badgeX}" y="${badgeY}" width="${badgeW}" height="${badgeH}" rx="7.5" fill="#ff8a2a" fill-opacity=".14" stroke="#ff8a2a" stroke-width="1" stroke-opacity=".75"/>`;
-              body += `<text x="${bx + 60}" y="${badgeY + 10.5}" text-anchor="middle" font-size="8" font-weight="900" fill="#ff9a47" letter-spacing="0.8">PROFE</text>`;
-            } else if (showGroupBadge) {
-              const fs = p.n.length > 9 ? 14 : p.n.length > 6 ? 17 : 19;
-              body += `<text x="${bx + 60}" y="${yy + 21}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
-              const badgeW = 56, badgeH = 15, badgeX = bx + 60 - badgeW / 2, badgeY = yy + 28.5;
-              body += `<rect x="${badgeX}" y="${badgeY}" width="${badgeW}" height="${badgeH}" rx="7.5" fill="#38bdf8" fill-opacity=".14" stroke="#38bdf8" stroke-width="1" stroke-opacity=".75"/>`;
-              body += `<text x="${bx + 60}" y="${badgeY + 10.5}" text-anchor="middle" font-size="8" font-weight="900" fill="#7dd3fc" letter-spacing="0.6">${esc(p.grupo)}</text>`;
+            if (p.es_profe) {
+              const nw = getTextWidth(p.n, `800 ${fs}px 'Segoe UI', Arial, sans-serif`);
+              const pSize = 18;
+              const pGap = 6;
+              const totalW = pSize + pGap + nw;
+              const startX = Math.max(bx + 4, bx + 60 - totalW / 2);
+              const pX = startX;
+              const pCenterY = nameY - fs * 0.35;
+              const pY = pCenterY - pSize / 2;
+              body += `<rect x="${pX}" y="${pY}" width="${pSize}" height="${pSize}" rx="4" fill="#ff8a2a" fill-opacity=".18" stroke="#ff8a2a" stroke-width="1.3" stroke-opacity=".85"/>`;
+              body += `<text x="${pX + pSize / 2}" y="${pY + 13}" text-anchor="middle" font-size="11.5" font-weight="900" fill="#ff9a47">P</text>`;
+              const nameX = pX + pSize + pGap;
+              body += `<text x="${nameX}" y="${nameY}" text-anchor="start" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
             } else {
-              const fs = p.n.length > 10 ? 15 : p.n.length > 6 ? 20 : 26;
-              body += `<text x="${bx + 60}" y="${yy + 25 + fs * 0.35}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
+              body += `<text x="${bx + 60}" y="${nameY}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
+            }
+
+            if (showGroup) {
+              const groupTxt = formatGroup(p.grupo);
+              body += `<text x="${bx + 60}" y="${yy + 37}" text-anchor="middle" font-size="10.5" font-weight="600" fill="#9aa1b0" letter-spacing="0.3">${esc(groupTxt)}</text>`;
             }
             body += `<text x="${bx + 148}" y="${yy + 34}" text-anchor="middle" font-size="26" font-weight="800" fill="${col}">${esc(+p.v.toFixed(2))}</text>`;
           });
@@ -791,11 +809,15 @@
           body += `</g>`;
         }
 
+        const showGroupCol = includeGroupBadges;
+        const groupColW = showGroupCol ? 90 : 0;
         const rowX = gx0 + 24;
         const rowW = GW - 48;
         const ptsW = 105;
-        const nameW = Math.min(260, Math.max(160, Math.floor(rowW * 0.28)));
-        const exAreaW = rowW - nameW - ptsW;
+        const nameW = showGroupCol
+          ? Math.min(220, Math.max(150, Math.floor(rowW * 0.22)))
+          : Math.min(260, Math.max(160, Math.floor(rowW * 0.28)));
+        const exAreaW = rowW - nameW - groupColW - ptsW;
         const exW = cols.length > 0 ? exAreaW / cols.length : 0;
 
         // Línea divisoria elegante que separa la cabecera (título y selector) de las columnas
@@ -803,8 +825,13 @@
 
         // Encabezados de columnas con amplio espacio vertical (muy separado del selector superior)
         const colHeaderY = y + 108;
+        if (showGroupCol) {
+          const grpX = rowX + nameW + groupColW / 2;
+          body += `<text x="${grpX}" y="${colHeaderY}" text-anchor="middle" font-size="12" font-weight="700" fill="#9aa1b0" letter-spacing="0.5">GRUPO</text>`;
+        }
+
         cols.forEach((c, ci) => {
-          const cx = rowX + nameW + ci * exW + exW / 2;
+          const cx = rowX + nameW + groupColW + ci * exW + exW / 2;
           const fs = exW < 100 ? 10 : 12;
           const mc = Math.max(5, Math.floor(exW / (fs * 0.68)));
           const lines = splitMid(splitLeadingEmoji(c.h).text.toUpperCase()).map(t => t.length > mc ? t.slice(0, mc - 1) + '.' : t);
@@ -832,7 +859,8 @@
 
           body += `<text x="${rowX + 54}" y="${yy + 29}" text-anchor="start" font-size="17" font-weight="700" fill="#fff">${esc(p.n)}</text>`;
           const nw = getTextWidth(p.n, "700 17px 'Segoe UI', Arial, sans-serif");
-          let curBadgeX = rowX + 54 + Math.round(nw) + 10;
+          const maxBadgeX = rowX + nameW - 52;
+          let curBadgeX = Math.min(rowX + 54 + Math.round(nw) + 10, maxBadgeX);
 
           if (p.es_profe) {
             const badgeW = 46, badgeH = 17, badgeY = yy + 14.5;
@@ -841,15 +869,14 @@
             curBadgeX += badgeW + 6;
           }
 
-          if (selectedGroup === 'all' && p.grupo) {
-            const gw = Math.max(50, Math.round(getTextWidth(p.grupo, "900 8.5px 'Segoe UI', Arial, sans-serif") + 16));
-            const badgeH = 17, badgeY = yy + 14.5;
-            body += `<rect x="${curBadgeX}" y="${badgeY}" width="${gw}" height="${badgeH}" rx="8.5" fill="#38bdf8" fill-opacity=".14" stroke="#38bdf8" stroke-width="1" stroke-opacity=".75"/>`;
-            body += `<text x="${curBadgeX + gw / 2}" y="${badgeY + 12}" text-anchor="middle" font-size="8.5" font-weight="900" fill="#7dd3fc" letter-spacing="0.8">${esc(p.grupo)}</text>`;
+          if (showGroupCol) {
+            const grpX = rowX + nameW + groupColW / 2;
+            const groupTxt = p.grupo ? formatGroup(p.grupo) : '-';
+            body += `<text x="${grpX}" y="${yy + 29}" text-anchor="middle" font-size="14" font-weight="600" fill="#9aa1b0">${esc(groupTxt)}</text>`;
           }
 
           p.reps.forEach((rep, ci) => {
-            const cellX = rowX + nameW + ci * exW;
+            const cellX = rowX + nameW + groupColW + ci * exW;
             const cx = cellX + exW / 2;
             if (rep) {
               const rStr = `${+rep.v.toFixed(1)}`;
@@ -871,7 +898,8 @@
       const baseLabel = (recordData && (recordData.nombre || recordData.name)) ? (recordData.nombre || recordData.name) : (periodStr || '');
       let periodLabel = baseLabel ? `${baseLabel}` : '';
       if (selectedGroup !== 'all') {
-        periodLabel = periodLabel ? `${periodLabel} · GRUPO: ${selectedGroup}` : `GRUPO: ${selectedGroup}`;
+        const formattedSelGroup = formatGroup(selectedGroup);
+        periodLabel = periodLabel ? `${periodLabel} · GRUPO: ${formattedSelGroup}` : `GRUPO: ${formattedSelGroup}`;
       } else if (recordData && recordData.athletes && recordData.athletes.some(a => a.grupo)) {
         periodLabel = periodLabel ? `${periodLabel} · TODOS LOS GRUPOS` : 'TODOS LOS GRUPOS';
       }
@@ -993,6 +1021,7 @@
         render();
       });
       $('profeCheck').addEventListener('change', render);
+      $('groupBadgeCheck').addEventListener('change', render);
 
       // Listener para el selector de sistema de puntaje dentro del SVG
       $('prev').addEventListener('click', e => {
