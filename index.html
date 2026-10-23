@@ -90,42 +90,176 @@
       text-transform: uppercase;
       letter-spacing: 0.6px;
       white-space: nowrap;
+      line-height: 1;
+      transform: translateY(-0.5px);
     }
 
-    select {
+    /* Custom Dropdowns */
+    .custom-select,
+    .export-dropdown {
+      position: relative;
+    }
+
+    .custom-select-btn {
       background: #171a22;
       color: var(--tx);
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 7px 12px;
+      padding: 0 12px;
+      height: 34px;
+      box-sizing: border-box;
       font: inherit;
       font-size: 13px;
+      font-weight: 600;
       cursor: pointer;
-      outline: none;
-      transition: border-color .15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      line-height: 1;
+      user-select: none;
+      transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
     }
 
-    select:focus {
+    .custom-select-btn:hover {
+      border-color: #4a5468;
+      background-color: #1b1f29;
+    }
+
+    .custom-select-btn:focus-visible,
+    .custom-select-btn[aria-expanded="true"] {
       border-color: var(--acc);
+      box-shadow: 0 0 0 2px rgba(255, 138, 42, 0.2);
+    }
+
+    .custom-select-val {
+      line-height: 1;
+      display: inline-block;
+      transform: translateY(-0.5px);
+    }
+
+    .custom-select-btn .chevron {
+      width: 12px;
+      height: 12px;
+      fill: none;
+      stroke: var(--acc);
+      stroke-width: 2.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform .2s ease;
+      flex-shrink: 0;
+    }
+
+    .custom-select-btn[aria-expanded="true"] .chevron {
+      transform: rotate(180deg);
+    }
+
+    .custom-select-menu,
+    .export-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      background: #171a22;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
+      padding: 6px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 100;
+    }
+
+    .custom-select-menu {
+      left: 0;
+      min-width: 100%;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .export-menu {
+      right: 0;
+      min-width: 150px;
+    }
+
+    .custom-select-menu.show,
+    .export-menu.show {
+      display: flex;
+    }
+
+    .custom-select-menu::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .custom-select-menu::-webkit-scrollbar-thumb {
+      background: #2a303f;
+      border-radius: 3px;
+    }
+
+    .custom-select-menu::-webkit-scrollbar-thumb:hover {
+      background: var(--acc);
+    }
+
+    .custom-select-option,
+    .export-menu button {
+      background: transparent;
+      border: none;
+      color: var(--tx);
+      border-radius: 6px;
+      padding: 8px 12px;
+      text-align: left;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      white-space: nowrap;
+      transition: background .15s ease, color .15s ease;
+    }
+
+    .custom-select-option:hover,
+    .export-menu button:hover {
+      background: #252b38;
+      color: var(--acc);
+    }
+
+    .custom-select-option.active {
+      background: rgba(255, 138, 42, 0.14);
+      color: var(--acc);
+      font-weight: 700;
+    }
+
+    .custom-select-option.active::after {
+      content: "✓";
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--acc);
     }
 
     .toggle-label {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
       font-size: 13px;
+      font-weight: 500;
       color: var(--tx);
       cursor: pointer;
       user-select: none;
       background: #171a22;
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 6px 12px;
-      transition: border-color .15s ease, background .15s ease;
+      padding: 0 12px;
+      height: 34px;
+      box-sizing: border-box;
+      line-height: 1;
+      transition: border-color .15s ease, background-color .15s ease;
     }
 
     .toggle-label:hover {
-      border-color: #3d4557;
+      border-color: #4a5468;
+      background-color: #1b1f29;
     }
 
     .toggle-label input {
@@ -134,11 +268,14 @@
       height: 15px;
       margin: 0;
       cursor: pointer;
+      display: block;
+      flex-shrink: 0;
     }
 
-    /* Export dropdown */
-    .export-dropdown {
-      position: relative;
+    .toggle-label span {
+      line-height: 1;
+      display: inline-block;
+      transform: translateY(-0.5px);
     }
 
     .btn-export {
@@ -146,7 +283,9 @@
       color: #1a1005;
       border: 1px solid var(--acc);
       border-radius: 8px;
-      padding: 7px 13px;
+      padding: 0 13px;
+      height: 34px;
+      box-sizing: border-box;
       font: inherit;
       font-size: 13px;
       font-weight: 700;
@@ -154,6 +293,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      line-height: 1;
       transition: background .15s ease, border-color .15s ease;
     }
 
@@ -170,47 +310,13 @@
       stroke-width: 2.2;
       stroke-linecap: round;
       stroke-linejoin: round;
+      flex-shrink: 0;
     }
 
-    .export-menu {
-      position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
-      background: #171a22;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      min-width: 150px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-      padding: 6px;
-      display: none;
-      flex-direction: column;
-      gap: 4px;
-      z-index: 100;
-    }
-
-    .export-menu.show {
-      display: flex;
-    }
-
-    .export-menu button {
-      background: transparent;
-      border: none;
-      color: var(--tx);
-      border-radius: 6px;
-      padding: 8px 12px;
-      text-align: left;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: background .15s ease, color .15s ease;
-    }
-
-    .export-menu button:hover {
-      background: #252b38;
-      color: var(--acc);
+    .btn-export span {
+      line-height: 1;
+      display: inline-block;
+      transform: translateY(-0.5px);
     }
 
     .export-menu button span.ext {
@@ -302,17 +408,27 @@
 
       <div class="header-controls">
         <div class="header-item">
-          <label class="header-label" for="periodSelect">Período:</label>
-          <select id="periodSelect">
-            <option value="">Cargando períodos...</option>
-          </select>
+          <span class="header-label">Período:</span>
+          <div class="custom-select" id="periodCustomSelect">
+            <button type="button" class="custom-select-btn" id="periodBtn" aria-haspopup="listbox" aria-expanded="false" title="Seleccionar período">
+              <span class="custom-select-val" id="periodVal">Cargando...</span>
+              <svg class="chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="custom-select-menu" id="periodMenu" role="listbox"></div>
+          </div>
+          <select id="periodSelect" style="display:none;"></select>
         </div>
 
         <div class="header-item">
-          <label class="header-label" for="groupSelect">Grupo:</label>
-          <select id="groupSelect">
-            <option value="all">Todos los grupos</option>
-          </select>
+          <span class="header-label">Grupo:</span>
+          <div class="custom-select" id="groupCustomSelect">
+            <button type="button" class="custom-select-btn" id="groupBtn" aria-haspopup="listbox" aria-expanded="false" title="Seleccionar grupo">
+              <span class="custom-select-val" id="groupVal">Todos los grupos</span>
+              <svg class="chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="custom-select-menu" id="groupMenu" role="listbox"></div>
+          </div>
+          <select id="groupSelect" style="display:none;"></select>
         </div>
 
         <label class="toggle-label" title="Mostrar u ocultar profesores">
@@ -321,7 +437,7 @@
         </label>
 
         <label class="toggle-label" title="Mostrar u ocultar grupos">
-          <input type="checkbox" id="groupBadgeCheck" checked>
+          <input type="checkbox" id="groupBadgeCheck">
           <span>Mostrar grupos</span>
         </label>
 
@@ -419,27 +535,63 @@
 
     function updateGroupFilter(athletes) {
       const groupSelect = $('groupSelect');
-      if (!groupSelect) return;
+      const groupMenu = $('groupMenu');
+
       const groups = Array.from(
         new Set((athletes || []).map(a => a.grupo).filter(g => g && String(g).trim() !== ''))
       ).sort();
 
       const prevGroup = currentGroup;
-      groupSelect.innerHTML = '<option value="all">Todos los grupos</option>';
+      if (groupSelect) groupSelect.innerHTML = '<option value="all">Todos los grupos</option>';
+      if (groupMenu) groupMenu.innerHTML = '';
+
+      const items = [{ id: 'all', name: 'Todos los grupos' }];
       groups.forEach(g => {
-        const opt = document.createElement('option');
-        opt.value = g;
-        opt.textContent = formatGroup(g);
-        groupSelect.appendChild(opt);
+        items.push({ id: g, name: formatGroup(g) });
+      });
+
+      items.forEach(item => {
+        if (groupSelect) {
+          const opt = document.createElement('option');
+          opt.value = item.id;
+          opt.textContent = item.name;
+          groupSelect.appendChild(opt);
+        }
+        if (groupMenu) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'custom-select-option' + (item.id === currentGroup ? ' active' : '');
+          btn.dataset.value = item.id;
+          btn.textContent = item.name;
+          btn.addEventListener('click', () => {
+            selectGroup(item.id);
+          });
+          groupMenu.appendChild(btn);
+        }
       });
 
       if (groups.includes(prevGroup)) {
-        groupSelect.value = prevGroup;
-        currentGroup = prevGroup;
+        selectGroup(prevGroup);
       } else {
-        groupSelect.value = 'all';
-        currentGroup = 'all';
+        selectGroup('all');
       }
+    }
+
+    function selectGroup(groupId) {
+      currentGroup = groupId;
+      if ($('groupSelect')) $('groupSelect').value = groupId;
+      const groupVal = $('groupVal');
+      if (groupVal) {
+        groupVal.textContent = groupId === 'all' ? 'Todos los grupos' : formatGroup(groupId);
+      }
+      if ($('groupMenu')) {
+        Array.from($('groupMenu').children).forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.value === groupId);
+        });
+        $('groupMenu').classList.remove('show');
+        if ($('groupBtn')) $('groupBtn').setAttribute('aria-expanded', 'false');
+      }
+      render();
     }
 
     function splitLeadingEmoji(str) {
@@ -546,7 +698,7 @@
       if (!recordData || !recordData.athletes || !recordData.athletes.length) return null;
 
       const includeProfe = $('profeCheck').checked;
-      const includeGroupBadges = $('groupBadgeCheck') ? $('groupBadgeCheck').checked : true;
+      const includeGroupBadges = $('groupBadgeCheck') ? $('groupBadgeCheck').checked : false;
       const selectedGroup = groupFilter !== undefined ? groupFilter : currentGroup;
 
       const filteredAthletes = recordData.athletes.filter(a => {
@@ -864,7 +1016,7 @@
 
           if (p.es_profe) {
             const badgeW = 46, badgeH = 17, badgeY = yy + 14.5;
-            body += `<rect x="${curBadgeX}" y="${badgeY}" width="${badgeW}" height="${badgeH}" rx="8.5" fill="#ff8a2a" fill-opacity=".14" stroke="#ff8a2a" stroke-width="1" stroke-opacity=".75"/>`;
+            body += `<rect x="${curBadgeX}" y="${badgeY}" width="${badgeW}" height="${badgeH}" rx="4" fill="#ff8a2a" fill-opacity=".16" stroke="#ff8a2a" stroke-width="1.2" stroke-opacity=".85"/>`;
             body += `<text x="${curBadgeX + badgeW / 2}" y="${badgeY + 12}" text-anchor="middle" font-size="8.5" font-weight="900" fill="#ff9a47" letter-spacing="0.8">PROFE</text>`;
             curBadgeX += badgeW + 6;
           }
@@ -997,29 +1149,68 @@
         availablePeriods = FALLBACK_PERIODS;
       }
 
-      // Populate select dropdown
-      const select = $('periodSelect');
-      select.innerHTML = '';
+      if (availablePeriods && availablePeriods.length) {
+        availablePeriods.sort((a, b) => {
+          const idA = typeof a === 'object' && a.id ? a.id : String(a);
+          const idB = typeof b === 'object' && b.id ? b.id : String(b);
+          return idB.localeCompare(idA);
+        });
+      }
+
+      // Populate period options
+      const periodSelect = $('periodSelect');
+      const periodMenu = $('periodMenu');
+      if (periodSelect) periodSelect.innerHTML = '';
+      if (periodMenu) periodMenu.innerHTML = '';
+
       availablePeriods.forEach(p => {
         const id = typeof p === 'object' && p.id ? p.id : String(p);
         const name = typeof p === 'object' && (p.nombre || p.name) ? (p.nombre || p.name) : id;
-        const opt = document.createElement('option');
-        opt.value = id;
-        opt.textContent = name;
-        select.appendChild(opt);
+
+        if (periodSelect) {
+          const opt = document.createElement('option');
+          opt.value = id;
+          opt.textContent = name;
+          periodSelect.appendChild(opt);
+        }
+
+        if (periodMenu) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'custom-select-option';
+          btn.dataset.value = id;
+          btn.textContent = name;
+          btn.addEventListener('click', () => {
+            selectPeriod(id, name);
+          });
+          periodMenu.appendChild(btn);
+        }
       });
 
-      // Select the first (most recent) period by default
       const defaultObj = availablePeriods[0];
       const defaultPeriod = typeof defaultObj === 'object' && defaultObj.id ? defaultObj.id : String(defaultObj);
-      select.value = defaultPeriod;
+      const defaultName = typeof defaultObj === 'object' && (defaultObj.nombre || defaultObj.name) ? (defaultObj.nombre || defaultObj.name) : defaultPeriod;
+
+      function selectPeriod(periodId, periodName) {
+        if ($('periodSelect')) $('periodSelect').value = periodId;
+        if ($('periodVal')) {
+          const pObj = availablePeriods.find(p => (typeof p === 'object' && p.id ? p.id : String(p)) === periodId);
+          const name = periodName || (pObj && (pObj.nombre || pObj.name) ? (pObj.nombre || pObj.name) : periodId);
+          $('periodVal').textContent = name;
+        }
+        if ($('periodMenu')) {
+          Array.from($('periodMenu').children).forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.value === periodId);
+          });
+          $('periodMenu').classList.remove('show');
+          if ($('periodBtn')) $('periodBtn').setAttribute('aria-expanded', 'false');
+        }
+        loadPeriodData(periodId);
+      }
+
+      selectPeriod(defaultPeriod, defaultName);
 
       // Listeners
-      select.addEventListener('change', () => loadPeriodData(select.value));
-      $('groupSelect').addEventListener('change', (e) => {
-        currentGroup = e.target.value;
-        render();
-      });
       $('profeCheck').addEventListener('change', render);
       $('groupBadgeCheck').addEventListener('change', render);
 
@@ -1034,21 +1225,37 @@
         }
       });
 
-      // Export Dropdown
-      const exportBtn = $('exportBtn');
-      const exportMenu = $('exportMenu');
+      // Dropdown toggle system
+      function setupDropdown(btnId, menuId) {
+        const btn = $(btnId);
+        const menu = $(menuId);
+        if (!btn || !menu) return;
 
-      exportBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isOpen = exportMenu.classList.toggle('show');
-        exportBtn.setAttribute('aria-expanded', isOpen);
-      });
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const isOpen = menu.classList.contains('show');
+          document.querySelectorAll('.custom-select-menu.show, .export-menu.show').forEach(m => {
+            m.classList.remove('show');
+            const parentBtn = m.previousElementSibling;
+            if (parentBtn && parentBtn.setAttribute) parentBtn.setAttribute('aria-expanded', 'false');
+          });
+          if (!isOpen) {
+            menu.classList.add('show');
+            btn.setAttribute('aria-expanded', 'true');
+          }
+        });
+      }
 
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest('.export-dropdown')) {
-          exportMenu.classList.remove('show');
-          exportBtn.setAttribute('aria-expanded', 'false');
-        }
+      setupDropdown('periodBtn', 'periodMenu');
+      setupDropdown('groupBtn', 'groupMenu');
+      setupDropdown('exportBtn', 'exportMenu');
+
+      document.addEventListener('click', () => {
+        document.querySelectorAll('.custom-select-menu.show, .export-menu.show').forEach(m => {
+          m.classList.remove('show');
+          const parentBtn = m.previousElementSibling;
+          if (parentBtn && parentBtn.setAttribute) parentBtn.setAttribute('aria-expanded', 'false');
+        });
       });
 
       // Download buttons
