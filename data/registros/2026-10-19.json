@@ -1,8 +1,11 @@
 {
   "period": "2026-10-19",
+  "name": "Octubre 2026",
   "athletes": [
     {
       "name": "Fabri",
+      "grupo": "LMV1730",
+      "fecha": "2026-10-19",
       "es_profe": true,
       "results": {
         "dominadas_pronas": 27,
@@ -13,6 +16,8 @@
     },
     {
       "name": "Tadeo",
+      "grupo": "LMV1730",
+      "fecha": "2026-10-19",
       "es_profe": false,
       "results": {
         "dominadas_pronas": 17,
@@ -23,6 +28,8 @@
     },
     {
       "name": "Lucía",
+      "grupo": "LMV1730",
+      "fecha": "2026-10-19",
       "es_profe": false,
       "results": {
         "dominadas_pronas": 14,
@@ -33,6 +40,8 @@
     },
     {
       "name": "Joaquín",
+      "grupo": "LMV1730",
+      "fecha": "2026-10-19",
       "es_profe": false,
       "results": {
         "dominadas_pronas": 13,
@@ -43,6 +52,8 @@
     },
     {
       "name": "Maxi",
+      "grupo": "LMV1730",
+      "fecha": "2026-10-19",
       "es_profe": false,
       "results": {
         "dominadas_pronas": 13,
@@ -53,6 +64,8 @@
     },
     {
       "name": "S",
+      "grupo": "LMV1730",
+      "fecha": "2026-10-19",
       "es_profe": false,
       "results": {
         "dominadas_pronas": 12,
@@ -63,6 +76,8 @@
     },
     {
       "name": "Ro",
+      "grupo": "LMV1730",
+      "fecha": "2026-10-19",
       "es_profe": false,
       "results": {
         "dominadas_pronas": 11,
@@ -73,6 +88,8 @@
     },
     {
       "name": "Bruno",
+      "grupo": "LMV1730",
+      "fecha": "2026-10-19",
       "es_profe": false,
       "results": {
         "dominadas_pronas": 11,
@@ -83,6 +100,8 @@
     },
     {
       "name": "Tony",
+      "grupo": "LMV1730",
+      "fecha": "2026-10-19",
       "es_profe": false,
       "results": {
         "dominadas_pronas": 9,

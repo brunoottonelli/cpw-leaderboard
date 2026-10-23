@@ -307,6 +307,13 @@
           </select>
         </div>
 
+        <div class="header-item">
+          <label class="header-label" for="groupSelect">Grupo:</label>
+          <select id="groupSelect">
+            <option value="all">Todos los grupos</option>
+          </select>
+        </div>
+
         <label class="toggle-label" title="Mostrar u ocultar profesores">
           <input type="checkbox" id="profeCheck" checked>
           <span>Profesores</span>
@@ -356,6 +363,7 @@
     let exercisesConfig = [];
     let currentRecord = null;
     let currentPeriod = '';
+    let currentGroup = 'all';
     let currentGmode = 'pos';
     let curSvg = null;
 
@@ -369,22 +377,50 @@
       ]
     };
 
-    const FALLBACK_PERIODS = ["2026-10-19"];
+    const FALLBACK_PERIODS = [
+      { "id": "2026-10", "nombre": "Octubre 2026" }
+    ];
 
     const FALLBACK_RECORD = {
-      "period": "2026-10-19",
+      "period": "2026-10",
+      "name": "Octubre 2026",
       "athletes": [
-        { "name": "Fabri", "es_profe": true, "results": { "dominadas_pronas": 27, "fondos": 43, "lagartijas": 40, "dominadas_supinas": 21 } },
-        { "name": "Tadeo", "es_profe": false, "results": { "dominadas_pronas": 17, "fondos": 17, "lagartijas": 28, "dominadas_supinas": 16 } },
-        { "name": "Lucía", "es_profe": false, "results": { "dominadas_pronas": 14, "fondos": 12, "lagartijas": 40, "dominadas_supinas": 13 } },
-        { "name": "Joaquín", "es_profe": false, "results": { "dominadas_pronas": 13, "fondos": 11, "lagartijas": 14, "dominadas_supinas": 12 } },
-        { "name": "Maxi", "es_profe": false, "results": { "dominadas_pronas": 13, "fondos": 23, "lagartijas": 41, "dominadas_supinas": 10 } },
-        { "name": "S", "es_profe": false, "results": { "dominadas_pronas": 12, "fondos": 17, "lagartijas": 36, "dominadas_supinas": 13 } },
-        { "name": "RT", "es_profe": false, "results": { "dominadas_pronas": 11, "fondos": 17, "lagartijas": 33, "dominadas_supinas": 11 } },
-        { "name": "Bruno", "es_profe": false, "results": { "dominadas_pronas": 11, "fondos": 18, "lagartijas": 40, "dominadas_supinas": 9 } },
-        { "name": "Tony", "es_profe": false, "results": { "dominadas_pronas": 9, "fondos": 18, "lagartijas": 24, "dominadas_supinas": 10 } }
+        { "name": "Fabri", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": true, "results": { "dominadas_pronas": 27, "fondos": 43, "lagartijas": 40, "dominadas_supinas": 21 } },
+        { "name": "Tadeo", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 17, "fondos": 17, "lagartijas": 28, "dominadas_supinas": 16 } },
+        { "name": "Lucía", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 14, "fondos": 12, "lagartijas": 40, "dominadas_supinas": 13 } },
+        { "name": "Joaquín", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 13, "fondos": 11, "lagartijas": 14, "dominadas_supinas": 12 } },
+        { "name": "Maxi", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 13, "fondos": 23, "lagartijas": 41, "dominadas_supinas": 10 } },
+        { "name": "S", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 12, "fondos": 17, "lagartijas": 36, "dominadas_supinas": 13 } },
+        { "name": "Ro", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 11, "fondos": 17, "lagartijas": 33, "dominadas_supinas": 11 } },
+        { "name": "Bruno", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 11, "fondos": 18, "lagartijas": 40, "dominadas_supinas": 9 } },
+        { "name": "Tony", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 9, "fondos": 18, "lagartijas": 24, "dominadas_supinas": 10 } }
       ]
     };
+
+    function updateGroupFilter(athletes) {
+      const groupSelect = $('groupSelect');
+      if (!groupSelect) return;
+      const groups = Array.from(
+        new Set((athletes || []).map(a => a.grupo).filter(g => g && String(g).trim() !== ''))
+      ).sort();
+
+      const prevGroup = currentGroup;
+      groupSelect.innerHTML = '<option value="all">Todos los grupos</option>';
+      groups.forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g;
+        opt.textContent = g;
+        groupSelect.appendChild(opt);
+      });
+
+      if (groups.includes(prevGroup)) {
+        groupSelect.value = prevGroup;
+        currentGroup = prevGroup;
+      } else {
+        groupSelect.value = 'all';
+        currentGroup = 'all';
+      }
+    }
 
     function splitLeadingEmoji(str) {
       const s = String(str || '').trim();
@@ -483,11 +519,17 @@
       return result;
     }
 
-    function buildSvg(recordData, exercisesData, periodStr) {
+    function buildSvg(recordData, exercisesData, periodStr, groupFilter) {
       if (!recordData || !recordData.athletes || !recordData.athletes.length) return null;
 
       const includeProfe = $('profeCheck').checked;
-      const filteredAthletes = recordData.athletes.filter(a => includeProfe || !a.es_profe);
+      const selectedGroup = groupFilter !== undefined ? groupFilter : currentGroup;
+
+      const filteredAthletes = recordData.athletes.filter(a => {
+        if (!includeProfe && a.es_profe) return false;
+        if (selectedGroup !== 'all' && a.grupo !== selectedGroup) return false;
+        return true;
+      });
       if (!filteredAthletes.length) return null;
 
       // Determine exercises to display
@@ -516,6 +558,8 @@
         const h = exerciseMap.get(id) || id.replace(/_/g, ' ');
         const list = filteredAthletes.map(a => ({
           n: a.name,
+          grupo: a.grupo || '',
+          fecha: a.fecha || '',
           es_profe: !!a.es_profe,
           v: parseNum(a.results ? a.results[id] : undefined)
         })).filter(x => x.n && !isNaN(x.v));
@@ -577,14 +621,31 @@
             body += `<rect x="${bx}" y="${yy}" width="176" height="50" rx="8" fill="#1a1d26" stroke="${hi ? col : '#3a4050'}" stroke-width="${hi ? 2 : 1.5}"/>`;
             body += `<rect x="${bx + 120}" y="${yy + 1}" width="55" height="48" rx="7" fill="#07080b"/>`;
 
-            if (p.es_profe) {
+            const showGroupBadge = (selectedGroup === 'all' && p.grupo);
+
+            if (p.es_profe && showGroupBadge) {
+              const fs = p.n.length > 8 ? 13 : p.n.length > 5 ? 15 : 17;
+              body += `<text x="${bx + 60}" y="${yy + 20}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
+              const badgeY = yy + 28.5;
+              const badge1W = 44, badge1X = bx + 10;
+              body += `<rect x="${badge1X}" y="${badgeY}" width="${badge1W}" height="15" rx="7.5" fill="#ff8a2a" fill-opacity=".14" stroke="#ff8a2a" stroke-width="1" stroke-opacity=".75"/>`;
+              body += `<text x="${badge1X + badge1W / 2}" y="${badgeY + 10.5}" text-anchor="middle" font-size="7.5" font-weight="900" fill="#ff9a47" letter-spacing="0.5">PROFE</text>`;
+
+              const badge2W = 52, badge2X = bx + 58;
+              body += `<rect x="${badge2X}" y="${badgeY}" width="${badge2W}" height="15" rx="7.5" fill="#38bdf8" fill-opacity=".14" stroke="#38bdf8" stroke-width="1" stroke-opacity=".75"/>`;
+              body += `<text x="${badge2X + badge2W / 2}" y="${badgeY + 10.5}" text-anchor="middle" font-size="7.5" font-weight="900" fill="#7dd3fc" letter-spacing="0.5">${esc(p.grupo)}</text>`;
+            } else if (p.es_profe) {
               const fs = p.n.length > 8 ? 14 : p.n.length > 5 ? 17 : 19;
               body += `<text x="${bx + 60}" y="${yy + 21}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
-              // Badge PROFE refinado abajo del nombre
               const badgeW = 48, badgeH = 15, badgeX = bx + 60 - badgeW / 2, badgeY = yy + 28.5;
               body += `<rect x="${badgeX}" y="${badgeY}" width="${badgeW}" height="${badgeH}" rx="7.5" fill="#ff8a2a" fill-opacity=".14" stroke="#ff8a2a" stroke-width="1" stroke-opacity=".75"/>`;
-              body += `<circle cx="${badgeX + 9}" cy="${badgeY + 7.5}" r="2" fill="#ff8a2a"/>`;
-              body += `<text x="${badgeX + 27}" y="${badgeY + 10.5}" text-anchor="middle" font-size="8" font-weight="900" fill="#ff9a47" letter-spacing="0.8">PROFE</text>`;
+              body += `<text x="${bx + 60}" y="${badgeY + 10.5}" text-anchor="middle" font-size="8" font-weight="900" fill="#ff9a47" letter-spacing="0.8">PROFE</text>`;
+            } else if (showGroupBadge) {
+              const fs = p.n.length > 9 ? 14 : p.n.length > 6 ? 17 : 19;
+              body += `<text x="${bx + 60}" y="${yy + 21}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
+              const badgeW = 56, badgeH = 15, badgeX = bx + 60 - badgeW / 2, badgeY = yy + 28.5;
+              body += `<rect x="${badgeX}" y="${badgeY}" width="${badgeW}" height="${badgeH}" rx="7.5" fill="#38bdf8" fill-opacity=".14" stroke="#38bdf8" stroke-width="1" stroke-opacity=".75"/>`;
+              body += `<text x="${bx + 60}" y="${badgeY + 10.5}" text-anchor="middle" font-size="8" font-weight="900" fill="#7dd3fc" letter-spacing="0.6">${esc(p.grupo)}</text>`;
             } else {
               const fs = p.n.length > 10 ? 15 : p.n.length > 6 ? 20 : 26;
               body += `<text x="${bx + 60}" y="${yy + 25 + fs * 0.35}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
@@ -627,12 +688,16 @@
         const athletesMap = new Map();
         filteredAthletes.forEach(a => {
           if (a.name && !athletesMap.has(a.name)) {
-            athletesMap.set(a.name, !!a.es_profe);
+            athletesMap.set(a.name, {
+              es_profe: !!a.es_profe,
+              grupo: a.grupo || '',
+              fecha: a.fecha || ''
+            });
           }
         });
         const totalAthletes = athletesMap.size;
 
-        const glist = Array.from(athletesMap.entries()).map(([name, es_profe]) => {
+        const glist = Array.from(athletesMap.entries()).map(([name, meta]) => {
           const reps = cols.map(c => {
             const entry = c.list.find(x => x.n === name);
             return entry ? { v: entry.v, r: entry.r } : null;
@@ -650,7 +715,7 @@
               }
             });
           }
-          return { n: name, es_profe, pts, reps };
+          return { n: name, es_profe: meta.es_profe, grupo: meta.grupo, fecha: meta.fecha, pts, reps };
         }).filter(x => x.pts > 0);
 
         glist.sort((a, b) => b.pts - a.pts);
@@ -717,7 +782,7 @@
         const rowX = gx0 + 24;
         const rowW = GW - 48;
         const ptsW = 105;
-        const nameW = Math.min(230, Math.max(150, Math.floor(rowW * 0.28)));
+        const nameW = Math.min(260, Math.max(160, Math.floor(rowW * 0.28)));
         const exAreaW = rowW - nameW - ptsW;
         const exW = cols.length > 0 ? exAreaW / cols.length : 0;
 
@@ -754,14 +819,21 @@
           }
 
           body += `<text x="${rowX + 54}" y="${yy + 29}" text-anchor="start" font-size="17" font-weight="700" fill="#fff">${esc(p.n)}</text>`;
+          const nw = getTextWidth(p.n, "700 17px 'Segoe UI', Arial, sans-serif");
+          let curBadgeX = rowX + 54 + Math.round(nw) + 10;
+
           if (p.es_profe) {
-            const nw = getTextWidth(p.n, "700 17px 'Segoe UI', Arial, sans-serif");
-            const maxBadgeX = rowX + nameW - 56;
-            const badgeOffset = Math.min(rowX + 54 + Math.round(nw) + 10, maxBadgeX);
-            const badgeW = 50, badgeH = 17, badgeY = yy + 14.5;
-            body += `<rect x="${badgeOffset}" y="${badgeY}" width="${badgeW}" height="${badgeH}" rx="8.5" fill="#ff8a2a" fill-opacity=".14" stroke="#ff8a2a" stroke-width="1" stroke-opacity=".75"/>`;
-            body += `<circle cx="${badgeOffset + 9.5}" cy="${badgeY + 8.5}" r="2.2" fill="#ff8a2a"/>`;
-            body += `<text x="${badgeOffset + 28}" y="${badgeY + 12}" text-anchor="middle" font-size="8.5" font-weight="900" fill="#ff9a47" letter-spacing="0.8">PROFE</text>`;
+            const badgeW = 46, badgeH = 17, badgeY = yy + 14.5;
+            body += `<rect x="${curBadgeX}" y="${badgeY}" width="${badgeW}" height="${badgeH}" rx="8.5" fill="#ff8a2a" fill-opacity=".14" stroke="#ff8a2a" stroke-width="1" stroke-opacity=".75"/>`;
+            body += `<text x="${curBadgeX + badgeW / 2}" y="${badgeY + 12}" text-anchor="middle" font-size="8.5" font-weight="900" fill="#ff9a47" letter-spacing="0.8">PROFE</text>`;
+            curBadgeX += badgeW + 6;
+          }
+
+          if (selectedGroup === 'all' && p.grupo) {
+            const gw = Math.max(50, Math.round(getTextWidth(p.grupo, "900 8.5px 'Segoe UI', Arial, sans-serif") + 16));
+            const badgeH = 17, badgeY = yy + 14.5;
+            body += `<rect x="${curBadgeX}" y="${badgeY}" width="${gw}" height="${badgeH}" rx="8.5" fill="#38bdf8" fill-opacity=".14" stroke="#38bdf8" stroke-width="1" stroke-opacity=".75"/>`;
+            body += `<text x="${curBadgeX + gw / 2}" y="${badgeY + 12}" text-anchor="middle" font-size="8.5" font-weight="900" fill="#7dd3fc" letter-spacing="0.8">${esc(p.grupo)}</text>`;
           }
 
           p.reps.forEach((rep, ci) => {
@@ -784,7 +856,14 @@
       }
 
       const H = y - GAP + 34;
-      const periodLabel = periodStr ? `SEMANA: ${periodStr}` : '';
+      const baseLabel = (recordData && (recordData.nombre || recordData.name)) ? (recordData.nombre || recordData.name) : (periodStr || '');
+      let periodLabel = baseLabel ? `EVALUACIÓN: ${baseLabel}` : '';
+      if (selectedGroup !== 'all') {
+        periodLabel = periodLabel ? `${periodLabel} · GRUPO: ${selectedGroup}` : `GRUPO: ${selectedGroup}`;
+      } else if (recordData && recordData.athletes && recordData.athletes.some(a => a.grupo)) {
+        periodLabel = periodLabel ? `${periodLabel} · TODOS LOS GRUPOS` : 'TODOS LOS GRUPOS';
+      }
+
       const head = `<defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#1b1f2b"/>
@@ -811,11 +890,11 @@
           curSvg = null;
           return;
         }
-        curSvg = buildSvg(currentRecord, exercisesConfig, currentPeriod);
+        curSvg = buildSvg(currentRecord, exercisesConfig, currentPeriod, currentGroup);
         if (curSvg) {
           $('prev').innerHTML = curSvg.svg;
         } else {
-          $('prev').innerHTML = '<div class="status-msg">No se encontraron atletas o ejercicios en este período.</div>';
+          $('prev').innerHTML = '<div class="status-msg">No se encontraron atletas o ejercicios para los filtros seleccionados.</div>';
         }
       } catch (e) {
         $('prev').innerHTML = `<div class="status-msg error">Error al procesar los datos: ${esc(e.message)}</div>`;
@@ -835,11 +914,13 @@
         const res = await fetch(`data/registros/${period}.json`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         currentRecord = await res.json();
+        updateGroupFilter(currentRecord.athletes);
         render();
       } catch (err) {
         console.warn(`Error al obtener data/registros/${period}.json via fetch:`, err);
-        if (period === "2026-10-19") {
+        if (period === "2026-10" || period === "2026-10-19") {
           currentRecord = FALLBACK_RECORD;
+          updateGroupFilter(currentRecord.athletes);
           render();
         } else {
           $('prev').innerHTML = `<div class="status-msg error">No se pudo cargar el archivo data/registros/${esc(period)}.json (${esc(err.message)})</div>`;
@@ -880,18 +961,25 @@
       const select = $('periodSelect');
       select.innerHTML = '';
       availablePeriods.forEach(p => {
+        const id = typeof p === 'object' && p.id ? p.id : String(p);
+        const name = typeof p === 'object' && (p.nombre || p.name) ? (p.nombre || p.name) : id;
         const opt = document.createElement('option');
-        opt.value = p;
-        opt.textContent = p;
+        opt.value = id;
+        opt.textContent = name;
         select.appendChild(opt);
       });
 
       // Select the last period by default
-      const defaultPeriod = availablePeriods[availablePeriods.length - 1];
+      const defaultObj = availablePeriods[availablePeriods.length - 1];
+      const defaultPeriod = typeof defaultObj === 'object' && defaultObj.id ? defaultObj.id : String(defaultObj);
       select.value = defaultPeriod;
 
       // Listeners
       select.addEventListener('change', () => loadPeriodData(select.value));
+      $('groupSelect').addEventListener('change', (e) => {
+        currentGroup = e.target.value;
+        render();
+      });
       $('profeCheck').addEventListener('change', render);
 
       // Listener para el selector de sistema de puntaje dentro del SVG
@@ -931,12 +1019,17 @@
         setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       }
 
+      function getExportFilename(ext) {
+        const pStr = currentPeriod || 'export';
+        const gStr = currentGroup !== 'all' ? `-${currentGroup}` : '';
+        return `leaderboard-${pStr}${gStr}.${ext}`;
+      }
+
       $('svgBtn').onclick = () => {
         exportMenu.classList.remove('show');
         exportBtn.setAttribute('aria-expanded', 'false');
         if (curSvg) {
-          const filename = `leaderboard-${currentPeriod || 'export'}.svg`;
-          dl(new Blob([curSvg.svg], { type: 'image/svg+xml' }), filename);
+          dl(new Blob([curSvg.svg], { type: 'image/svg+xml' }), getExportFilename('svg'));
         }
       };
 
@@ -953,7 +1046,7 @@
           const x = c.getContext('2d');
           x.scale(2, 2);
           x.drawImage(img, 0, 0, curSvg.W, curSvg.H);
-          c.toBlob(b => dl(b, `leaderboard-${currentPeriod || 'export'}.png`));
+          c.toBlob(b => dl(b, getExportFilename('png')));
         };
         img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
       };
@@ -983,7 +1076,7 @@
           });
 
           pdf.addImage(imgData, 'PNG', 0, 0, curSvg.W, curSvg.H);
-          pdf.save(`leaderboard-${currentPeriod || 'export'}.pdf`);
+          pdf.save(getExportFilename('pdf'));
         };
         img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
       };

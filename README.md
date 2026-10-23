@@ -14,7 +14,10 @@ Panel interactivo y generador de rankings semanales de calistenia para visualiza
   - **Puntuación Balanceada (Media Geométrica)**: Pondera el rendimiento relativo contra el líder en cada ejercicio $(\prod p_i)^{1/n}$. Premia la constancia en todos los ejercicios y penaliza tener debilidades en alguno.
   - **Relativo al Líder**: Sumatoria ponderada de marcas según la proporción con el primer puesto.
   - **Modularidad**: Cada criterio se puede habilitar o deshabilitar fácilmente con `enabled: true/false`.
-- **📅 Navegación por Períodos**: Selector dinámico para cambiar entre semanas o fechas registradas.
+- **👥 Soporte Multigrupo y Horarios**: Los atletas pueden pertenecer a distintos grupos/turnos (ej. `LMV1730`, `MJ1900`) y rendir en diferentes fechas dentro de una misma evaluación.
+- **🔍 Filtro de Grupos Dinámico**: Selector para alternar entre el ranking unificado de la academia ("Todos los grupos") o un grupo específico con recálculo automático de podios y puntajes.
+- **🏷️ Insignias de Grupo**: Etiquetas visuales para identificar el grupo de cada atleta en el ranking general y en las tarjetas por ejercicio.
+- **📅 Evaluaciones Consolidadas por Período**: Permite agrupar las pruebas del mes o ciclo aunque se hayan realizado en distintas fechas y horarios.
 - **👨‍🏫 Filtro de Profesores**: Casilla para incluir o excluir profesores del ranking con un solo clic.
 - **📥 Exportación Multi-formato**:
   - **PNG** (en alta resolución 2x Retina, listo para compartir en redes sociales).
@@ -34,24 +37,27 @@ cpw-leaderboard/
 │
 └── data/
     ├── ejercicios.json     # Catálogo de ejercicios disponibles
-    ├── periodos.json       # Lista de períodos disponibles
-    └── registros/          # Marcas semanales por atleta
-        └── 2026-10-19.json
+    ├── periodos.json       # Lista de períodos / evaluaciones disponibles
+    └── registros/          # Evaluaciones consolidadas por período
+        └── 2026-10.json
 ```
 
 ---
 
 ## ⚙️ Cómo Agregar Nuevos Registros
 
-### 1. Crear el archivo de la semana
-Agrega un nuevo archivo JSON en `data/registros/` con el nombre de la fecha (por ejemplo, `data/registros/2026-10-26.json`):
+### 1. Crear o actualizar el archivo de la evaluación
+Agrega o edita el archivo JSON en `data/registros/` con el identificador del período (por ejemplo, `data/registros/2026-11.json`):
 
 ```json
 {
-  "period": "2026-10-26",
+  "period": "2026-11",
+  "name": "Noviembre 2026",
   "athletes": [
     {
       "name": "Fabri",
+      "grupo": "LMV1730",
+      "fecha": "2026-11-16",
       "es_profe": true,
       "results": {
         "dominadas_pronas": 28,
@@ -62,6 +68,8 @@ Agrega un nuevo archivo JSON en `data/registros/` con el nombre de la fecha (por
     },
     {
       "name": "Tadeo",
+      "grupo": "LMV1730",
+      "fecha": "2026-11-16",
       "es_profe": false,
       "results": {
         "dominadas_pronas": 18,
@@ -69,22 +77,39 @@ Agrega un nuevo archivo JSON en `data/registros/` con el nombre de la fecha (por
         "lagartijas": 30,
         "dominadas_supinas": 17
       }
+    },
+    {
+      "name": "Camila",
+      "grupo": "MJ1900",
+      "fecha": "2026-11-17",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 15,
+        "fondos": 16,
+        "lagartijas": 32,
+        "dominadas_supinas": 14
+      }
     }
   ]
 }
 ```
 
+> **Campos de cada atleta:**
+> - `grupo` (opcional): Código del turno o grupo (ej. `"LMV1730"`). Si no se define, se muestra sin etiqueta de grupo.
+> - `fecha` (opcional): Fecha en formato `YYYY-MM-DD` en la que el grupo/atleta rindió la prueba.
+> - `es_profe` (booleano): Indica si es profesor.
+
 ### 2. Registrar el nuevo período
-Edita `data/periodos.json` y agrega la nueva fecha al arreglo:
+Edita `data/periodos.json` y agrega la evaluación al arreglo (puedes usar un objeto con `id` y `nombre` legible o directamente el id):
 
 ```json
 [
-  "2026-10-19",
-  "2026-10-26"
+  { "id": "2026-10", "nombre": "Octubre 2026" },
+  { "id": "2026-11", "nombre": "Noviembre 2026" }
 ]
 ```
 
-El selector de la aplicación cargará el nuevo período automáticamente.
+El selector de la aplicación cargará el nuevo período y detectará los grupos automáticamente.
 
 ---
 
