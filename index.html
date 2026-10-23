@@ -519,7 +519,7 @@
       return result;
     }
 
-    function buildSvg(recordData, exercisesData, periodStr, groupFilter) {
+    function buildSvg(recordData, exercisesData, periodStr, groupFilter, isExport = false) {
       if (!recordData || !recordData.athletes || !recordData.athletes.length) return null;
 
       const includeProfe = $('profeCheck').checked;
@@ -755,29 +755,31 @@
         body += `<text x="${gx0 + 42}" y="${y + 48}" text-anchor="middle" font-size="28">🏆</text>`;
         body += `<text x="${gx0 + 74}" y="${y + 47}" text-anchor="start" font-size="21" font-weight="900" font-style="italic" fill="${GCOL}">${esc(criteria.cardTitle)}</text>`;
 
-        // Selector dinámico según los criterios disponibles
-        const btnGroupW = Math.min(GW - 360, Math.max(280, critKeys.length * 120));
-        const btnGroupH = 34;
-        const btnGroupX = gx0 + GW - 24 - btnGroupW;
-        const btnGroupY = y + 25;
-        const btnW = btnGroupW / Math.max(critKeys.length, 1);
+        // Selector dinámico según los criterios disponibles (solo en vista interactiva, no en exportación)
+        if (!isExport) {
+          const btnGroupW = Math.min(GW - 360, Math.max(280, critKeys.length * 120));
+          const btnGroupH = 34;
+          const btnGroupX = gx0 + GW - 24 - btnGroupW;
+          const btnGroupY = y + 25;
+          const btnW = btnGroupW / Math.max(critKeys.length, 1);
 
-        body += `<g class="svg-seg" transform="translate(${btnGroupX}, ${btnGroupY})">
-          <rect width="${btnGroupW}" height="${btnGroupH}" rx="8" fill="#0d0f14" stroke="#3a4050" stroke-width="1.5"/>`;
+          body += `<g class="svg-seg" transform="translate(${btnGroupX}, ${btnGroupY})">
+            <rect width="${btnGroupW}" height="${btnGroupH}" rx="8" fill="#0d0f14" stroke="#3a4050" stroke-width="1.5"/>`;
 
-        critKeys.forEach((key, idx) => {
-          const isSel = gmode === key;
-          const crit = allCrit[key];
-          const bx = idx * btnW;
-          const fs = btnW < 95 ? 9 : (btnW < 110 ? 10 : (btnW < 125 ? 10.5 : 11));
-          const ls = btnW < 110 ? 0.2 : 0.5;
-          body += `<g class="svg-mode-btn" data-mode="${esc(key)}">
-            <rect x="${bx + 2}" y="2" width="${btnW - 4}" height="${btnGroupH - 4}" rx="6" fill="${isSel ? '#f5c542' : 'transparent'}"/>
-            <text x="${bx + btnW / 2}" y="21" text-anchor="middle" font-size="${fs}" font-weight="${isSel ? '800' : '600'}" fill="${isSel ? '#1a1005' : '#9aa1b0'}" letter-spacing="${ls}">${esc(crit.btnLabel || key.toUpperCase())}</text>
-          </g>`;
-        });
+          critKeys.forEach((key, idx) => {
+            const isSel = gmode === key;
+            const crit = allCrit[key];
+            const bx = idx * btnW;
+            const fs = btnW < 95 ? 9 : (btnW < 110 ? 10 : (btnW < 125 ? 10.5 : 11));
+            const ls = btnW < 110 ? 0.2 : 0.5;
+            body += `<g class="svg-mode-btn" data-mode="${esc(key)}">
+              <rect x="${bx + 2}" y="2" width="${btnW - 4}" height="${btnGroupH - 4}" rx="6" fill="${isSel ? '#f5c542' : 'transparent'}"/>
+              <text x="${bx + btnW / 2}" y="21" text-anchor="middle" font-size="${fs}" font-weight="${isSel ? '800' : '600'}" fill="${isSel ? '#1a1005' : '#9aa1b0'}" letter-spacing="${ls}">${esc(crit.btnLabel || key.toUpperCase())}</text>
+            </g>`;
+          });
 
-        body += `</g>`;
+          body += `</g>`;
+        }
 
         const rowX = gx0 + 24;
         const rowW = GW - 48;
@@ -1025,27 +1027,33 @@
         return `leaderboard-${pStr}${gStr}.${ext}`;
       }
 
+      function getCleanExportSvg() {
+        return buildSvg(currentRecord, exercisesConfig, currentPeriod, currentGroup, true);
+      }
+
       $('svgBtn').onclick = () => {
         exportMenu.classList.remove('show');
         exportBtn.setAttribute('aria-expanded', 'false');
-        if (curSvg) {
-          dl(new Blob([curSvg.svg], { type: 'image/svg+xml' }), getExportFilename('svg'));
+        const expSvg = getCleanExportSvg();
+        if (expSvg) {
+          dl(new Blob([expSvg.svg], { type: 'image/svg+xml' }), getExportFilename('svg'));
         }
       };
 
       $('pngBtn').onclick = () => {
         exportMenu.classList.remove('show');
         exportBtn.setAttribute('aria-expanded', 'false');
-        if (!curSvg) return;
-        const s = curSvg.svg.replace('<svg ', `<svg width="${curSvg.W}" height="${curSvg.H}" `);
+        const expSvg = getCleanExportSvg();
+        if (!expSvg) return;
+        const s = expSvg.svg.replace('<svg ', `<svg width="${expSvg.W}" height="${expSvg.H}" `);
         const img = new Image();
         img.onload = () => {
           const c = document.createElement('canvas');
-          c.width = curSvg.W * 2;
-          c.height = curSvg.H * 2;
+          c.width = expSvg.W * 2;
+          c.height = expSvg.H * 2;
           const x = c.getContext('2d');
           x.scale(2, 2);
-          x.drawImage(img, 0, 0, curSvg.W, curSvg.H);
+          x.drawImage(img, 0, 0, expSvg.W, expSvg.H);
           c.toBlob(b => dl(b, getExportFilename('png')));
         };
         img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
@@ -1054,28 +1062,29 @@
       $('pdfBtn').onclick = () => {
         exportMenu.classList.remove('show');
         exportBtn.setAttribute('aria-expanded', 'false');
-        if (!curSvg) return;
+        const expSvg = getCleanExportSvg();
+        if (!expSvg) return;
 
-        const s = curSvg.svg.replace('<svg ', `<svg width="${curSvg.W}" height="${curSvg.H}" `);
+        const s = expSvg.svg.replace('<svg ', `<svg width="${expSvg.W}" height="${expSvg.H}" `);
         const img = new Image();
         img.onload = () => {
           const c = document.createElement('canvas');
-          c.width = curSvg.W * 2;
-          c.height = curSvg.H * 2;
+          c.width = expSvg.W * 2;
+          c.height = expSvg.H * 2;
           const x = c.getContext('2d');
           x.scale(2, 2);
-          x.drawImage(img, 0, 0, curSvg.W, curSvg.H);
+          x.drawImage(img, 0, 0, expSvg.W, expSvg.H);
 
           const imgData = c.toDataURL('image/png');
-          const orientation = curSvg.W > curSvg.H ? 'l' : 'p';
+          const orientation = expSvg.W > expSvg.H ? 'l' : 'p';
           const { jsPDF } = window.jspdf;
           const pdf = new jsPDF({
             orientation,
             unit: 'px',
-            format: [curSvg.W, curSvg.H]
+            format: [expSvg.W, expSvg.H]
           });
 
-          pdf.addImage(imgData, 'PNG', 0, 0, curSvg.W, curSvg.H);
+          pdf.addImage(imgData, 'PNG', 0, 0, expSvg.W, expSvg.H);
           pdf.save(getExportFilename('pdf'));
         };
         img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
