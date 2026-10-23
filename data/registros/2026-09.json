@@ -1,0 +1,18 @@
+{
+  "period": "2026-09",
+  "name": "Septiembre 2026",
+  "athletes": [
+    {
+      "name": "Bruno",
+      "grupo": "LMV1730",
+      "fecha": "2026-09",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 6,
+        "fondos": 12,
+        "lagartijas": 21,
+        "dominadas_supinas": 5
+      }
+    }
+  ]
+}

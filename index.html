@@ -981,8 +981,8 @@
         select.appendChild(opt);
       });
 
-      // Select the last period by default
-      const defaultObj = availablePeriods[availablePeriods.length - 1];
+      // Select the first (most recent) period by default
+      const defaultObj = availablePeriods[0];
       const defaultPeriod = typeof defaultObj === 'object' && defaultObj.id ? defaultObj.id : String(defaultObj);
       select.value = defaultPeriod;
 
