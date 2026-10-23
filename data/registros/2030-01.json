@@ -1,0 +1,306 @@
+{
+  "period": "2030-01",
+  "name": "Enero 2030",
+  "athletes": [
+    {
+      "name": "Fabri",
+      "grupo": "LMV1730",
+      "fecha": "2030-01-20",
+      "es_profe": true,
+      "results": {
+        "dominadas_pronas": 29,
+        "fondos": 46,
+        "lagartijas": 45,
+        "dominadas_supinas": 23
+      }
+    },
+    {
+      "name": "Santi",
+      "grupo": "TJS1900",
+      "fecha": "2030-01-20",
+      "es_profe": true,
+      "results": {
+        "dominadas_pronas": 26,
+        "fondos": 42,
+        "lagartijas": 42,
+        "dominadas_supinas": 22
+      }
+    },
+    {
+      "name": "Tadeo",
+      "grupo": "LMV1730",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 21,
+        "fondos": 24,
+        "lagartijas": 36,
+        "dominadas_supinas": 19
+      }
+    },
+    {
+      "name": "Mateo",
+      "grupo": "TJS1900",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 20,
+        "fondos": 28,
+        "lagartijas": 38,
+        "dominadas_supinas": 18
+      }
+    },
+    {
+      "name": "Lucía",
+      "grupo": "LMV1730",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 16,
+        "fondos": 15,
+        "lagartijas": 44,
+        "dominadas_supinas": 15
+      }
+    },
+    {
+      "name": "Joaquín",
+      "grupo": "LMV1730",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 15,
+        "fondos": 14,
+        "lagartijas": 20,
+        "dominadas_supinas": 14
+      }
+    },
+    {
+      "name": "Maxi",
+      "grupo": "LMV1730",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 15,
+        "fondos": 26,
+        "lagartijas": 43,
+        "dominadas_supinas": 12
+      }
+    },
+    {
+      "name": "Sofía",
+      "grupo": "SAB1000",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 14,
+        "fondos": 18,
+        "lagartijas": 39,
+        "dominadas_supinas": 14
+      }
+    },
+    {
+      "name": "Bruno",
+      "grupo": "LMV1730",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 14,
+        "fondos": 22,
+        "lagartijas": 42,
+        "dominadas_supinas": 12
+      }
+    },
+    {
+      "name": "Ro",
+      "grupo": "LMV1730",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 13,
+        "fondos": 20,
+        "lagartijas": 35,
+        "dominadas_supinas": 13
+      }
+    },
+    {
+      "name": "Lucas",
+      "grupo": "TJS1900",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 13,
+        "fondos": 19,
+        "lagartijas": 32,
+        "dominadas_supinas": 12
+      }
+    },
+    {
+      "name": "S",
+      "grupo": "LMV1730",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 13,
+        "fondos": 18,
+        "lagartijas": 37,
+        "dominadas_supinas": 14
+      }
+    },
+    {
+      "name": "Valentina",
+      "grupo": "SAB1000",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 12,
+        "fondos": 16,
+        "lagartijas": 38,
+        "dominadas_supinas": 13
+      }
+    },
+    {
+      "name": "Tomás",
+      "grupo": "LMV0900",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 12,
+        "fondos": 21,
+        "lagartijas": 30,
+        "dominadas_supinas": 11
+      }
+    },
+    {
+      "name": "Camila",
+      "grupo": "MJ1800",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 11,
+        "fondos": 14,
+        "lagartijas": 35,
+        "dominadas_supinas": 12
+      }
+    },
+    {
+      "name": "Tony",
+      "grupo": "LMV1730",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 11,
+        "fondos": 20,
+        "lagartijas": 28,
+        "dominadas_supinas": 11
+      }
+    },
+    {
+      "name": "Agustín",
+      "grupo": "TJS1900",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 11,
+        "fondos": 17,
+        "lagartijas": 29,
+        "dominadas_supinas": 10
+      }
+    },
+    {
+      "name": "Martina",
+      "grupo": "SAB1000",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 10,
+        "fondos": 13,
+        "lagartijas": 33,
+        "dominadas_supinas": 11
+      }
+    },
+    {
+      "name": "Nicolás",
+      "grupo": "LMV0900",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 10,
+        "fondos": 18,
+        "lagartijas": 26,
+        "dominadas_supinas": 9
+      }
+    },
+    {
+      "name": "Paula",
+      "grupo": "MJ1800",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 9,
+        "fondos": 12,
+        "lagartijas": 31,
+        "dominadas_supinas": 10
+      }
+    },
+    {
+      "name": "Facundo",
+      "grupo": "TJS1900",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 9,
+        "fondos": 15,
+        "lagartijas": 25,
+        "dominadas_supinas": 9
+      }
+    },
+    {
+      "name": "Florencia",
+      "grupo": "SAB1000",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 8,
+        "fondos": 11,
+        "lagartijas": 28,
+        "dominadas_supinas": 9
+      }
+    },
+    {
+      "name": "Franco",
+      "grupo": "LMV0900",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 8,
+        "fondos": 14,
+        "lagartijas": 24,
+        "dominadas_supinas": 8
+      }
+    },
+    {
+      "name": "Julieta",
+      "grupo": "MJ1800",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 7,
+        "fondos": 10,
+        "lagartijas": 25,
+        "dominadas_supinas": 8
+      }
+    },
+    {
+      "name": "Manuel",
+      "grupo": "LMV1730",
+      "fecha": "2030-01-20",
+      "es_profe": false,
+      "results": {
+        "dominadas_pronas": 6,
+        "fondos": 12,
+        "lagartijas": 22,
+        "dominadas_supinas": 7
+      }
+    }
+  ]
+}

@@ -352,6 +352,17 @@
       opacity: .82
     }
 
+    .svg-expand-btn {
+      cursor: pointer;
+      user-select: none;
+      transition: opacity .15s ease, filter .15s ease;
+    }
+
+    .svg-expand-btn:hover {
+      opacity: .88;
+      filter: brightness(1.18);
+    }
+
     .status-msg {
       text-align: center;
       padding: 50px 20px;
@@ -502,6 +513,8 @@
     let currentGroup = 'all';
     let currentGmode = 'pos';
     let curSvg = null;
+    const ROW_LIMIT = 10;
+    let isExpanded = false;
 
     // Embedded fallback data in case local file:// blocks fetch
     const FALLBACK_EXERCISES = {
@@ -579,6 +592,7 @@
 
     function selectGroup(groupId) {
       currentGroup = groupId;
+      isExpanded = false;
       if ($('groupSelect')) $('groupSelect').value = groupId;
       const groupVal = $('groupVal');
       if (groupVal) {
@@ -694,7 +708,7 @@
       return result;
     }
 
-    function buildSvg(recordData, exercisesData, periodStr, groupFilter, isExport = false) {
+    function buildSvg(recordData, exercisesData, periodStr, groupFilter, isExport = false, expanded = isExpanded, page = 'all') {
       if (!recordData || !recordData.athletes || !recordData.athletes.length) return null;
 
       const includeProfe = $('profeCheck').checked;
@@ -753,82 +767,115 @@
       if (!cols.length) return null;
 
       const CW = 250, GAP = 24, PAD = 36, RH = 58, PER = 4;
-      const TOP = periodStr ? 172 : 154;
       const n = Math.min(cols.length, PER);
       const W = Math.max(750, PAD * 2 + n * CW + (n - 1) * GAP);
-      let y = TOP, body = '';
+      let y = 0, body = '';
+
+      const baseLabel = (recordData && (recordData.nombre || recordData.name)) ? (recordData.nombre || recordData.name) : (periodStr || '');
+      let periodLabel = baseLabel ? `${baseLabel}` : '';
+      if (selectedGroup !== 'all') {
+        const formattedSelGroup = formatGroup(selectedGroup);
+        periodLabel = periodLabel ? `${periodLabel} · GRUPO: ${formattedSelGroup}` : `GRUPO: ${formattedSelGroup}`;
+      } else if (recordData && recordData.athletes && recordData.athletes.some(a => a.grupo)) {
+        periodLabel = periodLabel ? `${periodLabel} · TODOS LOS GRUPOS` : 'TODOS LOS GRUPOS';
+      }
 
       // --- 1. COLUMNAS DE LAS CATEGORÍAS INDIVIDUALES ---
-      const chunks = [];
-      for (let i = 0; i < cols.length; i += PER) chunks.push(cols.slice(i, i + PER));
+      if (page !== 'general') {
+        y = periodLabel ? 172 : 154;
+        const chunks = [];
+        for (let i = 0; i < cols.length; i += PER) chunks.push(cols.slice(i, i + PER));
 
-      chunks.forEach((ch, ci) => {
-        const mx = Math.max(...ch.map(c => c.list.length), 1);
-        const ph = 84 + mx * RH + 10;
-        const tw = ch.length * CW + (ch.length - 1) * GAP;
-        const x0 = (W - tw) / 2;
+        const maxExercisesAthletes = Math.max(...cols.map(c => c.list.length), 1);
+        const hasMoreExercises = maxExercisesAthletes > ROW_LIMIT;
 
-        ch.forEach((c, k) => {
-          const x = x0 + k * (CW + GAP);
-          const col = COLORS[(ci * PER + k) % 4];
-          body += `<rect x="${x}" y="${y}" width="${CW}" height="${ph}" rx="16" fill="#000" fill-opacity=".38" stroke="${col}" stroke-width="2.5"/>`;
+        chunks.forEach((ch, ci) => {
+          const totalInChunk = Math.max(...ch.map(c => c.list.length), 1);
+          const mx = expanded ? totalInChunk : Math.min(totalInChunk, ROW_LIMIT);
+          const ph = 84 + mx * RH + 10;
+          const tw = ch.length * CW + (ch.length - 1) * GAP;
+          const x0 = (W - tw) / 2;
 
-          const sp = splitLeadingEmoji(c.h);
-          const label = sp.text;
-          body += sp.em
-            ? `<text x="${x + 34}" y="${y + 45}" text-anchor="middle" font-size="30">${esc(sp.em)}</text>`
-            : icon(c.h, x + 14, y + 14, col);
+          ch.forEach((c, k) => {
+            const x = x0 + k * (CW + GAP);
+            const col = COLORS[(ci * PER + k) % 4];
+            body += `<rect x="${x}" y="${y}" width="${CW}" height="${ph}" rx="16" fill="#000" fill-opacity=".38" stroke="${col}" stroke-width="2.5"/>`;
 
-          const hl = wrap(label.toUpperCase());
-          hl.forEach((t, j) => {
-            body += `<text x="${x + 62}" y="${y + (hl.length > 1 ? 34 + j * 22 : 46)}" text-anchor="start" font-size="19" font-weight="800" font-style="italic" fill="#fff">${esc(t)}</text>`;
+            const sp = splitLeadingEmoji(c.h);
+            const label = sp.text;
+            body += sp.em
+              ? `<text x="${x + 34}" y="${y + 45}" text-anchor="middle" font-size="30">${esc(sp.em)}</text>`
+              : icon(c.h, x + 14, y + 14, col);
+
+            const hl = wrap(label.toUpperCase());
+            hl.forEach((t, j) => {
+              body += `<text x="${x + 62}" y="${y + (hl.length > 1 ? 34 + j * 22 : 46)}" text-anchor="start" font-size="19" font-weight="800" font-style="italic" fill="#fff">${esc(t)}</text>`;
+            });
+
+            const displayList = expanded ? c.list : c.list.slice(0, ROW_LIMIT);
+
+            displayList.forEach((p, j) => {
+              const yy = y + 76 + j * RH;
+              const bx = x + 60;
+              if (p.r <= 3) {
+                body += `<circle cx="${x + 34}" cy="${yy + 25}" r="19" fill="${MEDAL[p.r]}" stroke="#fff" stroke-opacity=".5"/><text x="${x + 34}" y="${yy + 33}" text-anchor="middle" font-size="22" font-weight="800" fill="#1b1b1b">${p.r}</text>`;
+              } else {
+                body += `<text x="${x + 34}" y="${yy + 34}" text-anchor="middle" font-size="24" font-weight="800" fill="#fff">${p.r}º</text>`;
+              }
+
+              const hi = p.r <= 3;
+              body += `<rect x="${bx}" y="${yy}" width="176" height="50" rx="8" fill="#1a1d26" stroke="${hi ? col : '#3a4050'}" stroke-width="${hi ? 2 : 1.5}"/>`;
+              body += `<rect x="${bx + 120}" y="${yy + 1}" width="55" height="48" rx="7" fill="#07080b"/>`;
+
+              const showGroup = includeGroupBadges && Boolean(p.grupo);
+              const nameY = showGroup ? yy + 22 : yy + 31.5;
+              const fs = showGroup
+                ? (p.es_profe ? (p.n.length > 8 ? 12 : p.n.length > 5 ? 13.5 : 15) : (p.n.length > 8 ? 13.5 : p.n.length > 5 ? 15 : 17))
+                : (p.es_profe ? (p.n.length > 8 ? 13.5 : p.n.length > 5 ? 16 : 18) : (p.n.length > 8 ? 15 : p.n.length > 5 ? 18 : 22));
+
+              if (p.es_profe) {
+                const nw = getTextWidth(p.n, `800 ${fs}px 'Segoe UI', Arial, sans-serif`);
+                const pSize = 18;
+                const pGap = 6;
+                const totalW = pSize + pGap + nw;
+                const startX = Math.max(bx + 4, bx + 60 - totalW / 2);
+                const pX = startX;
+                const pCenterY = nameY - fs * 0.35;
+                const pY = pCenterY - pSize / 2;
+                body += `<rect x="${pX}" y="${pY}" width="${pSize}" height="${pSize}" rx="4" fill="#ff8a2a" fill-opacity=".18" stroke="#ff8a2a" stroke-width="1.3" stroke-opacity=".85"/>`;
+                body += `<text x="${pX + pSize / 2}" y="${pY + 13}" text-anchor="middle" font-size="11.5" font-weight="900" fill="#ff9a47">P</text>`;
+                const nameX = pX + pSize + pGap;
+                body += `<text x="${nameX}" y="${nameY}" text-anchor="start" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
+              } else {
+                body += `<text x="${bx + 60}" y="${nameY}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
+              }
+
+              if (showGroup) {
+                const groupTxt = formatGroup(p.grupo);
+                body += `<text x="${bx + 60}" y="${yy + 37}" text-anchor="middle" font-size="10.5" font-weight="600" fill="#9aa1b0" letter-spacing="0.3">${esc(groupTxt)}</text>`;
+              }
+              body += `<text x="${bx + 148}" y="${yy + 34}" text-anchor="middle" font-size="26" font-weight="800" fill="${col}">${esc(+p.v.toFixed(2))}</text>`;
+            });
           });
-
-          c.list.forEach((p, j) => {
-            const yy = y + 76 + j * RH;
-            const bx = x + 60;
-            if (p.r <= 3) {
-              body += `<circle cx="${x + 34}" cy="${yy + 25}" r="19" fill="${MEDAL[p.r]}" stroke="#fff" stroke-opacity=".5"/><text x="${x + 34}" y="${yy + 33}" text-anchor="middle" font-size="22" font-weight="800" fill="#1b1b1b">${p.r}</text>`;
-            } else {
-              body += `<text x="${x + 34}" y="${yy + 34}" text-anchor="middle" font-size="24" font-weight="800" fill="#fff">${p.r}º</text>`;
-            }
-
-            const hi = p.r <= 3;
-            body += `<rect x="${bx}" y="${yy}" width="176" height="50" rx="8" fill="#1a1d26" stroke="${hi ? col : '#3a4050'}" stroke-width="${hi ? 2 : 1.5}"/>`;
-            body += `<rect x="${bx + 120}" y="${yy + 1}" width="55" height="48" rx="7" fill="#07080b"/>`;
-
-            const showGroup = includeGroupBadges && Boolean(p.grupo);
-            const nameY = showGroup ? yy + 22 : yy + 31.5;
-            const fs = showGroup
-              ? (p.es_profe ? (p.n.length > 8 ? 12 : p.n.length > 5 ? 13.5 : 15) : (p.n.length > 8 ? 13.5 : p.n.length > 5 ? 15 : 17))
-              : (p.es_profe ? (p.n.length > 8 ? 13.5 : p.n.length > 5 ? 16 : 18) : (p.n.length > 8 ? 15 : p.n.length > 5 ? 18 : 22));
-
-            if (p.es_profe) {
-              const nw = getTextWidth(p.n, `800 ${fs}px 'Segoe UI', Arial, sans-serif`);
-              const pSize = 18;
-              const pGap = 6;
-              const totalW = pSize + pGap + nw;
-              const startX = Math.max(bx + 4, bx + 60 - totalW / 2);
-              const pX = startX;
-              const pCenterY = nameY - fs * 0.35;
-              const pY = pCenterY - pSize / 2;
-              body += `<rect x="${pX}" y="${pY}" width="${pSize}" height="${pSize}" rx="4" fill="#ff8a2a" fill-opacity=".18" stroke="#ff8a2a" stroke-width="1.3" stroke-opacity=".85"/>`;
-              body += `<text x="${pX + pSize / 2}" y="${pY + 13}" text-anchor="middle" font-size="11.5" font-weight="900" fill="#ff9a47">P</text>`;
-              const nameX = pX + pSize + pGap;
-              body += `<text x="${nameX}" y="${nameY}" text-anchor="start" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
-            } else {
-              body += `<text x="${bx + 60}" y="${nameY}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${esc(p.n)}</text>`;
-            }
-
-            if (showGroup) {
-              const groupTxt = formatGroup(p.grupo);
-              body += `<text x="${bx + 60}" y="${yy + 37}" text-anchor="middle" font-size="10.5" font-weight="600" fill="#9aa1b0" letter-spacing="0.3">${esc(groupTxt)}</text>`;
-            }
-            body += `<text x="${bx + 148}" y="${yy + 34}" text-anchor="middle" font-size="26" font-weight="800" fill="${col}">${esc(+p.v.toFixed(2))}</text>`;
-          });
+          y += ph + GAP;
         });
-        y += ph + GAP;
-      });
+
+        if (hasMoreExercises && !isExport) {
+          const btnW = 260, btnH = 38;
+          const btnX = (W - btnW) / 2;
+          const btnY = y - GAP + 14;
+          const btnText = expanded
+            ? '▲ MOSTRAR TOP 10'
+            : `▼ VER TODOS (${maxExercisesAthletes} ATLETAS)`;
+
+          body += `<g class="svg-expand-btn" data-action="toggle-expand" data-section="exercises">
+            <rect x="${btnX}" y="${btnY}" width="${btnW}" height="${btnH}" rx="19" fill="#141720" stroke="#ff8a2a" stroke-width="1.6" stroke-opacity=".9"/>
+            <text x="${W / 2}" y="${btnY + 24}" text-anchor="middle" font-size="12.5" font-weight="800" fill="#ff9a47" letter-spacing="0.4">${esc(btnText)}</text>
+          </g>`;
+
+          y += btnH + 18;
+        }
+      }
 
       // --- 2. BLOQUE LEADERBOARD GENERAL (ABAJO) ---
       const rawCrit = window.SCORING_CRITERIA || { pos: { btnLabel: 'PUNTOS FIJOS' }, rel: { btnLabel: 'RELATIVO AL LÍDER' } };
@@ -858,7 +905,7 @@
         }
       };
 
-      if (cols.length > 0) {
+      if (page !== 'exercises' && cols.length > 0) {
         const athletesMap = new Map();
         filteredAthletes.forEach(a => {
           if (a.name && !athletesMap.has(a.name)) {
@@ -890,7 +937,7 @@
             });
           }
           return { n: name, es_profe: meta.es_profe, grupo: meta.grupo, fecha: meta.fecha, pts, reps };
-        }).filter(x => x.pts > 0);
+        }).filter(x => x.reps.some(r => r !== null && !isNaN(r.v)));
 
         glist.sort((a, b) => b.pts - a.pts);
         glist.forEach((x, k) => {
@@ -903,14 +950,17 @@
         const GR = 54;
         const sub = criteria.getSubtitle(totalAthletes, cols.length);
 
-        // Más aire antes de POSICIONES GENERALES
-        y += 55;
-        body += `<text x="${W / 2}" y="${y + 36}" text-anchor="middle" font-size="36" font-weight="900" font-style="italic" fill="#fff">POSICIONES GENERALES</text>`;
-        body += `<rect x="${W / 2 - 44}" y="${y + 50}" width="88" height="4" rx="2" fill="${GCOL}"/>`;
+        if (page !== 'general') {
+          // Más aire antes de POSICIONES GENERALES
+          y += 55;
+          body += `<text x="${W / 2}" y="${y + 36}" text-anchor="middle" font-size="36" font-weight="900" font-style="italic" fill="#fff">POSICIONES GENERALES</text>`;
+          body += `<rect x="${W / 2 - 44}" y="${y + 50}" width="88" height="4" rx="2" fill="${GCOL}"/>`;
+        }
+
         // Subtítulo más angosto y contenido en el centro con interlineado de párrafo
         const maxSubW = Math.min(GW * 0.68, 700);
         const subLines = wrapText(sub, maxSubW, "14px 'Segoe UI', Arial, sans-serif");
-        let curSubY = y + 78;
+        let curSubY = (page === 'general') ? (periodLabel ? 176 : 148) : (y + 78);
         subLines.forEach((item, sIdx) => {
           if (item.isNewParagraph) {
             curSubY += 12; // interlineado adicional de cambio de párrafo
@@ -919,12 +969,22 @@
           curSubY += 20; // interlineado dentro del mismo párrafo
         });
 
-        // Espacio generoso entre el subtítulo y la tarjeta dorada
-        const extraH = Math.max(0, curSubY - (y + 78) - 20);
-        y += 114 + extraH;
+        if (page === 'general') {
+          // Espacio entre el subtítulo y la tarjeta dorada en página general
+          y = curSubY + 24;
+        } else {
+          // Espacio generoso entre el subtítulo y la tarjeta dorada
+          const extraH = Math.max(0, curSubY - (y + 78) - 20);
+          y += 114 + extraH;
+        }
+
+        const hasMoreG = glist.length > ROW_LIMIT;
+        const displayGlist = expanded ? glist : glist.slice(0, ROW_LIMIT);
+        const showBtnG = hasMoreG && !isExport;
+        const btnH = 38;
 
         // Tarjeta con más aire vertical interno
-        const gph = 150 + glist.length * GR + 14;
+        const gph = 150 + displayGlist.length * GR + (showBtnG ? btnH + 24 : 14);
         body += `<rect x="${gx0}" y="${y}" width="${GW}" height="${gph}" rx="18" fill="#000" fill-opacity=".5" stroke="${GCOL}" stroke-width="3.5"/>`;
         // Trofeo vectorial estilizado idéntico al emoji 🏆 (tamaño armonizado)
         body += `<g transform="translate(${gx0 + 32}, ${y + 26}) scale(0.72)">
@@ -995,7 +1055,7 @@
         body += `<text x="${rowX + rowW - ptsW / 2}" y="${colHeaderY}" text-anchor="middle" font-size="12" font-weight="900" fill="${GCOL}" letter-spacing="0.5">${esc(criteria.ptsColumnHeader || 'PTS')}</text>`;
 
         // Filas de atletas con inicio amplio
-        glist.forEach((p, j) => {
+        displayGlist.forEach((p, j) => {
           const yy = y + 138 + j * GR;
           const hi = p.r <= 3;
           const rowBg = j % 2 === 0 ? '#141720' : '#11141b';
@@ -1043,18 +1103,25 @@
           body += `<text x="${ptsX + ptsW / 2}" y="${yy + 30}" text-anchor="middle" font-size="20" font-weight="900" fill="${GCOL}">${esc(valStr)}</text>`;
         });
 
-        y += gph + GAP + 6;
+        if (showBtnG) {
+          const btnW = 280;
+          const btnX = (W - btnW) / 2;
+          const btnY = y + 138 + displayGlist.length * GR + 10;
+          const btnText = expanded
+            ? '▲ MOSTRAR TOP 10'
+            : `▼ VER TABLA COMPLETA (${glist.length} ATLETAS)`;
+
+          body += `<g class="svg-expand-btn" data-action="toggle-expand" data-section="general">
+            <rect x="${btnX}" y="${btnY}" width="${btnW}" height="${btnH}" rx="19" fill="#141720" stroke="${GCOL}" stroke-width="1.6" stroke-opacity=".9"/>
+            <text x="${W / 2}" y="${btnY + 24}" text-anchor="middle" font-size="12.5" font-weight="800" fill="${GCOL}" letter-spacing="0.4">${esc(btnText)}</text>
+          </g>`;
+        }
+
+        y += gph + (page === 'general' ? 40 : GAP + 6);
       }
 
-      const H = y - GAP + 34;
-      const baseLabel = (recordData && (recordData.nombre || recordData.name)) ? (recordData.nombre || recordData.name) : (periodStr || '');
-      let periodLabel = baseLabel ? `${baseLabel}` : '';
-      if (selectedGroup !== 'all') {
-        const formattedSelGroup = formatGroup(selectedGroup);
-        periodLabel = periodLabel ? `${periodLabel} · GRUPO: ${formattedSelGroup}` : `GRUPO: ${formattedSelGroup}`;
-      } else if (recordData && recordData.athletes && recordData.athletes.some(a => a.grupo)) {
-        periodLabel = periodLabel ? `${periodLabel} · TODOS LOS GRUPOS` : 'TODOS LOS GRUPOS';
-      }
+      const H = (page === 'general') ? y : (y - GAP + 34);
+      const mainTitle = (page === 'general') ? 'POSICIONES GENERALES' : 'RANKING POR EJERCICIO';
 
       const head = `<defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
@@ -1065,7 +1132,7 @@
   </defs>
   <rect width="${W}" height="${H}" fill="url(#bg)"/>
   <text x="${W / 2}" y="64" text-anchor="middle" font-size="38" font-weight="900" font-style="italic" fill="#ff8a2a">MÁXIMOS - CALISTENIA</text>
-  <text x="${W / 2}" y="110" text-anchor="middle" font-size="44" font-weight="900" font-style="italic" fill="#fff">RANKING POR EJERCICIO</text>
+  <text x="${W / 2}" y="110" text-anchor="middle" font-size="44" font-weight="900" font-style="italic" fill="#fff">${mainTitle}</text>
   ${periodLabel ? `<text x="${W / 2}" y="145" text-anchor="middle" font-size="15" font-weight="800" fill="#9aa1b0" letter-spacing="1.5">${esc(periodLabel.toUpperCase())}</text>` : ''}`;
 
       return {
@@ -1192,6 +1259,7 @@
       const defaultName = typeof defaultObj === 'object' && (defaultObj.nombre || defaultObj.name) ? (defaultObj.nombre || defaultObj.name) : defaultPeriod;
 
       function selectPeriod(periodId, periodName) {
+        isExpanded = false;
         if ($('periodSelect')) $('periodSelect').value = periodId;
         if ($('periodVal')) {
           const pObj = availablePeriods.find(p => (typeof p === 'object' && p.id ? p.id : String(p)) === periodId);
@@ -1214,14 +1282,35 @@
       $('profeCheck').addEventListener('change', render);
       $('groupBadgeCheck').addEventListener('change', render);
 
-      // Listener para el selector de sistema de puntaje dentro del SVG
+      // Listeners para interactividad dentro del SVG
       $('prev').addEventListener('click', e => {
-        const btn = e.target.closest('[data-mode]');
-        if (!btn) return;
-        const newMode = btn.dataset.mode;
-        if (newMode && newMode !== currentGmode) {
-          currentGmode = newMode;
+        const modeBtn = e.target.closest('[data-mode]');
+        if (modeBtn) {
+          const newMode = modeBtn.dataset.mode;
+          if (newMode && newMode !== currentGmode) {
+            currentGmode = newMode;
+            render();
+          }
+          return;
+        }
+
+        const expandBtn = e.target.closest('[data-action="toggle-expand"]');
+        if (expandBtn) {
+          const section = expandBtn.dataset.section;
+          const rectBefore = expandBtn.getBoundingClientRect();
+          const wasExpanded = isExpanded;
+          isExpanded = !isExpanded;
           render();
+
+          const targetBtn = section ? $('prev').querySelector(`[data-action="toggle-expand"][data-section="${section}"]`) : null;
+          if (targetBtn) {
+            if (wasExpanded) {
+              targetBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+              const rectAfter = targetBtn.getBoundingClientRect();
+              window.scrollBy(0, rectAfter.top - rectBefore.top);
+            }
+          }
         }
       });
 
@@ -1267,71 +1356,108 @@
         setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       }
 
-      function getExportFilename(ext) {
+      function getExportFilename(ext, suffix = '') {
         const pStr = currentPeriod || 'export';
         const gStr = currentGroup !== 'all' ? `-${currentGroup}` : '';
-        return `leaderboard-${pStr}${gStr}.${ext}`;
+        const sufStr = suffix ? `-${suffix}` : '';
+        return `leaderboard-${pStr}${gStr}${sufStr}.${ext}`;
       }
 
-      function getCleanExportSvg() {
-        return buildSvg(currentRecord, exercisesConfig, currentPeriod, currentGroup, true);
+      function getCleanExportSvgs() {
+        if (isExpanded) {
+          const p1 = buildSvg(currentRecord, exercisesConfig, currentPeriod, currentGroup, true, true, 'exercises');
+          const p2 = buildSvg(currentRecord, exercisesConfig, currentPeriod, currentGroup, true, true, 'general');
+          return [p1, p2].filter(Boolean);
+        }
+        const p = buildSvg(currentRecord, exercisesConfig, currentPeriod, currentGroup, true, false, 'all');
+        return p ? [p] : [];
       }
 
       $('svgBtn').onclick = () => {
         exportMenu.classList.remove('show');
         exportBtn.setAttribute('aria-expanded', 'false');
-        const expSvg = getCleanExportSvg();
-        if (expSvg) {
-          dl(new Blob([expSvg.svg], { type: 'image/svg+xml' }), getExportFilename('svg'));
+        const svgs = getCleanExportSvgs();
+        if (!svgs.length) return;
+
+        if (svgs.length === 1) {
+          dl(new Blob([svgs[0].svg], { type: 'image/svg+xml' }), getExportFilename('svg'));
+        } else {
+          dl(new Blob([svgs[0].svg], { type: 'image/svg+xml' }), getExportFilename('svg', 'ejercicios'));
+          setTimeout(() => {
+            dl(new Blob([svgs[1].svg], { type: 'image/svg+xml' }), getExportFilename('svg', 'general'));
+          }, 300);
         }
       };
 
       $('pngBtn').onclick = () => {
         exportMenu.classList.remove('show');
         exportBtn.setAttribute('aria-expanded', 'false');
-        const expSvg = getCleanExportSvg();
-        if (!expSvg) return;
-        const s = expSvg.svg.replace('<svg ', `<svg width="${expSvg.W}" height="${expSvg.H}" `);
-        const img = new Image();
-        img.onload = () => {
-          const c = document.createElement('canvas');
-          c.width = expSvg.W * 2;
-          c.height = expSvg.H * 2;
-          const x = c.getContext('2d');
-          x.scale(2, 2);
-          x.drawImage(img, 0, 0, expSvg.W, expSvg.H);
-          c.toBlob(b => dl(b, getExportFilename('png')));
-        };
-        img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
+        const svgs = getCleanExportSvgs();
+        if (!svgs.length) return;
+
+        function exportPng(item, suffix, cb) {
+          const s = item.svg.replace('<svg ', `<svg width="${item.W}" height="${item.H}" `);
+          const img = new Image();
+          img.onload = () => {
+            const c = document.createElement('canvas');
+            c.width = item.W * 2;
+            c.height = item.H * 2;
+            const x = c.getContext('2d');
+            x.scale(2, 2);
+            x.drawImage(img, 0, 0, item.W, item.H);
+            c.toBlob(b => {
+              dl(b, getExportFilename('png', suffix));
+              if (cb) cb();
+            });
+          };
+          img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
+        }
+
+        if (svgs.length === 1) {
+          exportPng(svgs[0], '');
+        } else {
+          exportPng(svgs[0], 'ejercicios', () => {
+            setTimeout(() => {
+              exportPng(svgs[1], 'general');
+            }, 300);
+          });
+        }
       };
 
       $('pdfBtn').onclick = async () => {
         exportMenu.classList.remove('show');
         exportBtn.setAttribute('aria-expanded', 'false');
-        const expSvg = getCleanExportSvg();
-        if (!expSvg) return;
+        const svgs = getCleanExportSvgs();
+        if (!svgs.length) return;
 
         // 1. Exportación 100% Vectorial con svg2pdf (texto y formas nítidas sin pixelación)
         try {
           const { jsPDF } = window.jspdf;
-          const orientation = expSvg.W > expSvg.H ? 'l' : 'p';
+          const p1 = svgs[0];
+          const orientation1 = p1.W > p1.H ? 'l' : 'p';
           const pdf = new jsPDF({
-            orientation,
+            orientation: orientation1,
             unit: 'pt',
-            format: [expSvg.W, expSvg.H]
+            format: [p1.W, p1.H]
           });
 
           if (typeof pdf.svg === 'function') {
             const parser = new DOMParser();
-            const svgDoc = parser.parseFromString(expSvg.svg, 'image/svg+xml');
-            const svgElem = svgDoc.documentElement;
-
-            await pdf.svg(svgElem, {
-              x: 0,
-              y: 0,
-              width: expSvg.W,
-              height: expSvg.H
-            });
+            for (let i = 0; i < svgs.length; i++) {
+              const p = svgs[i];
+              if (i > 0) {
+                const orientation = p.W > p.H ? 'l' : 'p';
+                pdf.addPage([p.W, p.H], orientation);
+              }
+              const svgDoc = parser.parseFromString(p.svg, 'image/svg+xml');
+              const svgElem = svgDoc.documentElement;
+              await pdf.svg(svgElem, {
+                x: 0,
+                y: 0,
+                width: p.W,
+                height: p.H
+              });
+            }
             pdf.save(getExportFilename('pdf'));
             return;
           }
@@ -1340,30 +1466,54 @@
         }
 
         // 2. Fallback de ultra alta definición (3x) en caso de que svg2pdf no esté disponible
-        const s = expSvg.svg.replace('<svg ', `<svg width="${expSvg.W}" height="${expSvg.H}" `);
-        const img = new Image();
-        img.onload = () => {
+        try {
           const scale = 3;
-          const c = document.createElement('canvas');
-          c.width = expSvg.W * scale;
-          c.height = expSvg.H * scale;
-          const x = c.getContext('2d');
-          x.scale(scale, scale);
-          x.drawImage(img, 0, 0, expSvg.W, expSvg.H);
-
-          const imgData = c.toDataURL('image/png');
-          const orientation = expSvg.W > expSvg.H ? 'l' : 'p';
-          const { jsPDF } = window.jspdf;
-          const pdf = new jsPDF({
-            orientation,
-            unit: 'pt',
-            format: [expSvg.W, expSvg.H]
+          const renderItemToCanvas = (item) => new Promise((resolve, reject) => {
+            const s = item.svg.replace('<svg ', `<svg width="${item.W}" height="${item.H}" `);
+            const img = new Image();
+            img.onload = () => {
+              const c = document.createElement('canvas');
+              c.width = item.W * scale;
+              c.height = item.H * scale;
+              const x = c.getContext('2d');
+              x.scale(scale, scale);
+              x.drawImage(img, 0, 0, item.W, item.H);
+              resolve({
+                dataUrl: c.toDataURL('image/png'),
+                W: item.W,
+                H: item.H
+              });
+            };
+            img.onerror = reject;
+            img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
           });
 
-          pdf.addImage(imgData, 'PNG', 0, 0, expSvg.W, expSvg.H, undefined, 'FAST');
+          const renderedPages = [];
+          for (const item of svgs) {
+            renderedPages.push(await renderItemToCanvas(item));
+          }
+
+          const { jsPDF } = window.jspdf;
+          const p1 = renderedPages[0];
+          const orientation1 = p1.W > p1.H ? 'l' : 'p';
+          const pdf = new jsPDF({
+            orientation: orientation1,
+            unit: 'pt',
+            format: [p1.W, p1.H]
+          });
+
+          for (let i = 0; i < renderedPages.length; i++) {
+            const p = renderedPages[i];
+            if (i > 0) {
+              const orientation = p.W > p.H ? 'l' : 'p';
+              pdf.addPage([p.W, p.H], orientation);
+            }
+            pdf.addImage(p.dataUrl, 'PNG', 0, 0, p.W, p.H, undefined, 'FAST');
+          }
           pdf.save(getExportFilename('pdf'));
-        };
-        img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
+        } catch (e) {
+          console.error('Error al exportar PDF:', e);
+        }
       };
 
       // Load the initial period
