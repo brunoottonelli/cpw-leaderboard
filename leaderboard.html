@@ -445,7 +445,10 @@
       const dumb = g + '<path d="M10 20H30M10 11V29M30 11V29M5 15V25M35 15V25"/></g>';
       if (/pesa|press|curl/.test(k)) return dumb;
       if (/domin|pull|barra/.test(k)) return g + '<path d="M3 6H37M7 6V37M33 6V37"/></g>';
-      if (/fondo|dip|paralela/.test(k)) return g + '<path d="M5 13H18M11 13V37M22 13H35M29 13V37"/></g>';
+      if (/fondo|dip|paralela/.test(k)) {
+        const gPar = `<g transform="translate(${x},${y})" fill="none" stroke="${col}" stroke-linecap="round" stroke-linejoin="round">`;
+        return gPar + '<path d="M14 9H36M18 9V28M32 9V28" stroke-width="2.4" stroke-opacity="0.65"/><path d="M5 17H27M9 17V36M23 17V36" stroke-width="2.6"/></g>';
+      }
       if (/lagart|flexion|push|plancha/.test(k)) return g + '<circle cx="8" cy="15" r="3.5"/><path d="M13 19L35 27M15 21V33M3 35H38"/></g>';
       return dumb;
     }
@@ -866,7 +869,7 @@
 
       const H = y - GAP + 34;
       const baseLabel = (recordData && (recordData.nombre || recordData.name)) ? (recordData.nombre || recordData.name) : (periodStr || '');
-      let periodLabel = baseLabel ? `EVALUACIÓN: ${baseLabel}` : '';
+      let periodLabel = baseLabel ? `${baseLabel}` : '';
       if (selectedGroup !== 'all') {
         periodLabel = periodLabel ? `${periodLabel} · GRUPO: ${selectedGroup}` : `GRUPO: ${selectedGroup}`;
       } else if (recordData && recordData.athletes && recordData.athletes.some(a => a.grupo)) {
