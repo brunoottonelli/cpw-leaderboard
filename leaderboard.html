@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Leaderboard - Calistenia</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/svg2pdf.js@2.2.4/dist/svg2pdf.umd.min.js"></script>
   <script src="criterios.js"></script>
   <style>
     :root {
@@ -752,7 +753,7 @@
         // Tarjeta con más aire vertical interno
         const gph = 150 + glist.length * GR + 14;
         body += `<rect x="${gx0}" y="${y}" width="${GW}" height="${gph}" rx="18" fill="#000" fill-opacity=".5" stroke="${GCOL}" stroke-width="3.5"/>`;
-        body += `<text x="${gx0 + 42}" y="${y + 48}" text-anchor="middle" font-size="28">🏆</text>`;
+        body += `<g transform="translate(${gx0 + 28}, ${y + 26}) scale(1.15)"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 15.9V19H7v2h10v-2h-4v-3.1a5.01 5.01 0 0 0 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z" fill="${GCOL}"/></g>`;
         body += `<text x="${gx0 + 74}" y="${y + 47}" text-anchor="start" font-size="21" font-weight="900" font-style="italic" fill="${GCOL}">${esc(criteria.cardTitle)}</text>`;
 
         // Selector dinámico según los criterios disponibles (solo en vista interactiva, no en exportación)
@@ -1059,20 +1060,50 @@
         img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
       };
 
-      $('pdfBtn').onclick = () => {
+      $('pdfBtn').onclick = async () => {
         exportMenu.classList.remove('show');
         exportBtn.setAttribute('aria-expanded', 'false');
         const expSvg = getCleanExportSvg();
         if (!expSvg) return;
 
+        // 1. Exportación 100% Vectorial con svg2pdf (texto y formas nítidas sin pixelación)
+        try {
+          const { jsPDF } = window.jspdf;
+          const orientation = expSvg.W > expSvg.H ? 'l' : 'p';
+          const pdf = new jsPDF({
+            orientation,
+            unit: 'pt',
+            format: [expSvg.W, expSvg.H]
+          });
+
+          if (typeof pdf.svg === 'function') {
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(expSvg.svg, 'image/svg+xml');
+            const svgElem = svgDoc.documentElement;
+
+            await pdf.svg(svgElem, {
+              x: 0,
+              y: 0,
+              width: expSvg.W,
+              height: expSvg.H
+            });
+            pdf.save(getExportFilename('pdf'));
+            return;
+          }
+        } catch (err) {
+          console.warn('Fallo renderizado vectorial svg2pdf, ejecutando fallback:', err);
+        }
+
+        // 2. Fallback de ultra alta definición (3x) en caso de que svg2pdf no esté disponible
         const s = expSvg.svg.replace('<svg ', `<svg width="${expSvg.W}" height="${expSvg.H}" `);
         const img = new Image();
         img.onload = () => {
+          const scale = 3;
           const c = document.createElement('canvas');
-          c.width = expSvg.W * 2;
-          c.height = expSvg.H * 2;
+          c.width = expSvg.W * scale;
+          c.height = expSvg.H * scale;
           const x = c.getContext('2d');
-          x.scale(2, 2);
+          x.scale(scale, scale);
           x.drawImage(img, 0, 0, expSvg.W, expSvg.H);
 
           const imgData = c.toDataURL('image/png');
@@ -1080,11 +1111,11 @@
           const { jsPDF } = window.jspdf;
           const pdf = new jsPDF({
             orientation,
-            unit: 'px',
+            unit: 'pt',
             format: [expSvg.W, expSvg.H]
           });
 
-          pdf.addImage(imgData, 'PNG', 0, 0, expSvg.W, expSvg.H);
+          pdf.addImage(imgData, 'PNG', 0, 0, expSvg.W, expSvg.H, undefined, 'FAST');
           pdf.save(getExportFilename('pdf'));
         };
         img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
