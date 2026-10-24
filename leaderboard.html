@@ -1389,6 +1389,64 @@
         }
       };
 
+      async function setPngDpi300(blob) {
+        try {
+          const buffer = await blob.arrayBuffer();
+          const bytes = new Uint8Array(buffer);
+          if (bytes[0] !== 0x89 || bytes[1] !== 0x50 || bytes[2] !== 0x4E || bytes[3] !== 0x47) {
+            return blob;
+          }
+
+          // Chunk pHYs para 300 ppp (11811 píxeles/metro):
+          // 4 bytes longitud (9) + 4 bytes tipo ('pHYs') + 4 bytes X + 4 bytes Y + 1 byte unidad (metro) + 4 bytes CRC
+          const physChunk = new Uint8Array([
+            0x00, 0x00, 0x00, 0x09,
+            0x70, 0x48, 0x59, 0x73,
+            0x00, 0x00, 0x2e, 0x23,
+            0x00, 0x00, 0x2e, 0x23,
+            0x01,
+            0x78, 0xa5, 0x3f, 0x76
+          ]);
+
+          const view = new DataView(buffer);
+          const ihdrLen = view.getUint32(8);
+          const insertPos = 8 + 4 + 4 + ihdrLen + 4;
+
+          let pos = insertPos;
+          let existingPhysPos = -1;
+          let existingPhysLen = 0;
+          while (pos < bytes.length - 8) {
+            const chunkLen = view.getUint32(pos);
+            const chunkType = String.fromCharCode(bytes[pos + 4], bytes[pos + 5], bytes[pos + 6], bytes[pos + 7]);
+            if (chunkType === 'pHYs') {
+              existingPhysPos = pos;
+              existingPhysLen = 12 + chunkLen;
+              break;
+            }
+            if (chunkType === 'IDAT') break;
+            pos += 12 + chunkLen;
+          }
+
+          let finalBytes;
+          if (existingPhysPos !== -1) {
+            finalBytes = new Uint8Array(bytes.length - existingPhysLen + physChunk.length);
+            finalBytes.set(bytes.subarray(0, existingPhysPos), 0);
+            finalBytes.set(physChunk, existingPhysPos);
+            finalBytes.set(bytes.subarray(existingPhysPos + existingPhysLen), existingPhysPos + physChunk.length);
+          } else {
+            finalBytes = new Uint8Array(bytes.length + physChunk.length);
+            finalBytes.set(bytes.subarray(0, insertPos), 0);
+            finalBytes.set(physChunk, insertPos);
+            finalBytes.set(bytes.subarray(insertPos), insertPos + physChunk.length);
+          }
+
+          return new Blob([finalBytes], { type: 'image/png' });
+        } catch (e) {
+          console.warn('No se pudo incrustar metadatos 300 ppp en PNG:', e);
+          return blob;
+        }
+      }
+
       $('pngBtn').onclick = () => {
         exportMenu.classList.remove('show');
         exportBtn.setAttribute('aria-expanded', 'false');
@@ -1399,16 +1457,18 @@
           const s = item.svg.replace('<svg ', `<svg width="${item.W}" height="${item.H}" `);
           const img = new Image();
           img.onload = () => {
+            const scale = 300 / 96; // 3.125 para 300 ppp exactos a partir de dimensiones base estándar (96 DPI)
             const c = document.createElement('canvas');
-            c.width = item.W * 2;
-            c.height = item.H * 2;
+            c.width = Math.round(item.W * scale);
+            c.height = Math.round(item.H * scale);
             const x = c.getContext('2d');
-            x.scale(2, 2);
+            x.scale(scale, scale);
             x.drawImage(img, 0, 0, item.W, item.H);
-            c.toBlob(b => {
-              dl(b, getExportFilename('png', suffix));
+            c.toBlob(async b => {
+              const printBlob = await setPngDpi300(b);
+              dl(printBlob, getExportFilename('png', suffix));
               if (cb) cb();
-            });
+            }, 'image/png');
           };
           img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
         }
@@ -1424,13 +1484,84 @@
         }
       };
 
+      let _segoeCache = null;
+      async function getSegoeFonts() {
+        if (_segoeCache) return _segoeCache;
+        const fontFiles = [
+          { name: 'SegoeUI-Regular.ttf', url: 'fonts/segoeui.ttf' },
+          { name: 'SegoeUI-Bold.ttf', url: 'fonts/segoeuib.ttf' },
+          { name: 'SegoeUI-Black.ttf', url: 'fonts/seguibl.ttf' },
+          { name: 'SegoeUI-BlackItalic.ttf', url: 'fonts/seguibli.ttf' }
+        ];
+
+        function arrayBufferToBinaryString(buf) {
+          const bytes = new Uint8Array(buf);
+          const CHUNK_SIZE = 8192;
+          let binary = '';
+          for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
+            binary += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK_SIZE));
+          }
+          return binary;
+        }
+
+        const loaded = await Promise.all(fontFiles.map(async f => {
+          try {
+            const res = await fetch(f.url);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const buf = await res.arrayBuffer();
+            return { name: f.name, data: arrayBufferToBinaryString(buf) };
+          } catch (e) {
+            console.warn(`No se pudo cargar fuente local ${f.url}:`, e);
+            return null;
+          }
+        }));
+
+        _segoeCache = loaded.filter(Boolean);
+        return _segoeCache;
+      }
+
+      function registerSegoeInPdf(doc, fonts) {
+        if (!fonts || !fonts.length) return;
+        fonts.forEach(f => {
+          doc.addFileToVFS(f.name, f.data);
+        });
+
+        const families = ['Segoe UI', 'segoe ui', 'SegoeUI'];
+        families.forEach(fam => {
+          // 400 / normal / 600
+          doc.addFont('SegoeUI-Regular.ttf', fam, 'normal');
+          doc.addFont('SegoeUI-Regular.ttf', fam, '400');
+          doc.addFont('SegoeUI-Regular.ttf', fam, '400normal');
+          doc.addFont('SegoeUI-Regular.ttf', fam, '600');
+          doc.addFont('SegoeUI-Regular.ttf', fam, '600normal');
+
+          // 700 / 800 / bold
+          doc.addFont('SegoeUI-Bold.ttf', fam, 'bold');
+          doc.addFont('SegoeUI-Bold.ttf', fam, '700');
+          doc.addFont('SegoeUI-Bold.ttf', fam, '700normal');
+          doc.addFont('SegoeUI-Bold.ttf', fam, '800');
+          doc.addFont('SegoeUI-Bold.ttf', fam, '800normal');
+
+          // 900 / black
+          doc.addFont('SegoeUI-Black.ttf', fam, '900');
+          doc.addFont('SegoeUI-Black.ttf', fam, '900normal');
+
+          // 900 Italic / bolditalic / italic
+          doc.addFont('SegoeUI-BlackItalic.ttf', fam, 'bolditalic');
+          doc.addFont('SegoeUI-BlackItalic.ttf', fam, 'italic');
+          doc.addFont('SegoeUI-BlackItalic.ttf', fam, '900italic');
+          doc.addFont('SegoeUI-BlackItalic.ttf', fam, '800italic');
+          doc.addFont('SegoeUI-BlackItalic.ttf', fam, '700italic');
+        });
+      }
+
       $('pdfBtn').onclick = async () => {
         exportMenu.classList.remove('show');
         exportBtn.setAttribute('aria-expanded', 'false');
         const svgs = getCleanExportSvgs();
         if (!svgs.length) return;
 
-        // 1. Exportación 100% Vectorial con svg2pdf (texto y formas nítidas sin pixelación)
+        // 1. Exportación 100% Vectorial con svg2pdf y tipografía Segoe UI incrustada
         try {
           const { jsPDF } = window.jspdf;
           const p1 = svgs[0];
@@ -1440,6 +1571,10 @@
             unit: 'pt',
             format: [p1.W, p1.H]
           });
+
+          // Incrustar fuentes Segoe UI reales para coincidir 100% con la visualización
+          const segoeFonts = await getSegoeFonts();
+          registerSegoeInPdf(pdf, segoeFonts);
 
           if (typeof pdf.svg === 'function') {
             const parser = new DOMParser();
@@ -1465,16 +1600,16 @@
           console.warn('Fallo renderizado vectorial svg2pdf, ejecutando fallback:', err);
         }
 
-        // 2. Fallback de ultra alta definición (3x) en caso de que svg2pdf no esté disponible
+        // 2. Fallback de ultra alta definición (300 ppp) en caso de que svg2pdf no esté disponible
         try {
-          const scale = 3;
+          const scale = 300 / 72; // ~4.167 para 300 ppp exactos sobre puntos tipográficos (72 pt)
           const renderItemToCanvas = (item) => new Promise((resolve, reject) => {
             const s = item.svg.replace('<svg ', `<svg width="${item.W}" height="${item.H}" `);
             const img = new Image();
             img.onload = () => {
               const c = document.createElement('canvas');
-              c.width = item.W * scale;
-              c.height = item.H * scale;
+              c.width = Math.round(item.W * scale);
+              c.height = Math.round(item.H * scale);
               const x = c.getContext('2d');
               x.scale(scale, scale);
               x.drawImage(img, 0, 0, item.W, item.H);
@@ -1515,6 +1650,9 @@
           console.error('Error al exportar PDF:', e);
         }
       };
+
+      // Precarga en segundo plano de las fuentes Segoe UI para exportación instantánea
+      getSegoeFonts().catch(err => console.warn('Aviso precarga fuentes:', err));
 
       // Load the initial period
       await loadPeriodData(defaultPeriod);
