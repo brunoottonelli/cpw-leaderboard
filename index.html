@@ -1267,6 +1267,13 @@
       align-items: center;
       gap: 6px;
       flex-wrap: wrap;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--mute);
+    }
+
+    .athlete-card-meta-sep {
+      opacity: 0.5;
     }
 
     .athlete-card-bottom {
@@ -3708,8 +3715,9 @@
                 ${athlete.es_profe ? '<span class="badge-role">PROFE</span>' : ''}
               </div>
               <div class="athlete-card-tags">
-                <span class="badge-tag">Turno: ${esc(groupTxt)}</span>
-                <span class="badge-tag">${esc(evalsTxt)}</span>
+                <span>Turno: ${esc(groupTxt)}</span>
+                <span class="athlete-card-meta-sep">·</span>
+                <span>${esc(evalsTxt)}</span>
               </div>
             </div>
           </div>
