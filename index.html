@@ -1143,6 +1143,53 @@
       box-sizing: border-box;
     }
 
+    .athlete-pager-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 3px 5px;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .btn-pager-nav {
+      background: transparent;
+      border: none;
+      color: var(--mute);
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-pager-nav:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .btn-pager-nav:disabled,
+    .btn-pager-nav.disabled {
+      opacity: 0.28;
+      cursor: not-allowed;
+    }
+
+    .pager-counter {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--mute);
+      letter-spacing: 0.4px;
+      padding: 0 4px;
+      min-width: 42px;
+      text-align: center;
+    }
+
     .page-profile-body {
       display: flex;
       flex-direction: column;
@@ -1380,6 +1427,19 @@
       .profile-page-card {
         padding: 14px;
         border-radius: 13px;
+      }
+      .athlete-pager-nav {
+        padding: 2px 4px;
+        gap: 3px;
+      }
+      .btn-pager-nav {
+        width: 26px;
+        height: 26px;
+      }
+      .pager-counter {
+        font-size: 10.5px;
+        min-width: 36px;
+        padding: 0 2px;
       }
       .modal-athlete-info {
         gap: 11px;
@@ -2235,6 +2295,20 @@
             <span class="badge-tag" id="pageEvalsBadge">0 evaluaciones</span>
           </div>
         </div>
+      </div>
+
+      <div class="athlete-pager-nav" id="pageAthletePagerNav" style="display:none;">
+        <button type="button" class="btn-pager-nav" id="pagePrevAthleteBtn" aria-label="Atleta anterior" title="Atleta anterior">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <span class="pager-counter" id="pageAthletePagerCounter">1 / 9</span>
+        <button type="button" class="btn-pager-nav" id="pageNextAthleteBtn" aria-label="Siguiente atleta" title="Siguiente atleta">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
       </div>
     </div>
 
@@ -3667,7 +3741,10 @@
 
     function showView(viewName, athleteName = null, origin = 'leaderboard', updateHash = true) {
       currentActiveView = viewName;
-      if (origin) profileNavOrigin = origin;
+      if (origin) {
+        profileNavOrigin = origin;
+        try { sessionStorage.setItem('cpw_nav_origin', origin); } catch (e) {}
+      }
 
       const viewLeaderboard = $('viewLeaderboard');
       const viewAthletesList = $('viewAthletesList');
@@ -3734,6 +3811,7 @@
 
         if (activeAthleteName) {
           renderAthleteProfileData(activeAthleteName);
+          updateAthletePager(activeAthleteName);
         }
 
         const newHash = `#/atleta/${encodeURIComponent(activeAthleteName)}`;
@@ -3746,6 +3824,70 @@
           if (evolutionChartInstance) evolutionChartInstance.resize();
           if (radarChartInstance) radarChartInstance.resize();
         });
+      }
+    }
+
+    function getDirectoryAthletesList() {
+      if (allAthletesMap.size === 0) buildAthletesIndex();
+      const athletes = Array.from(allAthletesMap.values());
+      athletes.sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
+      const searchInput = $('athletesSearchInput');
+      const term = (searchInput ? searchInput.value : '').trim().toLowerCase();
+      if (!term) return athletes;
+      return athletes.filter(a => {
+        const nameMatch = a.name.toLowerCase().includes(term);
+        const groupMatch = a.grupo && a.grupo.toLowerCase().includes(term);
+        const groupFmtMatch = a.grupo && formatGroup(a.grupo).toLowerCase().includes(term);
+        return nameMatch || groupMatch || groupFmtMatch;
+      });
+    }
+
+    function updateAthletePager(athleteName) {
+      const pager = $('pageAthletePagerNav');
+      if (!pager) return;
+
+      const isFromAthletesList = (profileNavOrigin === 'athletes-list');
+      if (!isFromAthletesList) {
+        pager.style.display = 'none';
+        return;
+      }
+
+      const list = getDirectoryAthletesList();
+      if (!list || list.length <= 1) {
+        pager.style.display = 'none';
+        return;
+      }
+
+      pager.style.display = 'inline-flex';
+
+      const currIdx = list.findIndex(a => a.name.toLowerCase() === (athleteName || '').toLowerCase());
+      const prevBtn = $('pagePrevAthleteBtn');
+      const nextBtn = $('pageNextAthleteBtn');
+      const counter = $('pageAthletePagerCounter');
+
+      if (currIdx === -1) {
+        if (prevBtn) prevBtn.disabled = true;
+        if (nextBtn) nextBtn.disabled = true;
+        if (counter) counter.textContent = `- / ${list.length}`;
+        return;
+      }
+
+      if (counter) {
+        counter.textContent = `${currIdx + 1} / ${list.length}`;
+      }
+
+      if (prevBtn) {
+        const hasPrev = currIdx > 0;
+        prevBtn.disabled = !hasPrev;
+        prevBtn.classList.toggle('disabled', !hasPrev);
+        prevBtn.title = hasPrev ? `Atleta anterior: ${list[currIdx - 1].name} (←)` : 'Primer atleta de la lista';
+      }
+
+      if (nextBtn) {
+        const hasNext = currIdx < list.length - 1;
+        nextBtn.disabled = !hasNext;
+        nextBtn.classList.toggle('disabled', !hasNext);
+        nextBtn.title = hasNext ? `Siguiente atleta: ${list[currIdx + 1].name} (→)` : 'Último atleta de la lista';
       }
     }
 
@@ -3879,6 +4021,8 @@
     function renderAthleteProfileData(athleteName) {
       const athlete = allAthletesMap.get(athleteName);
       if (!athlete) return;
+
+      updateAthletePager(athleteName);
 
       const timeline = athlete.timeline || [];
       const latestEval = timeline.length > 0 ? timeline[timeline.length - 1] : null;
@@ -4467,6 +4611,11 @@
       }
 
       // Ocultar preventivamente el Leaderboard si el hash inicial ya apunta a otra vista para evitar parpadeos
+      try {
+        const savedOrigin = sessionStorage.getItem('cpw_nav_origin');
+        if (savedOrigin) profileNavOrigin = savedOrigin;
+      } catch (e) {}
+
       const initialHash = window.location.hash || '';
       if (initialHash.startsWith('#/atleta/') || initialHash === '#/atletas') {
         const viewLb = $('viewLeaderboard');
@@ -4633,6 +4782,50 @@
           }
         });
       }
+
+      // Paginación entre atletas en el perfil
+      const prevAthleteBtn = $('pagePrevAthleteBtn');
+      const nextAthleteBtn = $('pageNextAthleteBtn');
+
+      if (prevAthleteBtn) {
+        prevAthleteBtn.addEventListener('click', () => {
+          const list = getDirectoryAthletesList();
+          const currIdx = list.findIndex(a => a.name.toLowerCase() === (activeAthleteName || '').toLowerCase());
+          if (currIdx > 0) {
+            const prevName = list[currIdx - 1].name;
+            showView('athlete-profile', prevName, 'athletes-list', true);
+          }
+        });
+      }
+
+      if (nextAthleteBtn) {
+        nextAthleteBtn.addEventListener('click', () => {
+          const list = getDirectoryAthletesList();
+          const currIdx = list.findIndex(a => a.name.toLowerCase() === (activeAthleteName || '').toLowerCase());
+          if (currIdx !== -1 && currIdx < list.length - 1) {
+            const nextName = list[currIdx + 1].name;
+            showView('athlete-profile', nextName, 'athletes-list', true);
+          }
+        });
+      }
+
+      // Atajos de teclado (flechas izquierda/derecha) para paginar entre atletas
+      window.addEventListener('keydown', e => {
+        if (currentActiveView !== 'athlete-profile' || profileNavOrigin !== 'athletes-list') return;
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+
+        if (e.key === 'ArrowLeft') {
+          if (prevAthleteBtn && !prevAthleteBtn.disabled) {
+            e.preventDefault();
+            prevAthleteBtn.click();
+          }
+        } else if (e.key === 'ArrowRight') {
+          if (nextAthleteBtn && !nextAthleteBtn.disabled) {
+            e.preventDefault();
+            nextAthleteBtn.click();
+          }
+        }
+      });
 
       // Botón volver en el directorio de atletas
       if ($('athletesListBackBtn')) {
