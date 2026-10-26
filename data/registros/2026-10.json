@@ -4,7 +4,7 @@
   "athletes": [
     {
       "name": "Fabri",
-      "grupo": "LMV1730",
+      "grupo": "LXV1730",
       "fecha": "2026-10-19",
       "es_profe": true,
       "results": {
@@ -16,7 +16,7 @@
     },
     {
       "name": "Tadeo",
-      "grupo": "LMV1730",
+      "grupo": "LXV1730",
       "fecha": "2026-10-19",
       "es_profe": false,
       "results": {
@@ -28,7 +28,7 @@
     },
     {
       "name": "Lucía",
-      "grupo": "LMV1730",
+      "grupo": "LXV1730",
       "fecha": "2026-10-19",
       "es_profe": false,
       "results": {
@@ -40,7 +40,7 @@
     },
     {
       "name": "Joaquín",
-      "grupo": "LMV1730",
+      "grupo": "LXV1730",
       "fecha": "2026-10-19",
       "es_profe": false,
       "results": {
@@ -52,7 +52,7 @@
     },
     {
       "name": "Maxi",
-      "grupo": "LMV1730",
+      "grupo": "LXV1730",
       "fecha": "2026-10-19",
       "es_profe": false,
       "results": {
@@ -64,7 +64,7 @@
     },
     {
       "name": "Seba",
-      "grupo": "LMV1730",
+      "grupo": "LXV1730",
       "fecha": "2026-10-19",
       "es_profe": false,
       "results": {
@@ -76,7 +76,7 @@
     },
     {
       "name": "Ro",
-      "grupo": "LMV1730",
+      "grupo": "LXV1730",
       "fecha": "2026-10-19",
       "es_profe": false,
       "results": {
@@ -88,7 +88,7 @@
     },
     {
       "name": "Bruno",
-      "grupo": "LMV1730",
+      "grupo": "LXV1730",
       "fecha": "2026-10-19",
       "es_profe": false,
       "results": {
@@ -100,7 +100,7 @@
     },
     {
       "name": "Tony",
-      "grupo": "LMV1730",
+      "grupo": "LXV1730",
       "fecha": "2026-10-19",
       "es_profe": false,
       "results": {

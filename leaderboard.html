@@ -4,7 +4,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Leaderboard - Calistenia</title>
+  <title>🏆 CPW Leaderboard - Calistenia</title>
+  <meta name="description" content="Tabla de clasificación, rankings y seguimiento de evolución de atletas de Calistenia y Street Workout.">
+
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CPW Leaderboard">
+  <meta property="og:title" content="🏆 CPW Leaderboard - Calistenia">
+  <meta property="og:description" content="Tabla de clasificación, rankings y seguimiento de evolución de atletas de Calistenia y Street Workout.">
+  <meta property="og:image" content="https://brunoottonelli.github.io/cpw-leaderboard/og-image.png">
+  <meta property="og:image:secure_url" content="https://brunoottonelli.github.io/cpw-leaderboard/og-image.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="CPW Leaderboard - Calistenia">
+  <meta property="og:url" content="https://brunoottonelli.github.io/cpw-leaderboard/">
+
+  <!-- Twitter / X Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="🏆 CPW Leaderboard - Calistenia">
+  <meta name="twitter:description" content="Tabla de clasificación, rankings y seguimiento de evolución de atletas de Calistenia y Street Workout.">
+  <meta name="twitter:image" content="https://brunoottonelli.github.io/cpw-leaderboard/og-image.png">
+
+  <!-- Theme color & Favicon -->
+  <meta name="theme-color" content="#ff8a2a">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/svg2pdf.js@2.2.4/dist/svg2pdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -2327,12 +2351,14 @@
     const MEDAL = { 1: '#f5c542', 2: '#c9ced6', 3: '#cd7f32' };
     const $ = id => document.getElementById(id);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const DAY_ORDER = { L: 1, M: 2, X: 3, J: 4, V: 5, S: 6, D: 7 };
+
     function formatGroup(g) {
       if (!g) return '';
       const s = String(g).trim();
       const m = s.match(/^([a-zA-ZáéíóúÁÉÍÓÚñÑ]+)\s*(\d{1,4})$/);
       if (m) {
-        const letters = m[1].toUpperCase();
+        const letters = m[1].toUpperCase().replace(/MI/g, 'Mi').replace(/X/g, 'Mi');
         let num = m[2];
         if (num.length === 4) num = `${num.slice(0, 2)}:${num.slice(2)}`;
         else if (num.length === 3) num = `0${num.slice(0, 1)}:${num.slice(1)}`;
@@ -2340,6 +2366,50 @@
         return `${letters} ${num}`;
       }
       return s;
+    }
+
+    function parseGroupForSort(g) {
+      const s = String(g || '').trim();
+      const m = s.match(/^([a-zA-ZáéíóúÁÉÍÓÚñÑ]+)\s*(\d{1,4})$/);
+      if (!m) return null;
+
+      const rawDays = m[1].toUpperCase().replace(/MI/g, 'X');
+      const dayWeights = Array.from(rawDays).map(ch => DAY_ORDER[ch] ?? (100 + ch.charCodeAt(0)));
+
+      const num = m[2];
+      let hours = 0, mins = 0;
+      if (num.length === 4) {
+        hours = parseInt(num.slice(0, 2), 10);
+        mins = parseInt(num.slice(2), 10);
+      } else if (num.length === 3) {
+        hours = parseInt(num.slice(0, 1), 10);
+        mins = parseInt(num.slice(1), 10);
+      } else {
+        hours = parseInt(num, 10);
+      }
+      const totalMinutes = hours * 60 + mins;
+
+      return { dayWeights, totalMinutes };
+    }
+
+    function compareGroups(a, b) {
+      const pa = parseGroupForSort(a);
+      const pb = parseGroupForSort(b);
+      if (pa && pb) {
+        const minLen = Math.min(pa.dayWeights.length, pb.dayWeights.length);
+        for (let i = 0; i < minLen; i++) {
+          if (pa.dayWeights[i] !== pb.dayWeights[i]) {
+            return pa.dayWeights[i] - pb.dayWeights[i];
+          }
+        }
+        if (pa.dayWeights.length !== pb.dayWeights.length) {
+          return pa.dayWeights.length - pb.dayWeights.length;
+        }
+        if (pa.totalMinutes !== pb.totalMinutes) {
+          return pa.totalMinutes - pb.totalMinutes;
+        }
+      }
+      return String(a).localeCompare(String(b), 'es', { numeric: true });
     }
 
     let availablePeriods = [];
@@ -2370,15 +2440,15 @@
       "period": "2026-10",
       "name": "Octubre 2026",
       "athletes": [
-        { "name": "Fabri", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": true, "results": { "dominadas_pronas": 27, "fondos": 43, "lagartijas": 40, "dominadas_supinas": 21 } },
-        { "name": "Tadeo", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 17, "fondos": 17, "lagartijas": 28, "dominadas_supinas": 16 } },
-        { "name": "Lucía", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 14, "fondos": 12, "lagartijas": 40, "dominadas_supinas": 13 } },
-        { "name": "Joaquín", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 13, "fondos": 11, "lagartijas": 14, "dominadas_supinas": 12 } },
-        { "name": "Maxi", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 13, "fondos": 23, "lagartijas": 41, "dominadas_supinas": 10 } },
-        { "name": "Seba", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 12, "fondos": 17, "lagartijas": 36, "dominadas_supinas": 13 } },
-        { "name": "Ro", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 11, "fondos": 17, "lagartijas": 33, "dominadas_supinas": 11 } },
-        { "name": "Bruno", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 11, "fondos": 18, "lagartijas": 40, "dominadas_supinas": 9 } },
-        { "name": "Tony", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 9, "fondos": 18, "lagartijas": 24, "dominadas_supinas": 10 } }
+        { "name": "Fabri", "grupo": "LXV1730", "fecha": "2026-10-19", "es_profe": true, "results": { "dominadas_pronas": 27, "fondos": 43, "lagartijas": 40, "dominadas_supinas": 21 } },
+        { "name": "Tadeo", "grupo": "LXV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 17, "fondos": 17, "lagartijas": 28, "dominadas_supinas": 16 } },
+        { "name": "Lucía", "grupo": "LXV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 14, "fondos": 12, "lagartijas": 40, "dominadas_supinas": 13 } },
+        { "name": "Joaquín", "grupo": "LXV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 13, "fondos": 11, "lagartijas": 14, "dominadas_supinas": 12 } },
+        { "name": "Maxi", "grupo": "LXV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 13, "fondos": 23, "lagartijas": 41, "dominadas_supinas": 10 } },
+        { "name": "Seba", "grupo": "LXV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 12, "fondos": 17, "lagartijas": 36, "dominadas_supinas": 13 } },
+        { "name": "Ro", "grupo": "LXV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 11, "fondos": 17, "lagartijas": 33, "dominadas_supinas": 11 } },
+        { "name": "Bruno", "grupo": "LXV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 11, "fondos": 18, "lagartijas": 40, "dominadas_supinas": 9 } },
+        { "name": "Tony", "grupo": "LXV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 9, "fondos": 18, "lagartijas": 24, "dominadas_supinas": 10 } }
       ]
     };
 
@@ -2388,7 +2458,7 @@
 
       const groups = Array.from(
         new Set((athletes || []).map(a => a.grupo).filter(g => g && String(g).trim() !== ''))
-      ).sort();
+      ).sort(compareGroups);
 
       const prevGroup = currentGroup;
       if (groupSelect) groupSelect.innerHTML = '<option value="all">Todos los grupos</option>';
