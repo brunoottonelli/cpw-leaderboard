@@ -3834,9 +3834,8 @@
         pageRoleBadge.textContent = 'PROFE';
       }
 
-      // Posición actual en el ranking (período seleccionado o última evaluación disponible)
-      const currentPeriodEval = currentPeriod ? timeline.find(t => t.periodId === currentPeriod) : null;
-      const evalForRank = currentPeriodEval || (timeline.length > 0 ? timeline[timeline.length - 1] : null);
+      // Posición en el ranking correspondiente a su última evaluación disponible
+      const evalForRank = latestEval;
       const athleteRank = evalForRank && evalForRank.rank ? evalForRank.rank : null;
 
       const modalRankBadge = $('modalRankBadge');
