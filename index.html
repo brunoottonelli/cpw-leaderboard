@@ -3366,7 +3366,6 @@
       });
       await Promise.all(promises);
       buildAthletesIndex();
-      handleRouting();
     }
 
     function buildAthletesIndex() {
@@ -3502,18 +3501,43 @@
       const atletaParam = urlParams.get('atleta');
 
       if (hash.startsWith('#/atleta/')) {
-        let rawName = decodeURIComponent(hash.slice('#/atleta/'.length).trim());
-        if (rawName === 'S' && allAthletesMap.has('Seba')) rawName = 'Seba';
-        if (allAthletesMap.has(rawName)) {
-          showView('athlete-profile', rawName, profileNavOrigin || 'leaderboard', false);
+        let rawName = decodeURIComponent(hash.slice('#/atleta/'.length).trim()).replace(/\/+$/, '');
+        let targetAthlete = null;
+        if (rawName === 'S' && allAthletesMap.has('Seba')) {
+          targetAthlete = 'Seba';
+        } else if (allAthletesMap.has(rawName)) {
+          targetAthlete = rawName;
+        } else {
+          for (const name of allAthletesMap.keys()) {
+            if (name.toLowerCase() === rawName.toLowerCase()) {
+              targetAthlete = name;
+              break;
+            }
+          }
+        }
+        if (targetAthlete) {
+          showView('athlete-profile', targetAthlete, profileNavOrigin || 'leaderboard', false);
           return;
         }
       } else if (hash === '#/atletas') {
         showView('athletes-list', null, 'leaderboard', false);
         return;
-      } else if (atletaParam && allAthletesMap.has(atletaParam)) {
-        showView('athlete-profile', atletaParam, 'leaderboard', false);
-        return;
+      } else if (atletaParam) {
+        let targetAthlete = null;
+        if (allAthletesMap.has(atletaParam)) {
+          targetAthlete = atletaParam;
+        } else {
+          for (const name of allAthletesMap.keys()) {
+            if (name.toLowerCase() === atletaParam.toLowerCase()) {
+              targetAthlete = name;
+              break;
+            }
+          }
+        }
+        if (targetAthlete) {
+          showView('athlete-profile', targetAthlete, 'leaderboard', false);
+          return;
+        }
       }
 
       showView('leaderboard', null, 'leaderboard', false);
@@ -4176,10 +4200,14 @@
   `;
 
       try {
-        const res = await fetch(`data/registros/${period}.json`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        currentRecord = await res.json();
-        allPeriodsCache[period] = currentRecord;
+        if (allPeriodsCache[period]) {
+          currentRecord = allPeriodsCache[period];
+        } else {
+          const res = await fetch(`data/registros/${period}.json`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          currentRecord = await res.json();
+          allPeriodsCache[period] = currentRecord;
+        }
         updateGroupFilter(currentRecord.athletes);
         buildAthletesIndex();
         render();
@@ -4286,10 +4314,21 @@
         loadPeriodData(periodId);
       }
 
-      selectPeriod(defaultPeriod, defaultName);
+      // Ocultar preventivamente el Leaderboard si el hash inicial ya apunta a otra vista para evitar parpadeos
+      const initialHash = window.location.hash || '';
+      if (initialHash.startsWith('#/atleta/') || initialHash === '#/atletas') {
+        const viewLb = $('viewLeaderboard');
+        if (viewLb) viewLb.style.display = 'none';
+      }
 
-      // Precargar histórico completo de períodos en segundo plano
-      fetchAllPeriodsData().catch(err => console.warn('Error precargando histórico:', err));
+      // Cargar histórico completo de períodos antes de inicializar y rutear
+      try {
+        await fetchAllPeriodsData();
+      } catch (err) {
+        console.warn('Error precargando histórico:', err);
+      }
+
+      selectPeriod(defaultPeriod, defaultName);
 
       // Listeners
       $('profeCheck').addEventListener('change', render);
@@ -4459,6 +4498,9 @@
       // Listeners de navegación por historial/hash del navegador
       window.addEventListener('hashchange', handleRouting);
       window.addEventListener('popstate', handleRouting);
+
+      // Ejecutar ruteo inicial según la URL / hash
+      handleRouting();
 
       // Botón cerrar modal
       if ($('closeAthleteModalBtn')) {
