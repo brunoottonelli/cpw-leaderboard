@@ -790,6 +790,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
+      min-height: 32px;
     }
     .kpi-exercise-name {
       font-size: 12.5px;
@@ -801,6 +802,7 @@
       align-items: center;
       gap: 6px;
       min-width: 0;
+      line-height: 1.28;
     }
     .kpi-pr-badge {
       display: inline-flex;
@@ -846,6 +848,7 @@
       font-weight: 600;
       padding-top: 6px;
       border-top: 1px solid rgba(255, 255, 255, 0.05);
+      margin-top: auto;
     }
     .kpi-delta-pos {
       color: #2dd4bf;
@@ -1276,16 +1279,13 @@
 
     .athlete-card-tags {
       display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
       font-size: 12.5px;
       font-weight: 500;
       color: var(--mute);
-    }
-
-    .athlete-card-meta-sep {
-      opacity: 0.5;
+      line-height: 1.35;
     }
 
     .athlete-card-bottom {
@@ -1378,6 +1378,9 @@
       }
       .kpi-card {
         padding: 12px 13px;
+      }
+      .kpi-card-header {
+        min-height: 28px;
       }
       .kpi-value {
         font-size: 26px;
@@ -3736,7 +3739,6 @@
               </div>
               <div class="athlete-card-tags">
                 <span>Turno: ${esc(groupTxt)}</span>
-                <span class="athlete-card-meta-sep">·</span>
                 <span>${esc(evalsTxt)}</span>
               </div>
             </div>
