@@ -882,11 +882,304 @@
       color: var(--mute);
       margin-left: 4px;
     }
+
+    /* Vistas SPA y Navegación */
+    .view-nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      margin-bottom: -4px;
+    }
+
+    .btn-nav-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      color: var(--tx);
+      border-radius: 10px;
+      padding: 9px 16px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn-nav-back:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--acc);
+      color: var(--acc);
+      transform: translateX(-2px);
+    }
+
+    .btn-nav-back svg {
+      transition: transform 0.15s ease;
+    }
+
+    .btn-nav-back:hover svg {
+      transform: translateX(-2px);
+    }
+
+    .modal-expand-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 138, 42, 0.12);
+      border: 1px solid rgba(255, 138, 42, 0.35);
+      color: #ff8a2a;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .modal-expand-btn:hover {
+      background: rgba(255, 138, 42, 0.22);
+      border-color: #ff8a2a;
+      color: #ffa352;
+      transform: translateY(-1px);
+    }
+
+    .profile-page-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .page-profile-body {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    /* Directorio de Atletas */
+    .athletes-page-header {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 22px 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .athletes-page-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .athletes-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .athletes-title-row h2 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .badge-count {
+      font-size: 12px;
+      font-weight: 800;
+      padding: 2px 9px;
+      border-radius: 20px;
+      background: rgba(255, 138, 42, 0.15);
+      color: var(--acc);
+      border: 1px solid rgba(255, 138, 42, 0.3);
+    }
+
+    .athletes-page-subtitle {
+      margin: 0;
+      font-size: 13.5px;
+      color: var(--mute);
+    }
+
+    .athletes-search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #101319;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 14px;
+      width: 100%;
+      max-width: 320px;
+      transition: border-color 0.15s ease;
+    }
+
+    .athletes-search-box:focus-within {
+      border-color: var(--acc);
+    }
+
+    .athletes-search-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--tx);
+      font-size: 13.5px;
+      font-family: inherit;
+      width: 100%;
+    }
+
+    .athletes-search-box svg {
+      color: var(--mute);
+      flex-shrink: 0;
+    }
+
+    .athletes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 16px;
+    }
+
+    .athlete-directory-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .athlete-directory-card:hover {
+      border-color: rgba(255, 138, 42, 0.5);
+      background: #1a1e28;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+    }
+
+    .athlete-card-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .athlete-card-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(255, 138, 42, 0.2), rgba(129, 140, 248, 0.2));
+      border: 1.5px solid var(--acc);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+      font-weight: 900;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .athlete-card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .athlete-card-name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .athlete-card-name {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .athlete-card-tags {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .athlete-card-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .athlete-card-action {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--acc);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: gap 0.15s ease;
+    }
+
+    .athlete-directory-card:hover .athlete-card-action {
+      gap: 8px;
+    }
+
+    .athletes-empty-msg {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--mute);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      background: var(--card);
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+    }
+
+    .athlete-profile-content {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    @media (max-width: 640px) {
+      .athletes-page-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .athletes-search-box {
+        max-width: 100%;
+      }
+      .athletes-grid {
+        grid-template-columns: 1fr;
+      }
+      .profile-page-card {
+        padding: 16px;
+      }
+    }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
+  <div class="wrap" id="viewLeaderboard">
     <div class="header">
       <h1>🏆 <span>CPW</span> LEADERBOARD</h1>
 
@@ -970,6 +1263,70 @@
     </div>
   </div>
 
+  <!-- Vista Directorio de Atletas -->
+  <div class="wrap" id="viewAthletesList" style="display: none;">
+    <div class="view-nav-bar">
+      <button type="button" class="btn-nav-back" id="athletesListBackBtn">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Volver al Leaderboard</span>
+      </button>
+    </div>
+
+    <div class="athletes-page-header">
+      <div class="athletes-page-title-group">
+        <div class="athletes-title-row">
+          <h2>Atletas</h2>
+          <span class="badge-count" id="athletesTotalCount">0</span>
+        </div>
+        <p class="athletes-page-subtitle">Selecciona un atleta para ver su evolución, estadísticas detalladas y equilibrio calisténico.</p>
+      </div>
+
+      <div class="athletes-search-box">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="athletesSearchInput" placeholder="Buscar por nombre o turno..." autocomplete="off">
+      </div>
+    </div>
+
+    <div class="athletes-grid" id="athletesDirectoryGrid"></div>
+  </div>
+
+  <!-- Vista Expandida de Perfil de Atleta -->
+  <div class="wrap" id="viewAthleteProfile" style="display: none;">
+    <div class="view-nav-bar">
+      <button type="button" class="btn-nav-back" id="pageProfileBackBtn">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span id="pageProfileBackLabel">Volver al Leaderboard</span>
+      </button>
+    </div>
+
+    <div class="profile-page-card">
+      <div class="modal-athlete-info">
+        <div class="athlete-avatar" id="pageAthleteAvatar">B</div>
+        <div class="athlete-meta">
+          <div class="athlete-title-row">
+            <h2 id="pageAthleteTitle">Bruno</h2>
+            <span class="badge-role" id="pageRoleBadge" style="display:none;">PROFE</span>
+          </div>
+          <div class="athlete-tags">
+            <span class="badge-tag" id="pageGroupBadge">Turno: -</span>
+            <span class="badge-tag" id="pageEvalsBadge">0 evaluaciones</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-profile-body" id="pageProfileBodyHost"></div>
+  </div>
+
   <dialog id="athleteModal" class="athlete-modal" closedby="any" aria-labelledby="athleteModalTitle">
     <div class="modal-container">
       <div class="modal-header">
@@ -988,89 +1345,86 @@
         </div>
 
         <div class="modal-header-actions">
-          <div class="header-item">
-            <span class="header-label">Atleta:</span>
-            <div class="custom-select" id="modalAthleteCustomSelect">
-              <button type="button" class="custom-select-btn" id="modalAthleteBtn" aria-haspopup="listbox" aria-expanded="false" title="Cambiar atleta">
-                <span class="custom-select-val" id="modalAthleteVal">Seleccionar...</span>
-                <svg class="chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-              </button>
-              <div class="custom-select-menu" id="modalAthleteMenu" role="listbox"></div>
-            </div>
-            <select id="modalAthleteSelect" style="display:none;"></select>
-          </div>
-          <button type="button" class="modal-close-btn" id="closeAthleteModalBtn" aria-label="Cerrar ventana">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          <button type="button" class="modal-expand-btn" id="expandAthleteModalBtn" title="Expandir a pantalla completa">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+            </svg>
+            <span>Expandir</span>
+          </button>
+          <button type="button" class="modal-close-btn" id="closeAthleteModalBtn" aria-label="Cerrar ventana" title="Cerrar">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.2" fill="none"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </div>
       </div>
 
-      <div class="modal-body">
-        <!-- KPI Cards Grid -->
-        <div class="kpi-grid" id="modalKpiGrid"></div>
+      <div class="modal-body" id="athleteModalBody">
+        <div id="athleteProfileContent" class="athlete-profile-content">
+          <!-- KPI Cards Grid -->
+          <div class="kpi-grid" id="modalKpiGrid"></div>
 
-        <!-- Charts Section -->
-        <div class="charts-grid">
-          <div class="chart-card line-chart-card">
-            <div class="chart-card-header">
-              <div class="chart-title-group">
-                <span class="chart-badge">Progreso</span>
-                <h3 class="chart-title">Evolución de Repeticiones</h3>
+          <!-- Charts Section -->
+          <div class="charts-grid">
+            <div class="chart-card line-chart-card">
+              <div class="chart-card-header">
+                <div class="chart-title-group">
+                  <span class="chart-badge">Progreso</span>
+                  <h3 class="chart-title">Evolución de Repeticiones</h3>
+                </div>
+                <div class="chart-filter-chips" id="chartFilterChips">
+                  <button type="button" class="chip active" data-filter="all">Todos</button>
+                  <button type="button" class="chip" data-filter="dominadas_pronas">Pronas</button>
+                  <button type="button" class="chip" data-filter="fondos">Fondos</button>
+                  <button type="button" class="chip" data-filter="lagartijas">Lagartijas</button>
+                  <button type="button" class="chip" data-filter="dominadas_supinas">Supinas</button>
+                  <button type="button" class="chip" data-filter="points">Puntos</button>
+                </div>
               </div>
-              <div class="chart-filter-chips" id="chartFilterChips">
-                <button type="button" class="chip active" data-filter="all">Todos</button>
-                <button type="button" class="chip" data-filter="dominadas_pronas">Pronas</button>
-                <button type="button" class="chip" data-filter="fondos">Fondos</button>
-                <button type="button" class="chip" data-filter="lagartijas">Lagartijas</button>
-                <button type="button" class="chip" data-filter="dominadas_supinas">Supinas</button>
-                <button type="button" class="chip" data-filter="points">Puntos</button>
+              <div class="chart-canvas-wrap">
+                <canvas id="athleteEvolutionCanvas"></canvas>
+              </div>
+              <div class="chart-footer-note" id="chartFooterNote"></div>
+            </div>
+
+            <div class="chart-card radar-chart-card">
+              <div class="chart-card-header">
+                <div class="chart-title-group">
+                  <span class="chart-badge" style="background: rgba(129, 140, 248, 0.15); color: #818cf8; border-color: rgba(129, 140, 248, 0.3);">Balance</span>
+                  <h3 class="chart-title">Equilibrio Calisténico</h3>
+                </div>
+              </div>
+              <div class="radar-canvas-wrap">
+                <canvas id="athleteRadarCanvas"></canvas>
+              </div>
+              <div class="radar-legend-info">
+                <span>% de rendimiento relativo al mejor registro de la academia</span>
               </div>
             </div>
-            <div class="chart-canvas-wrap">
-              <canvas id="athleteEvolutionCanvas"></canvas>
-            </div>
-            <div class="chart-footer-note" id="chartFooterNote"></div>
           </div>
 
-          <div class="chart-card radar-chart-card">
-            <div class="chart-card-header">
-              <div class="chart-title-group">
-                <span class="chart-badge" style="background: rgba(129, 140, 248, 0.15); color: #818cf8; border-color: rgba(129, 140, 248, 0.3);">Balance</span>
-                <h3 class="chart-title">Equilibrio Calisténico</h3>
-              </div>
+          <!-- History Table -->
+          <div class="history-card">
+            <div class="history-card-header">
+              <span class="chart-badge" style="background: rgba(45, 212, 191, 0.15); color: #2dd4bf; border-color: rgba(45, 212, 191, 0.3);">Historial</span>
+              <h3 class="chart-title">Registro Detallado por Período</h3>
             </div>
-            <div class="radar-canvas-wrap">
-              <canvas id="athleteRadarCanvas"></canvas>
+            <div class="history-table-wrap">
+              <table class="history-table" id="athleteHistoryTable">
+                <thead>
+                  <tr id="historyTableHeader">
+                    <th>Período</th>
+                    <th>Fecha</th>
+                    <th>Grupo</th>
+                    <th>Pronas</th>
+                    <th>Fondos</th>
+                    <th>Lagartijas</th>
+                    <th>Supinas</th>
+                    <th>Puntos</th>
+                    <th>Posición</th>
+                  </tr>
+                </thead>
+                <tbody id="athleteHistoryTableBody"></tbody>
+              </table>
             </div>
-            <div class="radar-legend-info">
-              <span>% de rendimiento relativo al mejor registro de la academia</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- History Table -->
-        <div class="history-card">
-          <div class="history-card-header">
-            <span class="chart-badge" style="background: rgba(45, 212, 191, 0.15); color: #2dd4bf; border-color: rgba(45, 212, 191, 0.3);">Historial</span>
-            <h3 class="chart-title">Registro Detallado por Período</h3>
-          </div>
-          <div class="history-table-wrap">
-            <table class="history-table" id="athleteHistoryTable">
-              <thead>
-                <tr id="historyTableHeader">
-                  <th>Período</th>
-                  <th>Fecha</th>
-                  <th>Grupo</th>
-                  <th>Pronas</th>
-                  <th>Fondos</th>
-                  <th>Lagartijas</th>
-                  <th>Supinas</th>
-                  <th>Puntos</th>
-                  <th>Posición</th>
-                </tr>
-              </thead>
-              <tbody id="athleteHistoryTableBody"></tbody>
-            </table>
           </div>
         </div>
       </div>
@@ -1815,12 +2169,7 @@
       });
       await Promise.all(promises);
       buildAthletesIndex();
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const atletaParam = urlParams.get('atleta');
-      if (atletaParam && allAthletesMap.has(atletaParam)) {
-        openAthleteModal(atletaParam);
-      }
+      handleRouting();
     }
 
     function buildAthletesIndex() {
@@ -1944,35 +2293,195 @@
       updateModalAthleteDropdown();
     }
 
-    function updateModalAthleteDropdown() {
-      const menu = $('modalAthleteMenu');
-      const select = $('modalAthleteSelect');
-      if (!menu && !select) return;
+    // SPA Routing & Views Management
+    let currentActiveView = 'leaderboard';
+    let profileNavOrigin = 'leaderboard'; // 'leaderboard' o 'athletes-list'
 
-      if (menu) menu.innerHTML = '';
-      if (select) select.innerHTML = '';
+    function handleRouting() {
+      if (allAthletesMap.size === 0) {
+        buildAthletesIndex();
+      }
 
-      const athletesList = Array.from(allAthletesMap.keys()).sort((a, b) => a.localeCompare(b));
-      athletesList.forEach(name => {
-        if (select) {
-          const opt = document.createElement('option');
-          opt.value = name;
-          opt.textContent = name;
-          select.appendChild(opt);
+      const hash = window.location.hash || '';
+      const urlParams = new URLSearchParams(window.location.search);
+      const atletaParam = urlParams.get('atleta');
+
+      if (hash.startsWith('#/atleta/')) {
+        const rawName = decodeURIComponent(hash.slice('#/atleta/'.length).trim());
+        if (allAthletesMap.has(rawName)) {
+          showView('athlete-profile', rawName, profileNavOrigin || 'leaderboard', false);
+          return;
         }
-        if (menu) {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'custom-select-option' + (name === activeAthleteName ? ' active' : '');
-          btn.dataset.value = name;
-          btn.textContent = name;
-          btn.addEventListener('click', () => {
-            menu.classList.remove('show');
-            if ($('modalAthleteBtn')) $('modalAthleteBtn').setAttribute('aria-expanded', 'false');
-            openAthleteModal(name);
-          });
-          menu.appendChild(btn);
+      } else if (hash === '#/atletas') {
+        showView('athletes-list', null, 'leaderboard', false);
+        return;
+      } else if (atletaParam && allAthletesMap.has(atletaParam)) {
+        showView('athlete-profile', atletaParam, 'leaderboard', false);
+        return;
+      }
+
+      showView('leaderboard', null, 'leaderboard', false);
+    }
+
+    function showView(viewName, athleteName = null, origin = 'leaderboard', updateHash = true) {
+      currentActiveView = viewName;
+      if (origin) profileNavOrigin = origin;
+
+      const viewLeaderboard = $('viewLeaderboard');
+      const viewAthletesList = $('viewAthletesList');
+      const viewAthleteProfile = $('viewAthleteProfile');
+      const athleteModal = $('athleteModal');
+
+      // Cerrar modal flotante si está abierto
+      if (athleteModal && athleteModal.open) {
+        athleteModal.close();
+      }
+
+      if (viewName === 'leaderboard') {
+        if (viewLeaderboard) viewLeaderboard.style.display = 'grid';
+        if (viewAthletesList) viewAthletesList.style.display = 'none';
+        if (viewAthleteProfile) viewAthleteProfile.style.display = 'none';
+
+        // Reubicar el contenido del perfil dentro del host del modal
+        const profileContent = $('athleteProfileContent');
+        const modalBody = $('athleteModalBody');
+        if (profileContent && modalBody && profileContent.parentElement !== modalBody) {
+          modalBody.appendChild(profileContent);
         }
+
+        if (updateHash && window.location.hash !== '#/' && window.location.hash !== '') {
+          history.pushState(null, '', '#/');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (viewName === 'athletes-list') {
+        if (viewLeaderboard) viewLeaderboard.style.display = 'none';
+        if (viewAthletesList) viewAthletesList.style.display = 'grid';
+        if (viewAthleteProfile) viewAthleteProfile.style.display = 'none';
+
+        renderAthletesDirectory($('athletesSearchInput') ? $('athletesSearchInput').value : '');
+
+        if (updateHash && window.location.hash !== '#/atletas') {
+          history.pushState(null, '', '#/atletas');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (viewName === 'athlete-profile') {
+        if (viewLeaderboard) viewLeaderboard.style.display = 'none';
+        if (viewAthletesList) viewAthletesList.style.display = 'none';
+        if (viewAthleteProfile) viewAthleteProfile.style.display = 'grid';
+
+        const targetName = athleteName || activeAthleteName;
+        if (targetName && allAthletesMap.has(targetName)) {
+          activeAthleteName = targetName;
+        }
+
+        const backLabel = $('pageProfileBackLabel');
+        if (backLabel) {
+          if (profileNavOrigin === 'athletes-list') {
+            backLabel.textContent = 'Volver a Atletas';
+          } else {
+            backLabel.textContent = 'Volver al Leaderboard';
+          }
+        }
+
+        // Mover el contenido del perfil al host de la página completa
+        const profileContent = $('athleteProfileContent');
+        const pageHost = $('pageProfileBodyHost');
+        if (profileContent && pageHost && profileContent.parentElement !== pageHost) {
+          pageHost.appendChild(profileContent);
+        }
+
+        if (activeAthleteName) {
+          renderAthleteProfileData(activeAthleteName);
+        }
+
+        const newHash = `#/atleta/${encodeURIComponent(activeAthleteName)}`;
+        if (updateHash && window.location.hash !== newHash) {
+          history.pushState(null, '', newHash);
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function renderAthletesDirectory(searchTerm = '') {
+      const container = $('athletesDirectoryGrid');
+      if (!container) return;
+
+      if (allAthletesMap.size === 0) {
+        buildAthletesIndex();
+      }
+
+      const athletes = Array.from(allAthletesMap.values());
+      athletes.sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
+
+      const term = (searchTerm || '').trim().toLowerCase();
+      const filtered = term ? athletes.filter(a => {
+        const nameMatch = a.name.toLowerCase().includes(term);
+        const groupMatch = a.grupo && a.grupo.toLowerCase().includes(term);
+        const groupFmtMatch = a.grupo && formatGroup(a.grupo).toLowerCase().includes(term);
+        return nameMatch || groupMatch || groupFmtMatch;
+      }) : athletes;
+
+      const countBadge = $('athletesTotalCount');
+      if (countBadge) {
+        countBadge.textContent = String(athletes.length);
+      }
+
+      container.innerHTML = '';
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="athletes-empty-msg">
+            <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" stroke-width="1.8" fill="none">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <span>No se encontraron atletas que coincidan con "${esc(searchTerm)}".</span>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(athlete => {
+        const card = document.createElement('div');
+        card.className = 'athlete-directory-card';
+        card.dataset.athlete = athlete.name;
+
+        const initial = athlete.name.charAt(0).toUpperCase();
+        const timeline = athlete.timeline || [];
+        const latestEval = timeline.length > 0 ? timeline[timeline.length - 1] : null;
+        const groupTxt = latestEval && latestEval.grupo ? formatGroup(latestEval.grupo) : (athlete.grupo ? formatGroup(athlete.grupo) : '-');
+        const evalsTxt = `${timeline.length} ${timeline.length === 1 ? 'evaluación' : 'evaluaciones'}`;
+
+        card.innerHTML = `
+          <div class="athlete-card-top">
+            <div class="athlete-card-avatar">${esc(initial)}</div>
+            <div class="athlete-card-info">
+              <div class="athlete-card-name-row">
+                <h3 class="athlete-card-name">${esc(athlete.name)}</h3>
+                ${athlete.es_profe ? '<span class="badge-role">PROFE</span>' : ''}
+              </div>
+              <div class="athlete-card-tags">
+                <span class="badge-tag">Turno: ${esc(groupTxt)}</span>
+                <span class="badge-tag">${esc(evalsTxt)}</span>
+              </div>
+            </div>
+          </div>
+          <div class="athlete-card-bottom">
+            <span class="athlete-card-action">
+              <span>Ver perfil completo</span>
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </span>
+          </div>
+        `;
+
+        card.addEventListener('click', () => {
+          showView('athlete-profile', athlete.name, 'athletes-list');
+        });
+
+        container.appendChild(card);
       });
     }
 
@@ -1987,10 +2496,15 @@
       }
 
       activeAthleteName = athleteName;
-      if ($('modalAthleteVal')) $('modalAthleteVal').textContent = athleteName;
-      if ($('modalAthleteSelect')) $('modalAthleteSelect').value = athleteName;
 
-      renderAthleteModal(athleteName);
+      // Asegurar que el contenido del perfil esté dentro del modal flotante
+      const profileContent = $('athleteProfileContent');
+      const modalBody = $('athleteModalBody');
+      if (profileContent && modalBody && profileContent.parentElement !== modalBody) {
+        modalBody.appendChild(profileContent);
+      }
+
+      renderAthleteProfileData(athleteName);
 
       const modal = $('athleteModal');
       if (modal && !modal.open) {
@@ -1999,6 +2513,10 @@
     }
 
     function renderAthleteModal(athleteName) {
+      renderAthleteProfileData(athleteName);
+    }
+
+    function renderAthleteProfileData(athleteName) {
       const athlete = allAthletesMap.get(athleteName);
       if (!athlete) return;
 
@@ -2006,37 +2524,37 @@
       const latestEval = timeline.length > 0 ? timeline[timeline.length - 1] : null;
       const prevEval = timeline.length > 1 ? timeline[timeline.length - 2] : null;
 
-      // Header Meta
+      // Header Meta (Modal flotante)
       if ($('athleteModalTitle')) $('athleteModalTitle').textContent = athlete.name;
       if ($('modalAthleteAvatar')) $('modalAthleteAvatar').textContent = athlete.name.charAt(0).toUpperCase();
 
+      // Header Meta (Página completa expandida)
+      if ($('pageAthleteTitle')) $('pageAthleteTitle').textContent = athlete.name;
+      if ($('pageAthleteAvatar')) $('pageAthleteAvatar').textContent = athlete.name.charAt(0).toUpperCase();
+
       const roleBadge = $('modalRoleBadge');
+      const pageRoleBadge = $('pageRoleBadge');
+      const roleDisplay = athlete.es_profe ? 'inline-block' : 'none';
       if (roleBadge) {
-        if (athlete.es_profe) {
-          roleBadge.style.display = 'inline-block';
-          roleBadge.textContent = 'PROFE';
-        } else {
-          roleBadge.style.display = 'none';
-        }
+        roleBadge.style.display = roleDisplay;
+        roleBadge.textContent = 'PROFE';
+      }
+      if (pageRoleBadge) {
+        pageRoleBadge.style.display = roleDisplay;
+        pageRoleBadge.textContent = 'PROFE';
       }
 
+      const gTxt = latestEval && latestEval.grupo ? formatGroup(latestEval.grupo) : (athlete.grupo ? formatGroup(athlete.grupo) : '-');
       const grpBadge = $('modalGroupBadge');
-      if (grpBadge) {
-        const gTxt = latestEval && latestEval.grupo ? formatGroup(latestEval.grupo) : (athlete.grupo ? formatGroup(athlete.grupo) : '-');
-        grpBadge.textContent = `Turno: ${gTxt}`;
-      }
+      const pageGrpBadge = $('pageGroupBadge');
+      if (grpBadge) grpBadge.textContent = `Turno: ${gTxt}`;
+      if (pageGrpBadge) pageGrpBadge.textContent = `Turno: ${gTxt}`;
 
       const evalsBadge = $('modalEvalsBadge');
-      if (evalsBadge) {
-        evalsBadge.textContent = `${timeline.length} ${timeline.length === 1 ? 'evaluación' : 'evaluaciones'}`;
-      }
-
-      // Dropdown active state
-      if ($('modalAthleteMenu')) {
-        Array.from($('modalAthleteMenu').children).forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.value === athleteName);
-        });
-      }
+      const pageEvalsBadge = $('pageEvalsBadge');
+      const evalsTxt = `${timeline.length} ${timeline.length === 1 ? 'evaluación' : 'evaluaciones'}`;
+      if (evalsBadge) evalsBadge.textContent = evalsTxt;
+      if (pageEvalsBadge) pageEvalsBadge.textContent = evalsTxt;
 
       // Catalog of exercises
       const exDefs = (exercisesConfig && exercisesConfig.exercises) ? exercisesConfig.exercises : [];
@@ -2621,22 +3139,51 @@
         }
       });
 
-      // Botón superior para abrir modal de evolución
+      // Botón superior para navegar a la lista de atletas
       if ($('openAthleteModalBtn')) {
         $('openAthleteModalBtn').addEventListener('click', () => {
-          let target = activeAthleteName;
-          if (!target) {
-            if (currentRecord && currentRecord.athletes && currentRecord.athletes.length > 0) {
-              target = currentRecord.athletes[0].name;
-            } else if (allAthletesMap.size > 0) {
-              target = allAthletesMap.keys().next().value;
-            }
-          }
-          if (target) {
-            openAthleteModal(target);
+          showView('athletes-list', null, 'leaderboard');
+        });
+      }
+
+      // Botón expandir en el modal flotante
+      if ($('expandAthleteModalBtn')) {
+        $('expandAthleteModalBtn').addEventListener('click', () => {
+          if (activeAthleteName) {
+            $('athleteModal').close();
+            showView('athlete-profile', activeAthleteName, 'leaderboard');
           }
         });
       }
+
+      // Botón volver en la vista de perfil expandida
+      if ($('pageProfileBackBtn')) {
+        $('pageProfileBackBtn').addEventListener('click', () => {
+          if (profileNavOrigin === 'athletes-list') {
+            showView('athletes-list');
+          } else {
+            showView('leaderboard');
+          }
+        });
+      }
+
+      // Botón volver en el directorio de atletas
+      if ($('athletesListBackBtn')) {
+        $('athletesListBackBtn').addEventListener('click', () => {
+          showView('leaderboard');
+        });
+      }
+
+      // Input buscador en directorio de atletas
+      if ($('athletesSearchInput')) {
+        $('athletesSearchInput').addEventListener('input', e => {
+          renderAthletesDirectory(e.target.value);
+        });
+      }
+
+      // Listeners de navegación por historial/hash del navegador
+      window.addEventListener('hashchange', handleRouting);
+      window.addEventListener('popstate', handleRouting);
 
       // Botón cerrar modal
       if ($('closeAthleteModalBtn')) {
@@ -2702,7 +3249,6 @@
       setupDropdown('periodBtn', 'periodMenu');
       setupDropdown('groupBtn', 'groupMenu');
       setupDropdown('exportBtn', 'exportMenu');
-      setupDropdown('modalAthleteBtn', 'modalAthleteMenu');
 
       document.addEventListener('click', () => {
         document.querySelectorAll('.custom-select-menu.show, .export-menu.show').forEach(m => {
