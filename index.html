@@ -424,24 +424,127 @@
     }
 
 
-    @media(max-width: 740px) {
+    @media(max-width: 768px) {
       .header-controls {
         flex-direction: column;
         align-items: stretch;
-        gap: 10px;
+        gap: 12px;
+        width: 100%;
       }
 
       .header-filters {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px 10px;
         width: 100%;
-        flex-wrap: wrap;
-        gap: 6px;
+      }
+
+      .header-filters .header-item {
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+      }
+
+      .header-filters .header-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--mute);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        line-height: 1.2;
+      }
+
+      .header-filters .custom-select {
+        width: 100%;
+        position: relative;
+      }
+
+      .header-filters .custom-select-btn {
+        width: 100%;
+        height: 40px;
+        padding: 0 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 9px;
+        background: #171a22;
+        box-sizing: border-box;
+      }
+
+      .header-filters .custom-select-val {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: calc(100% - 20px);
+      }
+
+      .header-filters .custom-select-menu {
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .header-filters .toggle-label {
+        width: 100%;
+        height: 40px;
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 12px;
+        background: #171a22;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        margin: 0;
+        box-sizing: border-box;
       }
 
       .header-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
         width: 100%;
-        justify-content: flex-end;
         margin-left: 0;
       }
+
+      .header-actions .btn-athlete-evolution,
+      .header-actions .export-dropdown,
+      .header-actions .btn-export {
+        width: 100%;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 700;
+        box-sizing: border-box;
+      }
+
+      .header-actions .export-dropdown {
+        position: relative;
+      }
+
+      .header-actions .export-menu {
+        width: 100%;
+        box-sizing: border-box;
+      }
+    }
+
+    .custom-select.is-open,
+    .custom-select:has(.custom-select-menu.show),
+    .export-dropdown.is-open,
+    .export-dropdown:has(.export-menu.show) {
+      z-index: 200;
     }
     /* Athlete Modal & Evolution Styles */
     .btn-athlete-evolution {
@@ -1283,6 +1386,506 @@
         padding: 8px 13px;
         font-size: 12.5px;
       }
+      .card.prev {
+        padding: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+      }
+    }
+
+    /* Estilos del Leaderboard Adaptado para Móviles */
+    .mobile-board-container {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .mobile-board-top-bar {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .mobile-board-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .mobile-board-badge {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--acc);
+      letter-spacing: 0.6px;
+    }
+
+    .mobile-board-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 900;
+      font-style: italic;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .mobile-board-period {
+      font-size: 11.5px;
+      color: var(--mute);
+      font-weight: 600;
+    }
+
+    .mobile-board-view-switch {
+      display: inline-flex;
+      background: #0d0f14;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .btn-board-switch {
+      background: transparent;
+      border: none;
+      color: var(--mute);
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 5px 9px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-board-switch.active {
+      background: rgba(255, 138, 42, 0.2);
+      color: var(--acc);
+    }
+
+    .mobile-poster-scroll-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #0d0f14;
+      padding: 10px;
+    }
+
+    .mobile-poster-scroll-wrap svg {
+      min-width: 860px;
+      height: auto;
+      display: block;
+    }
+
+    .mobile-exercise-chips-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+    }
+    .mobile-exercise-chips-wrap::-webkit-scrollbar {
+      display: none;
+    }
+
+    .mobile-exercise-chips {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: max-content;
+    }
+
+    .mob-ex-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      color: var(--mute);
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 7px 13px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .mob-ex-chip.active {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-color: #ff8a2a;
+    }
+
+    .mob-ex-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .mobile-exercises-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .mobile-exercise-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .mobile-ex-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .mobile-ex-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mobile-ex-card-title h3 {
+      margin: 0;
+      font-size: 15.5px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.2px;
+    }
+
+    .mobile-ex-icon svg {
+      display: block;
+    }
+
+    .mobile-ex-count {
+      font-size: 11px;
+      color: var(--mute);
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+
+    .mobile-ex-rows-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mobile-athlete-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      border-radius: 10px;
+      background: #11141c;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .mobile-athlete-row:hover,
+    .mobile-athlete-row:active {
+      background: #1c212d;
+      border-color: rgba(255, 138, 42, 0.4);
+    }
+
+    .mobile-athlete-row.top-podium {
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .mobile-athlete-row-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .mob-medal-circle {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13.5px;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .mob-rank-num {
+      width: 26px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--mute);
+      flex-shrink: 0;
+    }
+
+    .mobile-athlete-row-name-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .mobile-athlete-name {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .mobile-athlete-row-right {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .mobile-athlete-reps {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .mobile-athlete-reps-unit {
+      font-size: 11px;
+      color: var(--mute);
+      font-weight: 600;
+    }
+
+    .btn-mob-expand,
+    .btn-mob-expand-full {
+      width: 100%;
+      background: #11141c;
+      border: 1px solid var(--line);
+      color: var(--acc);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 9px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      letter-spacing: 0.4px;
+    }
+
+    .btn-mob-expand:hover,
+    .btn-mob-expand-full:hover {
+      background: rgba(255, 138, 42, 0.12);
+      border-color: var(--acc);
+    }
+
+    /* Posiciones Generales Móvil */
+    .mobile-general-section {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    .mobile-general-header {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .gold-divider {
+      width: 60px;
+      height: 3px;
+      background: #f5c542;
+      border-radius: 2px;
+      margin: 2px auto 6px;
+    }
+
+    .mobile-general-subtitle {
+      margin: 0;
+      font-size: 12px;
+      color: var(--mute);
+      max-width: 440px;
+      line-height: 1.45;
+    }
+
+    .mobile-general-card {
+      background: var(--card);
+      border: 2px solid #f5c542;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .mobile-general-card-top {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .mobile-general-trophy-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mob-trophy-emoji {
+      font-size: 20px;
+    }
+
+    .mob-trophy-text {
+      font-size: 15px;
+      font-weight: 900;
+      font-style: italic;
+      color: #f5c542;
+    }
+
+    .mobile-criteria-selector {
+      display: inline-flex;
+      background: #0d0f14;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .btn-mob-criteria {
+      background: transparent;
+      border: none;
+      color: var(--mute);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 9px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-mob-criteria.active {
+      background: #f5c542;
+      color: #111;
+      font-weight: 800;
+    }
+
+    .mobile-general-table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      width: 100%;
+    }
+
+    .mobile-general-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 440px;
+    }
+
+    .mobile-general-table th {
+      padding: 10px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--mute);
+      border-bottom: 1px solid var(--line);
+      background: #11141b;
+    }
+
+    .mobile-general-table td {
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: #fff;
+    }
+
+    .mobile-general-table tr[data-athlete] {
+      cursor: pointer;
+      transition: background 0.12s ease;
+    }
+
+    .mobile-general-table tr[data-athlete]:hover,
+    .mobile-general-table tr[data-athlete]:active {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .mob-medal-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .mob-table-rank-num {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--mute);
+    }
+
+    .mob-table-athlete-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .mob-table-athlete-name {
+      font-weight: 700;
+      font-size: 13.5px;
+      color: #fff;
+    }
+
+    .mob-table-pts {
+      font-size: 15px;
+      font-weight: 900;
+      color: #f5c542;
+    }
+
+    .badge-profe {
+      font-size: 8.5px;
+      font-weight: 900;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: rgba(255, 138, 42, 0.16);
+      color: #ff9a47;
+      border: 1px solid rgba(255, 138, 42, 0.5);
+      letter-spacing: 0.8px;
+      display: inline-block;
+      line-height: 1.2;
+    }
+
+    .badge-group {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--mute);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: inline-block;
+      line-height: 1.2;
     }
   </style>
 </head>
@@ -1593,7 +2196,7 @@
         { "name": "Lucía", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 14, "fondos": 12, "lagartijas": 40, "dominadas_supinas": 13 } },
         { "name": "Joaquín", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 13, "fondos": 11, "lagartijas": 14, "dominadas_supinas": 12 } },
         { "name": "Maxi", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 13, "fondos": 23, "lagartijas": 41, "dominadas_supinas": 10 } },
-        { "name": "S", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 12, "fondos": 17, "lagartijas": 36, "dominadas_supinas": 13 } },
+        { "name": "Seba", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 12, "fondos": 17, "lagartijas": 36, "dominadas_supinas": 13 } },
         { "name": "Ro", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 11, "fondos": 17, "lagartijas": 33, "dominadas_supinas": 11 } },
         { "name": "Bruno", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 11, "fondos": 18, "lagartijas": 40, "dominadas_supinas": 9 } },
         { "name": "Tony", "grupo": "LMV1730", "fecha": "2026-10-19", "es_profe": false, "results": { "dominadas_pronas": 9, "fondos": 18, "lagartijas": 24, "dominadas_supinas": 10 } }
@@ -1762,10 +2365,15 @@
       return result;
     }
 
-    function buildSvg(recordData, exercisesData, periodStr, groupFilter, isExport = false, expanded = isExpanded, page = 'all') {
+    let activeMobileExerciseTab = 'all';
+    let mobileViewMode = 'responsive'; // 'responsive' | 'poster'
+    let mobileExExpanded = {};
+    let mobileGenExpanded = false;
+
+    function getProcessedLeaderboardData(recordData, exercisesData, periodStr, groupFilter) {
       if (!recordData || !recordData.athletes || !recordData.athletes.length) return null;
 
-      const includeProfe = $('profeCheck').checked;
+      const includeProfe = $('profeCheck') ? $('profeCheck').checked : true;
       const includeGroupBadges = $('groupBadgeCheck') ? $('groupBadgeCheck').checked : false;
       const selectedGroup = groupFilter !== undefined ? groupFilter : currentGroup;
 
@@ -1776,11 +2384,9 @@
       });
       if (!filteredAthletes.length) return null;
 
-      // Determine exercises to display
       const exerciseDefs = (exercisesData && exercisesData.exercises) ? exercisesData.exercises : [];
       const exerciseMap = new Map(exerciseDefs.map(e => [e.id, e.name]));
 
-      // Find all exercise IDs actually present in athletes' results
       const exerciseIds = [];
       exerciseDefs.forEach(e => {
         if (filteredAthletes.some(a => a.results && a.results[e.id] !== undefined && a.results[e.id] !== null)) {
@@ -1820,11 +2426,6 @@
 
       if (!cols.length) return null;
 
-      const CW = 250, GAP = 24, PAD = 36, RH = 58, PER = 4;
-      const n = Math.min(cols.length, PER);
-      const W = Math.max(750, PAD * 2 + n * CW + (n - 1) * GAP);
-      let y = 0, body = '';
-
       const baseLabel = (recordData && (recordData.nombre || recordData.name)) ? (recordData.nombre || recordData.name) : (periodStr || '');
       let periodLabel = baseLabel ? `${baseLabel}` : '';
       if (selectedGroup !== 'all') {
@@ -1833,6 +2434,98 @@
       } else if (recordData && recordData.athletes && recordData.athletes.some(a => a.grupo)) {
         periodLabel = periodLabel ? `${periodLabel} · TODOS LOS GRUPOS` : 'TODOS LOS GRUPOS';
       }
+
+      const rawCrit = window.SCORING_CRITERIA || { pos: { btnLabel: 'PUNTOS FIJOS' }, rel: { btnLabel: 'RELATIVO AL LÍDER' } };
+      const allCrit = {};
+      Object.keys(rawCrit).forEach(k => {
+        const c = rawCrit[k];
+        if (c && c.enabled !== false && c.activo !== false && c.habilitado !== false && !c.disabled) {
+          allCrit[k] = c;
+        }
+      });
+
+      const critKeys = Object.keys(allCrit);
+      if (!allCrit[currentGmode] && critKeys.length > 0) {
+        currentGmode = critKeys[0];
+      }
+
+      const gmode = currentGmode;
+      const criteria = allCrit[gmode] || {
+        btnLabel: gmode.toUpperCase(),
+        cardTitle: 'POSICIONES GENERALES',
+        ptsColumnHeader: 'PTS',
+        getSubtitle: () => '',
+        formatScore: pts => String(Math.round(pts)),
+        calcExercisePoints: (entry, col, totalAthletes, totalExercises) => {
+          const maxV = col.list[0] ? col.list[0].v : 0;
+          return entry && maxV > 0 ? (totalAthletes - entry.r + 1) : 0;
+        }
+      };
+
+      const athletesMap = new Map();
+      filteredAthletes.forEach(a => {
+        if (a.name && !athletesMap.has(a.name)) {
+          athletesMap.set(a.name, {
+            es_profe: !!a.es_profe,
+            grupo: a.grupo || '',
+            fecha: a.fecha || ''
+          });
+        }
+      });
+      const totalAthletes = athletesMap.size;
+
+      const glist = Array.from(athletesMap.entries()).map(([name, meta]) => {
+        const reps = cols.map(c => {
+          const entry = c.list.find(x => x.n === name);
+          return entry ? { v: entry.v, r: entry.r } : null;
+        });
+
+        let pts = 0;
+        if (typeof criteria.calcAthleteScore === 'function') {
+          pts = criteria.calcAthleteScore(reps, cols, totalAthletes);
+        } else {
+          cols.forEach((c, idx) => {
+            const entry = reps[idx];
+            if (entry) {
+              const gained = criteria.calcExercisePoints(entry, c, totalAthletes, cols.length);
+              pts += gained;
+            }
+          });
+        }
+        return { n: name, es_profe: meta.es_profe, grupo: meta.grupo, fecha: meta.fecha, pts, reps };
+      }).filter(x => x.reps.some(r => r !== null && !isNaN(r.v)));
+
+      glist.sort((a, b) => b.pts - a.pts);
+      glist.forEach((x, k) => {
+        x.r = (k && Math.abs(glist[k - 1].pts - x.pts) < 0.001) ? glist[k - 1].r : k + 1;
+      });
+
+      return {
+        filteredAthletes,
+        cols,
+        glist,
+        criteria,
+        allCrit,
+        critKeys,
+        gmode,
+        totalAthletes,
+        periodLabel,
+        includeProfe,
+        includeGroupBadges,
+        selectedGroup
+      };
+    }
+
+    function buildSvg(recordData, exercisesData, periodStr, groupFilter, isExport = false, expanded = isExpanded, page = 'all') {
+      const data = getProcessedLeaderboardData(recordData, exercisesData, periodStr, groupFilter);
+      if (!data) return null;
+
+      const { filteredAthletes, cols, glist, criteria, allCrit, critKeys, gmode, totalAthletes, periodLabel, includeGroupBadges } = data;
+
+      const CW = 250, GAP = 24, PAD = 36, RH = 58, PER = 4;
+      const n = Math.min(cols.length, PER);
+      const W = Math.max(750, PAD * 2 + n * CW + (n - 1) * GAP);
+      let y = 0, body = '';
 
       // --- 1. COLUMNAS DE LAS CATEGORÍAS INDIVIDUALES ---
       if (page !== 'general') {
@@ -1934,71 +2627,7 @@
       }
 
       // --- 2. BLOQUE LEADERBOARD GENERAL (ABAJO) ---
-      const rawCrit = window.SCORING_CRITERIA || { pos: { btnLabel: 'PUNTOS FIJOS' }, rel: { btnLabel: 'RELATIVO AL LÍDER' } };
-      const allCrit = {};
-      Object.keys(rawCrit).forEach(k => {
-        const c = rawCrit[k];
-        if (c && c.enabled !== false && c.activo !== false && c.habilitado !== false && !c.disabled) {
-          allCrit[k] = c;
-        }
-      });
-
-      const critKeys = Object.keys(allCrit);
-      if (!allCrit[currentGmode] && critKeys.length > 0) {
-        currentGmode = critKeys[0];
-      }
-
-      const gmode = currentGmode;
-      const criteria = allCrit[gmode] || {
-        btnLabel: gmode.toUpperCase(),
-        cardTitle: 'POSICIONES GENERALES',
-        ptsColumnHeader: 'PTS',
-        getSubtitle: () => '',
-        formatScore: pts => String(Math.round(pts)),
-        calcExercisePoints: (entry, col, totalAthletes, totalExercises) => {
-          const maxV = col.list[0] ? col.list[0].v : 0;
-          return entry && maxV > 0 ? (totalAthletes - entry.r + 1) : 0;
-        }
-      };
-
       if (page !== 'exercises' && cols.length > 0) {
-        const athletesMap = new Map();
-        filteredAthletes.forEach(a => {
-          if (a.name && !athletesMap.has(a.name)) {
-            athletesMap.set(a.name, {
-              es_profe: !!a.es_profe,
-              grupo: a.grupo || '',
-              fecha: a.fecha || ''
-            });
-          }
-        });
-        const totalAthletes = athletesMap.size;
-
-        const glist = Array.from(athletesMap.entries()).map(([name, meta]) => {
-          const reps = cols.map(c => {
-            const entry = c.list.find(x => x.n === name);
-            return entry ? { v: entry.v, r: entry.r } : null;
-          });
-
-          let pts = 0;
-          if (typeof criteria.calcAthleteScore === 'function') {
-            pts = criteria.calcAthleteScore(reps, cols, totalAthletes);
-          } else {
-            cols.forEach((c, idx) => {
-              const entry = reps[idx];
-              if (entry) {
-                const gained = criteria.calcExercisePoints(entry, c, totalAthletes, cols.length);
-                pts += gained;
-              }
-            });
-          }
-          return { n: name, es_profe: meta.es_profe, grupo: meta.grupo, fecha: meta.fecha, pts, reps };
-        }).filter(x => x.reps.some(r => r !== null && !isNaN(r.v)));
-
-        glist.sort((a, b) => b.pts - a.pts);
-        glist.forEach((x, k) => {
-          x.r = (k && Math.abs(glist[k - 1].pts - x.pts) < 0.001) ? glist[k - 1].r : k + 1;
-        });
 
         const GW = n * CW + (n - 1) * GAP;
         const gx0 = (W - GW) / 2;
@@ -2200,6 +2829,296 @@
       };
     }
 
+    function buildMobilePosterHtml(curSvg, data) {
+      const periodLabel = data && data.periodLabel ? data.periodLabel : '';
+      return `
+        <div class="mobile-board-container">
+          <div class="mobile-board-top-bar">
+            <div class="mobile-board-title-group">
+              <span class="mobile-board-badge">MÁXIMOS - CALISTENIA</span>
+              <h2 class="mobile-board-title">RANKING CPW</h2>
+              ${periodLabel ? `<span class="mobile-board-period">${esc(periodLabel.toUpperCase())}</span>` : ''}
+            </div>
+            <div class="mobile-board-view-switch" role="group" aria-label="Modo de vista">
+              <button type="button" class="btn-board-switch" data-board-mode="responsive">📱 Adaptado</button>
+              <button type="button" class="btn-board-switch active" data-board-mode="poster">🖼️ Póster</button>
+            </div>
+          </div>
+          <div class="mobile-poster-scroll-wrap">
+            <div style="font-size:11.5px;color:var(--mute);margin-bottom:8px;text-align:center;">
+              👉 Desliza horizontalmente para explorar el póster original en alta definición
+            </div>
+            ${curSvg ? curSvg.svg : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function buildMobileLeaderboardHtml(data, curSvg) {
+      if (!data) return '<div class="status-msg">No hay datos disponibles</div>';
+
+      const { filteredAthletes, cols, glist, criteria, allCrit, critKeys, gmode, totalAthletes, periodLabel, includeGroupBadges } = data;
+
+      if (mobileViewMode === 'poster') {
+        return buildMobilePosterHtml(curSvg, data);
+      }
+
+      let html = `
+        <div class="mobile-board-container">
+          <div class="mobile-board-top-bar">
+            <div class="mobile-board-title-group">
+              <span class="mobile-board-badge">MÁXIMOS - CALISTENIA</span>
+              <h2 class="mobile-board-title">RANKING CPW</h2>
+              ${periodLabel ? `<span class="mobile-board-period">${esc(periodLabel.toUpperCase())}</span>` : ''}
+            </div>
+            <div class="mobile-board-view-switch" role="group" aria-label="Modo de vista">
+              <button type="button" class="btn-board-switch active" data-board-mode="responsive">📱 Adaptado</button>
+              <button type="button" class="btn-board-switch" data-board-mode="poster">🖼️ Póster</button>
+            </div>
+          </div>
+      `;
+
+      // Chips para alternar rápidamente entre ejercicios o ranking general
+      html += `
+        <div class="mobile-exercise-chips-wrap">
+          <div class="mobile-exercise-chips">
+            <button type="button" class="mob-ex-chip ${activeMobileExerciseTab === 'all' ? 'active' : ''}" data-mob-ex="all">
+              Todos
+            </button>
+      `;
+
+      cols.forEach((col, idx) => {
+        const colColor = COLORS[idx % COLORS.length];
+        const isAct = activeMobileExerciseTab === col.id;
+        html += `
+          <button type="button" class="mob-ex-chip ${isAct ? 'active' : ''}" data-mob-ex="${esc(col.id)}">
+            <span class="mob-ex-dot" style="background:${colColor};"></span>
+            <span>${esc(col.h)}</span>
+          </button>
+        `;
+      });
+
+      if (glist && glist.length > 0) {
+        const isAct = activeMobileExerciseTab === 'general';
+        html += `
+          <button type="button" class="mob-ex-chip ${isAct ? 'active' : ''}" data-mob-ex="general">
+            <span>🏆 General</span>
+          </button>
+        `;
+      }
+
+      html += `
+          </div>
+        </div>
+      `;
+
+      // 1. Tarjetas de ejercicios
+      if (activeMobileExerciseTab !== 'general') {
+        html += `<div class="mobile-exercises-grid">`;
+
+        const visibleCols = (activeMobileExerciseTab === 'all')
+          ? cols
+          : cols.filter(c => c.id === activeMobileExerciseTab);
+
+        visibleCols.forEach((col) => {
+          const colIdx = cols.findIndex(c => c.id === col.id);
+          const colColor = COLORS[(colIdx >= 0 ? colIdx : 0) % COLORS.length];
+          const isColExpanded = !!mobileExExpanded[col.id];
+          const displayList = isColExpanded ? col.list : col.list.slice(0, ROW_LIMIT);
+          const hasMore = col.list.length > ROW_LIMIT;
+
+          html += `
+            <div class="mobile-exercise-card" style="border-top: 3px solid ${colColor};">
+              <div class="mobile-ex-card-header">
+                <div class="mobile-ex-card-title">
+                  <span class="mobile-ex-icon">${getExerciseIconSvg(col.h, colColor)}</span>
+                  <h3>${esc(col.h)}</h3>
+                </div>
+                <span class="mobile-ex-count">${col.list.length} atletas</span>
+              </div>
+
+              <div class="mobile-ex-rows-list">
+          `;
+
+          displayList.forEach(p => {
+            const isPodium = p.r <= 3;
+            let rankBadge = '';
+            if (isPodium) {
+              rankBadge = `<span class="mob-medal-circle" style="background:${MEDAL[p.r]}; color:#1a1005;">${p.r}</span>`;
+            } else {
+              rankBadge = `<span class="mob-rank-num">${p.r}º</span>`;
+            }
+
+            const profeBadge = p.es_profe ? `<span class="badge-profe">PROFE</span>` : '';
+            const groupBadge = (includeGroupBadges && p.grupo) ? `<span class="badge-group">${esc(formatGroup(p.grupo))}</span>` : '';
+
+            html += `
+              <div class="mobile-athlete-row ${isPodium ? 'top-podium' : ''}" data-athlete="${esc(p.n)}" role="button" tabindex="0">
+                <div class="mobile-athlete-row-left">
+                  ${rankBadge}
+                  <div class="mobile-athlete-row-name-group">
+                    <span class="mobile-athlete-name">${esc(p.n)}</span>
+                    ${profeBadge}
+                    ${groupBadge}
+                  </div>
+                </div>
+                <div class="mobile-athlete-row-right">
+                  <span class="mobile-athlete-reps" style="color:${colColor};">${+p.v.toFixed(1)}</span>
+                  <span class="mobile-athlete-reps-unit">reps</span>
+                </div>
+              </div>
+            `;
+          });
+
+          html += `</div>`; // .mobile-ex-rows-list
+
+          if (hasMore) {
+            const btnText = isColExpanded
+              ? '▲ MOSTRAR TOP 10'
+              : `▼ VER TODOS (${col.list.length} ATLETAS)`;
+            html += `
+              <button type="button" class="btn-mob-expand" data-mob-expand-ex="${esc(col.id)}">
+                ${esc(btnText)}
+              </button>
+            `;
+          }
+
+          html += `</div>`; // .mobile-exercise-card
+        });
+
+        html += `</div>`; // .mobile-exercises-grid
+      }
+
+      // 2. Sección de Posiciones Generales
+      if ((activeMobileExerciseTab === 'all' || activeMobileExerciseTab === 'general') && glist && glist.length > 0) {
+        const isGenExpanded = !!mobileGenExpanded;
+        const displayGlist = isGenExpanded ? glist : glist.slice(0, ROW_LIMIT);
+        const hasMoreGen = glist.length > ROW_LIMIT;
+        const sub = criteria.getSubtitle ? criteria.getSubtitle(totalAthletes, cols.length) : '';
+
+        html += `
+          <div class="mobile-general-section">
+            <div class="mobile-general-header">
+              <h2 style="margin:0;font-size:20px;font-weight:900;font-style:italic;color:#fff;letter-spacing:-0.3px;">POSICIONES GENERALES</h2>
+              <div class="gold-divider"></div>
+              ${sub ? `<p class="mobile-general-subtitle">${esc(sub)}</p>` : ''}
+            </div>
+
+            <div class="mobile-general-card">
+              <div class="mobile-general-card-top">
+                <div class="mobile-general-trophy-title">
+                  <span class="mob-trophy-emoji">🏆</span>
+                  <span class="mob-trophy-text">${esc(criteria.cardTitle || 'POSICIONES GENERALES')}</span>
+                </div>
+
+                <div class="mobile-criteria-selector" role="group" aria-label="Criterio de puntuación">
+        `;
+
+        critKeys.forEach(k => {
+          const c = allCrit[k];
+          const isSel = (gmode === k);
+          html += `
+            <button type="button" class="btn-mob-criteria ${isSel ? 'active' : ''}" data-mode="${esc(k)}">
+              ${esc(c.btnLabel || k.toUpperCase())}
+            </button>
+          `;
+        });
+
+        html += `
+                </div>
+              </div>
+
+              <div class="mobile-general-table-wrap">
+                <table class="mobile-general-table">
+                  <thead>
+                    <tr>
+                      <th style="width:44px;text-align:center;">POS</th>
+                      <th style="text-align:left;">ATLETA</th>
+                      ${includeGroupBadges ? '<th style="text-align:center;width:68px;">GRUPO</th>' : ''}
+        `;
+
+        cols.forEach((col, ci) => {
+          const colColor = COLORS[ci % COLORS.length];
+          const label = splitLeadingEmoji(col.h).text;
+          const shortName = label.length > 8 ? label.slice(0, 7) + '…' : label;
+          html += `<th style="text-align:center;color:${colColor};">${esc(shortName.toUpperCase())}</th>`;
+        });
+
+        html += `
+                      <th style="text-align:center;color:#f5c542;width:68px;">${esc(criteria.ptsColumnHeader || 'PTS')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+        `;
+
+        displayGlist.forEach((p) => {
+          const isPodium = p.r <= 3;
+          let posHtml = '';
+          if (isPodium) {
+            posHtml = `<span class="mob-medal-badge" style="background:${MEDAL[p.r]}; color:#1b1b1b;">${p.r}</span>`;
+          } else {
+            posHtml = `<span class="mob-table-rank-num">${p.r}º</span>`;
+          }
+
+          const profeBadge = p.es_profe ? `<span class="badge-profe">P</span>` : '';
+          const groupVal = p.grupo ? formatGroup(p.grupo) : '-';
+          const valStr = criteria.formatScore ? criteria.formatScore(p.pts) : String(Math.round(p.pts));
+
+          html += `
+            <tr data-athlete="${esc(p.n)}" role="button" tabindex="0">
+              <td style="text-align:center;">${posHtml}</td>
+              <td>
+                <div class="mob-table-athlete-cell">
+                  <span class="mob-table-athlete-name">${esc(p.n)}</span>
+                  ${profeBadge}
+                </div>
+              </td>
+              ${includeGroupBadges ? `<td style="text-align:center;font-size:11px;color:var(--mute);">${esc(groupVal)}</td>` : ''}
+          `;
+
+          p.reps.forEach(rep => {
+            if (rep && !isNaN(rep.v)) {
+              html += `<td style="text-align:center;font-weight:600;color:#c2c8d5;">${+rep.v.toFixed(1)}</td>`;
+            } else {
+              html += `<td style="text-align:center;color:#555;">-</td>`;
+            }
+          });
+
+          html += `
+              <td style="text-align:center;"><span class="mob-table-pts">${esc(valStr)}</span></td>
+            </tr>
+          `;
+        });
+
+        html += `
+                  </tbody>
+                </table>
+              </div>
+        `;
+
+        if (hasMoreGen) {
+          const btnText = isGenExpanded
+            ? '▲ MOSTRAR TOP 10'
+            : `▼ VER TABLA COMPLETA (${glist.length} ATLETAS)`;
+          html += `
+            <div style="padding: 10px 14px 14px;">
+              <button type="button" class="btn-mob-expand-full" data-mob-expand-gen="true">
+                ${esc(btnText)}
+              </button>
+            </div>
+          `;
+        }
+
+        html += `
+            </div>
+          </div>
+        `;
+      }
+
+      html += `</div>`; // .mobile-board-container
+      return html;
+    }
+
     function render() {
       try {
         if (!currentRecord) {
@@ -2208,10 +3127,21 @@
           return;
         }
         curSvg = buildSvg(currentRecord, exercisesConfig, currentPeriod, currentGroup);
-        if (curSvg) {
-          $('prev').innerHTML = curSvg.svg;
-        } else {
+        if (!curSvg) {
           $('prev').innerHTML = '<div class="status-msg">No se encontraron atletas o ejercicios para los filtros seleccionados.</div>';
+          return;
+        }
+
+        const isMobileScreen = window.innerWidth <= 768;
+        if (isMobileScreen) {
+          const boardData = getProcessedLeaderboardData(currentRecord, exercisesConfig, currentPeriod, currentGroup);
+          if (mobileViewMode === 'poster') {
+            $('prev').innerHTML = buildMobilePosterHtml(curSvg, boardData);
+          } else {
+            $('prev').innerHTML = buildMobileLeaderboardHtml(boardData, curSvg);
+          }
+        } else {
+          $('prev').innerHTML = curSvg.svg;
         }
       } catch (e) {
         $('prev').innerHTML = `<div class="status-msg error">Error al procesar los datos: ${esc(e.message)}</div>`;
@@ -2416,7 +3346,8 @@
       const atletaParam = urlParams.get('atleta');
 
       if (hash.startsWith('#/atleta/')) {
-        const rawName = decodeURIComponent(hash.slice('#/atleta/'.length).trim());
+        let rawName = decodeURIComponent(hash.slice('#/atleta/'.length).trim());
+        if (rawName === 'S' && allAthletesMap.has('Seba')) rawName = 'Seba';
         if (allAthletesMap.has(rawName)) {
           showView('athlete-profile', rawName, profileNavOrigin || 'leaderboard', false);
           return;
@@ -2602,6 +3533,10 @@
     function openAthleteModal(athleteName) {
       if (allAthletesMap.size === 0) {
         buildAthletesIndex();
+      }
+
+      if (athleteName === 'S' && allAthletesMap.has('Seba')) {
+        athleteName = 'Seba';
       }
 
       if (!allAthletesMap.has(athleteName)) {
@@ -3218,7 +4153,7 @@
       $('profeCheck').addEventListener('change', render);
       $('groupBadgeCheck').addEventListener('change', render);
 
-      // Listeners para interactividad dentro del SVG
+      // Listeners para interactividad dentro del SVG y de la vista móvil
       $('prev').addEventListener('click', e => {
         const athleteItem = e.target.closest('[data-athlete]');
         if (athleteItem) {
@@ -3236,6 +4171,43 @@
             currentGmode = newMode;
             render();
           }
+          return;
+        }
+
+        const boardModeBtn = e.target.closest('[data-board-mode]');
+        if (boardModeBtn) {
+          const newBoardMode = boardModeBtn.dataset.boardMode;
+          if (newBoardMode && newBoardMode !== mobileViewMode) {
+            mobileViewMode = newBoardMode;
+            render();
+          }
+          return;
+        }
+
+        const mobExBtn = e.target.closest('[data-mob-ex]');
+        if (mobExBtn) {
+          const newEx = mobExBtn.dataset.mobEx;
+          if (newEx && newEx !== activeMobileExerciseTab) {
+            activeMobileExerciseTab = newEx;
+            render();
+          }
+          return;
+        }
+
+        const mobExpandExBtn = e.target.closest('[data-mob-expand-ex]');
+        if (mobExpandExBtn) {
+          const exId = mobExpandExBtn.dataset.mobExpandEx;
+          if (exId) {
+            mobileExExpanded[exId] = !mobileExExpanded[exId];
+            render();
+          }
+          return;
+        }
+
+        const mobExpandGenBtn = e.target.closest('[data-mob-expand-gen]');
+        if (mobExpandGenBtn) {
+          mobileGenExpanded = !mobileGenExpanded;
+          render();
           return;
         }
 
@@ -3257,6 +4229,17 @@
             }
           }
         }
+      });
+
+      // Listener para reaccionar fluidamente a cambios de orientación o tamaño de pantalla
+      let resizeTimer = null;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          if (currentActiveView === 'leaderboard') {
+            render();
+          }
+        }, 150);
       });
 
       // Botón superior para navegar a la lista de atletas
@@ -3358,10 +4341,12 @@
             m.classList.remove('show');
             const parentBtn = m.previousElementSibling;
             if (parentBtn && parentBtn.setAttribute) parentBtn.setAttribute('aria-expanded', 'false');
+            if (m.parentElement) m.parentElement.classList.remove('is-open');
           });
           if (!isOpen) {
             menu.classList.add('show');
             btn.setAttribute('aria-expanded', 'true');
+            if (menu.parentElement) menu.parentElement.classList.add('is-open');
           }
         });
       }
@@ -3375,6 +4360,7 @@
           m.classList.remove('show');
           const parentBtn = m.previousElementSibling;
           if (parentBtn && parentBtn.setAttribute) parentBtn.setAttribute('aria-expanded', 'false');
+          if (m.parentElement) m.parentElement.classList.remove('is-open');
         });
       });
 
