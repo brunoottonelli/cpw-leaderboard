@@ -3739,12 +3739,15 @@
         modalBody.appendChild(profileContent);
       }
 
-      renderAthleteProfileData(athleteName);
-
       const modal = $('athleteModal');
       if (modal && !modal.open) {
         modal.showModal();
       }
+
+      // Renderizar datos del perfil y gráficos una vez que el modal ya está abierto y visible en pantalla
+      requestAnimationFrame(() => {
+        renderAthleteProfileData(athleteName);
+      });
     }
 
     function renderAthleteModal(athleteName) {
@@ -4005,6 +4008,10 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          animation: {
+            duration: 850,
+            easing: 'easeOutQuart'
+          },
           interaction: {
             mode: 'index',
             intersect: false
@@ -4125,6 +4132,10 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          animation: {
+            duration: 850,
+            easing: 'easeOutQuart'
+          },
           layout: {
             padding: {
               top: 4,
@@ -4135,6 +4146,7 @@
           },
           scales: {
             r: {
+              beginAtZero: true,
               startAngle: 0,
               angleLines: { color: 'rgba(255, 255, 255, 0.12)' },
               grid: { color: 'rgba(255, 255, 255, 0.08)' },
