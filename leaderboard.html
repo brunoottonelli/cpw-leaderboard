@@ -4053,16 +4053,26 @@
       const latestEval = timeline[timeline.length - 1];
       const firstEval = timeline.length > 1 ? timeline[0] : null;
 
-      const exDefs = (exercisesConfig && exercisesConfig.exercises) ? exercisesConfig.exercises : [];
+      const RADAR_ORDER = ['fondos', 'dominadas_supinas', 'lagartijas', 'dominadas_pronas'];
+      const exDefsRaw = (exercisesConfig && exercisesConfig.exercises) ? exercisesConfig.exercises : [];
+      const radarExDefs = [];
+      RADAR_ORDER.forEach(id => {
+        const found = exDefsRaw.find(e => e.id === id);
+        if (found) radarExDefs.push(found);
+      });
+      exDefsRaw.forEach(e => {
+        if (!RADAR_ORDER.includes(e.id)) radarExDefs.push(e);
+      });
+
       const EXERCISE_SHORT_NAMES = {
         'dominadas_pronas': 'Pronas',
         'fondos': 'Fondos',
         'lagartijas': 'Lagartijas',
         'dominadas_supinas': 'Supinas'
       };
-      const labels = exDefs.map(e => EXERCISE_SHORT_NAMES[e.id] || e.name);
+      const labels = radarExDefs.map(e => EXERCISE_SHORT_NAMES[e.id] || e.name);
 
-      const latestData = exDefs.map(e => {
+      const latestData = radarExDefs.map(e => {
         const val = parseNum(latestEval.results ? latestEval.results[e.id] : undefined);
         const leader = latestEval.exerciseLeaders ? (latestEval.exerciseLeaders[e.id] || 0) : 0;
         if (isNaN(val) || val <= 0 || leader <= 0) return 0;
@@ -4071,7 +4081,7 @@
 
       const datasets = [
         {
-          label: `${latestEval.periodName} (Actual)`,
+          label: `${latestEval.periodName}`,
           data: latestData,
           borderColor: '#ff8a2a',
           backgroundColor: 'rgba(255, 138, 42, 0.28)',
@@ -4083,29 +4093,6 @@
           borderWidth: 2.6
         }
       ];
-
-      if (firstEval && firstEval !== latestEval) {
-        const firstData = exDefs.map(e => {
-          const val = parseNum(firstEval.results ? firstEval.results[e.id] : undefined);
-          const leader = firstEval.exerciseLeaders ? (firstEval.exerciseLeaders[e.id] || 0) : 0;
-          if (isNaN(val) || val <= 0 || leader <= 0) return 0;
-          return Math.min(100, Math.round((val / leader) * 100));
-        });
-
-        datasets.push({
-          label: `${firstEval.periodName} (Inicial)`,
-          data: firstData,
-          borderColor: '#818cf8',
-          backgroundColor: 'rgba(129, 140, 248, 0.12)',
-          pointBackgroundColor: '#818cf8',
-          pointBorderColor: '#141720',
-          pointBorderWidth: 1.5,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          borderWidth: 2,
-          borderDash: [4, 4]
-        });
-      }
 
       radarChartInstance = new Chart(ctx, {
         type: 'radar',
@@ -4126,6 +4113,7 @@
           },
           scales: {
             r: {
+              startAngle: 0,
               angleLines: { color: 'rgba(255, 255, 255, 0.12)' },
               grid: { color: 'rgba(255, 255, 255, 0.08)' },
               pointLabels: {
@@ -4163,17 +4151,15 @@
               callbacks: {
                 title: function(items) {
                   if (!items.length) return '';
-                  const ex = exDefs[items[0].dataIndex];
+                  const ex = radarExDefs[items[0].dataIndex];
                   return ex ? ex.name : '';
                 },
                 label: function(context) {
                   const pct = context.raw;
                   const eIdx = context.dataIndex;
-                  const ex = exDefs[eIdx];
-                  const isLatest = context.datasetIndex === 0;
-                  const targetEval = isLatest ? latestEval : firstEval;
-                  const reps = targetEval && targetEval.results ? targetEval.results[ex.id] : '-';
-                  return ` ${context.dataset.label}: ${reps} reps (${pct}% del récord)`;
+                  const ex = radarExDefs[eIdx];
+                  const reps = latestEval && latestEval.results && latestEval.results[ex.id] !== undefined ? latestEval.results[ex.id] : '-';
+                  return ` ${reps} reps (${pct}% del mejor registro)`;
                 }
               }
             }
