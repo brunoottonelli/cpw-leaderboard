@@ -7,6 +7,7 @@
   <title>Leaderboard - Calistenia</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/svg2pdf.js@2.2.4/dist/svg2pdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="criterios.js"></script>
   <style>
     :root {
@@ -409,6 +410,450 @@
         justify-content: space-between;
       }
     }
+    /* Athlete Modal & Evolution Styles */
+    .btn-athlete-evolution {
+      background: #171a22;
+      color: var(--tx);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 13px;
+      height: 34px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .btn-athlete-evolution:hover {
+      background: #202430;
+      border-color: var(--acc);
+      color: #fff;
+    }
+    .btn-athlete-evolution svg {
+      stroke: var(--acc);
+    }
+
+    .svg-athlete-item {
+      cursor: pointer;
+      outline: none;
+    }
+    .svg-athlete-item:hover > rect:first-of-type {
+      filter: brightness(1.22);
+      transition: filter 0.15s ease;
+    }
+
+    dialog.athlete-modal {
+      border: 1px solid var(--line);
+      background: #141720;
+      color: var(--tx);
+      border-radius: 20px;
+      padding: 0;
+      max-width: 1040px;
+      width: 95vw;
+      max-height: 90vh;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.06);
+      position: fixed;
+      inset: 0;
+      margin: auto;
+      overflow: hidden;
+    }
+
+    dialog.athlete-modal::backdrop {
+      background: rgba(8, 10, 15, 0.78);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    dialog.athlete-modal[open] {
+      animation: modalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.97) translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .modal-container {
+      display: flex;
+      flex-direction: column;
+      max-height: 90vh;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--line);
+      background: #171a22;
+      flex-shrink: 0;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .modal-athlete-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .athlete-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255, 138, 42, 0.2), rgba(129, 140, 248, 0.2));
+      border: 1.5px solid var(--acc);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 900;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .athlete-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .athlete-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .athlete-title-row h2 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .badge-role {
+      font-size: 9px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(255, 138, 42, 0.16);
+      color: #ff9a47;
+      border: 1px solid rgba(255, 138, 42, 0.5);
+      letter-spacing: 0.8px;
+    }
+
+    .athlete-tags {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .badge-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--mute);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 2px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .modal-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-close-btn {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--mute);
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .modal-close-btn:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: #495368;
+      color: #fff;
+    }
+
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--line) transparent;
+    }
+    .modal-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    .modal-body::-webkit-scrollbar-thumb {
+      background: var(--line);
+      border-radius: 3px;
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+    .kpi-card {
+      background: #171a22;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      border-color: #3f475a;
+    }
+    .kpi-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .kpi-exercise-name {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--mute);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .kpi-pr-badge {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(245, 197, 66, 0.14);
+      color: #f5c542;
+      border: 1px solid rgba(245, 197, 66, 0.35);
+      letter-spacing: 0.4px;
+    }
+    .kpi-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .kpi-unit {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--mute);
+    }
+    .kpi-delta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      font-weight: 600;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .kpi-delta-pos {
+      color: #2dd4bf;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .kpi-delta-neg {
+      color: #f87171;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .kpi-delta-zero {
+      color: var(--mute);
+    }
+    .kpi-record-text {
+      color: var(--mute);
+      font-size: 11px;
+    }
+
+    /* Charts Grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1.55fr 1.05fr;
+      gap: 16px;
+    }
+    @media (max-width: 900px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .chart-card {
+      background: #171a22;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .chart-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .chart-title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chart-badge {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(255, 138, 42, 0.15);
+      color: var(--acc);
+      border: 1px solid rgba(255, 138, 42, 0.3);
+    }
+    .chart-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.2px;
+    }
+    .chart-filter-chips {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .chip {
+      background: #11141b;
+      border: 1px solid var(--line);
+      color: var(--mute);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .chip:hover {
+      color: #fff;
+      border-color: #495368;
+    }
+    .chip.active {
+      background: rgba(255, 138, 42, 0.18);
+      border-color: var(--acc);
+      color: #ff9a47;
+    }
+    .chart-canvas-wrap {
+      position: relative;
+      height: 275px;
+      width: 100%;
+    }
+    .radar-canvas-wrap {
+      position: relative;
+      height: 275px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .radar-legend-info, .chart-footer-note {
+      font-size: 11.5px;
+      color: var(--mute);
+      text-align: center;
+    }
+
+    /* History Table */
+    .history-card {
+      background: #171a22;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .history-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .history-table-wrap {
+      overflow-x: auto;
+    }
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    .history-table th {
+      padding: 9px 12px;
+      color: var(--mute);
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+    .history-table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--tx);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .history-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .history-reps-val {
+      font-weight: 800;
+      font-size: 14.5px;
+    }
+    .history-rank-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--mute);
+      margin-left: 4px;
+    }
   </style>
 </head>
 
@@ -452,6 +897,15 @@
           <span>Mostrar grupos</span>
         </label>
 
+        <div class="header-item">
+          <button type="button" class="btn-athlete-evolution" id="openAthleteModalBtn" title="Ver evolución y gráficas individuales por atleta">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 20V10M12 20V4M6 20v-6"/>
+            </svg>
+            <span>Evolución Atleta</span>
+          </button>
+        </div>
+
         <div class="export-dropdown">
           <button class="btn-export" id="exportBtn" type="button" aria-haspopup="true" aria-expanded="false"
             title="Exportar leaderboard">
@@ -485,6 +939,113 @@
       </div>
     </div>
   </div>
+
+  <dialog id="athleteModal" class="athlete-modal" closedby="any" aria-labelledby="athleteModalTitle">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-athlete-info">
+          <div class="athlete-avatar" id="modalAthleteAvatar">B</div>
+          <div class="athlete-meta">
+            <div class="athlete-title-row">
+              <h2 id="athleteModalTitle">Bruno</h2>
+              <span class="badge-role" id="modalRoleBadge" style="display:none;">PROFE</span>
+            </div>
+            <div class="athlete-tags">
+              <span class="badge-tag" id="modalGroupBadge">Turno: -</span>
+              <span class="badge-tag" id="modalEvalsBadge">0 evaluaciones</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-header-actions">
+          <div class="header-item">
+            <span class="header-label">Atleta:</span>
+            <div class="custom-select" id="modalAthleteCustomSelect">
+              <button type="button" class="custom-select-btn" id="modalAthleteBtn" aria-haspopup="listbox" aria-expanded="false" title="Cambiar atleta">
+                <span class="custom-select-val" id="modalAthleteVal">Seleccionar...</span>
+                <svg class="chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div class="custom-select-menu" id="modalAthleteMenu" role="listbox"></div>
+            </div>
+            <select id="modalAthleteSelect" style="display:none;"></select>
+          </div>
+          <button type="button" class="modal-close-btn" id="closeAthleteModalBtn" aria-label="Cerrar ventana">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <!-- KPI Cards Grid -->
+        <div class="kpi-grid" id="modalKpiGrid"></div>
+
+        <!-- Charts Section -->
+        <div class="charts-grid">
+          <div class="chart-card line-chart-card">
+            <div class="chart-card-header">
+              <div class="chart-title-group">
+                <span class="chart-badge">Progreso</span>
+                <h3 class="chart-title">Evolución de Repeticiones</h3>
+              </div>
+              <div class="chart-filter-chips" id="chartFilterChips">
+                <button type="button" class="chip active" data-filter="all">Todos</button>
+                <button type="button" class="chip" data-filter="dominadas_pronas">Pronas</button>
+                <button type="button" class="chip" data-filter="fondos">Fondos</button>
+                <button type="button" class="chip" data-filter="lagartijas">Lagartijas</button>
+                <button type="button" class="chip" data-filter="dominadas_supinas">Supinas</button>
+                <button type="button" class="chip" data-filter="points">Puntos</button>
+              </div>
+            </div>
+            <div class="chart-canvas-wrap">
+              <canvas id="athleteEvolutionCanvas"></canvas>
+            </div>
+            <div class="chart-footer-note" id="chartFooterNote"></div>
+          </div>
+
+          <div class="chart-card radar-chart-card">
+            <div class="chart-card-header">
+              <div class="chart-title-group">
+                <span class="chart-badge" style="background: rgba(129, 140, 248, 0.15); color: #818cf8; border-color: rgba(129, 140, 248, 0.3);">Balance</span>
+                <h3 class="chart-title">Equilibrio Calisténico</h3>
+              </div>
+            </div>
+            <div class="radar-canvas-wrap">
+              <canvas id="athleteRadarCanvas"></canvas>
+            </div>
+            <div class="radar-legend-info">
+              <span>% de rendimiento relativo al mejor registro de la academia</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- History Table -->
+        <div class="history-card">
+          <div class="history-card-header">
+            <span class="chart-badge" style="background: rgba(45, 212, 191, 0.15); color: #2dd4bf; border-color: rgba(45, 212, 191, 0.3);">Historial</span>
+            <h3 class="chart-title">Registro Detallado por Período</h3>
+          </div>
+          <div class="history-table-wrap">
+            <table class="history-table" id="athleteHistoryTable">
+              <thead>
+                <tr id="historyTableHeader">
+                  <th>Período</th>
+                  <th>Fecha</th>
+                  <th>Grupo</th>
+                  <th>Pronas</th>
+                  <th>Fondos</th>
+                  <th>Lagartijas</th>
+                  <th>Supinas</th>
+                  <th>Puntos</th>
+                  <th>Posición</th>
+                </tr>
+              </thead>
+              <tbody id="athleteHistoryTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
 
   <script>
     const COLORS = ['#ff8a2a', '#818cf8', '#2dd4bf', '#38bdf8'];
@@ -817,6 +1378,7 @@
             displayList.forEach((p, j) => {
               const yy = y + 76 + j * RH;
               const bx = x + 60;
+              if (!isExport) body += `<g class="svg-athlete-item" data-athlete="${esc(p.n)}" role="button" tabindex="0">`;
               if (p.r <= 3) {
                 body += `<circle cx="${x + 34}" cy="${yy + 25}" r="19" fill="${MEDAL[p.r]}" stroke="#fff" stroke-opacity=".5"/><text x="${x + 34}" y="${yy + 33}" text-anchor="middle" font-size="22" font-weight="800" fill="#1b1b1b">${p.r}</text>`;
               } else {
@@ -855,6 +1417,7 @@
                 body += `<text x="${bx + 60}" y="${yy + 37}" text-anchor="middle" font-size="10.5" font-weight="600" fill="#9aa1b0" letter-spacing="0.3">${esc(groupTxt)}</text>`;
               }
               body += `<text x="${bx + 148}" y="${yy + 34}" text-anchor="middle" font-size="26" font-weight="800" fill="${col}">${esc(+p.v.toFixed(2))}</text>`;
+              if (!isExport) body += `</g>`;
             });
           });
           y += ph + GAP;
@@ -1059,6 +1622,7 @@
           const yy = y + 138 + j * GR;
           const hi = p.r <= 3;
           const rowBg = j % 2 === 0 ? '#141720' : '#11141b';
+          if (!isExport) body += `<g class="svg-athlete-item" data-athlete="${esc(p.n)}" role="button" tabindex="0">`;
 
           body += `<rect x="${rowX}" y="${yy}" width="${rowW}" height="46" rx="7" fill="${rowBg}" stroke="${hi ? MEDAL[p.r] : '#222733'}" stroke-width="${hi ? 1.5 : 1}"/>`;
 
@@ -1101,6 +1665,7 @@
           const ptsX = rowX + rowW - ptsW;
           const valStr = criteria.formatScore ? criteria.formatScore(p.pts) : String(Math.round(p.pts));
           body += `<text x="${ptsX + ptsW / 2}" y="${yy + 30}" text-anchor="middle" font-size="20" font-weight="900" fill="${GCOL}">${esc(valStr)}</text>`;
+          if (!isExport) body += `</g>`;
         });
 
         if (showBtnG) {
@@ -1160,6 +1725,675 @@
       }
     }
 
+    // Global Athlete Evolution State
+    let allPeriodsCache = {};
+    let allAthletesMap = new Map();
+    let activeAthleteName = null;
+    let activeChartFilter = 'all';
+    let evolutionChartInstance = null;
+    let radarChartInstance = null;
+
+    const EXERCISE_COLORS = {
+      'dominadas_pronas': '#ff8a2a',
+      'fondos': '#818cf8',
+      'lagartijas': '#2dd4bf',
+      'dominadas_supinas': '#38bdf8'
+    };
+
+    function getExerciseColor(id, idx = 0) {
+      if (EXERCISE_COLORS[id]) return EXERCISE_COLORS[id];
+      return COLORS[idx % COLORS.length];
+    }
+
+    function getExerciseIconSvg(name, color = '#ff8a2a') {
+      const k = String(name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      if (/pesa|press|curl/.test(k)) {
+        return `<svg viewBox="0 0 40 40" width="18" height="18" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20H30M10 11V29M30 11V29M5 15V25M35 15V25"/></svg>`;
+      }
+      if (/domin|pull|barra/.test(k)) {
+        return `<svg viewBox="0 0 40 40" width="18" height="18" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6H37M7 6V37M33 6V37"/></svg>`;
+      }
+      if (/fondo|dip|paralela/.test(k)) {
+        return `<svg viewBox="0 0 40 40" width="18" height="18" fill="none" stroke="${color}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9H36M18 9V28M32 9V28" stroke-width="2.4" stroke-opacity="0.65"/><path d="M5 17H27M9 17V36M23 17V36"/></svg>`;
+      }
+      if (/lagart|flexion|push|plancha/.test(k)) {
+        return `<svg viewBox="0 0 40 40" width="18" height="18" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="3.5"/><path d="M13 19L35 27M15 21V33M3 35H38"/></svg>`;
+      }
+      return `<svg viewBox="0 0 40 40" width="18" height="18" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20H30M10 11V29M30 11V29M5 15V25M35 15V25"/></svg>`;
+    }
+
+    async function fetchAllPeriodsData() {
+      if (!availablePeriods || !availablePeriods.length) return;
+      const promises = availablePeriods.map(async p => {
+        const id = typeof p === 'object' && p.id ? p.id : String(p);
+        if (allPeriodsCache[id]) return allPeriodsCache[id];
+        try {
+          const res = await fetch(`data/registros/${id}.json`);
+          if (res.ok) {
+            const json = await res.json();
+            allPeriodsCache[id] = json;
+            return json;
+          }
+        } catch (e) {
+          console.warn(`Error cargando registro ${id}:`, e);
+        }
+        if (id === '2026-10') {
+          allPeriodsCache[id] = FALLBACK_RECORD;
+          return FALLBACK_RECORD;
+        }
+        return null;
+      });
+      await Promise.all(promises);
+      buildAthletesIndex();
+    }
+
+    function buildAthletesIndex() {
+      allAthletesMap.clear();
+
+      // Orden cronológico (más antiguos primero para el eje horizontal del tiempo)
+      const sortedPeriods = [...availablePeriods].sort((a, b) => {
+        const idA = typeof a === 'object' && a.id ? a.id : String(a);
+        const idB = typeof b === 'object' && b.id ? b.id : String(b);
+        return idA.localeCompare(idB);
+      });
+
+      const rawCrit = window.SCORING_CRITERIA || {};
+      const criteria = rawCrit[currentGmode] || rawCrit.geom || rawCrit.pos || {
+        formatScore: pts => String(Math.round(pts)),
+        calcExercisePoints: (entry, col) => entry ? (10 - entry.r + 1) : 0
+      };
+
+      sortedPeriods.forEach(pObj => {
+        const pId = typeof pObj === 'object' && pObj.id ? pObj.id : String(pObj);
+        const pName = typeof pObj === 'object' && (pObj.nombre || pObj.name) ? (pObj.nombre || pObj.name) : pId;
+        const rec = allPeriodsCache[pId];
+        if (!rec || !rec.athletes || !rec.athletes.length) return;
+
+        const exDefs = (exercisesConfig && exercisesConfig.exercises) ? exercisesConfig.exercises : [];
+        const exMap = new Map(exDefs.map(e => [e.id, e.name]));
+        const exIds = [];
+        exDefs.forEach(e => {
+          if (rec.athletes.some(a => a.results && a.results[e.id] !== undefined && a.results[e.id] !== null)) {
+            exIds.push(e.id);
+          }
+        });
+        rec.athletes.forEach(a => {
+          if (a.results) {
+            Object.keys(a.results).forEach(id => {
+              if (!exIds.includes(id) && a.results[id] !== undefined && a.results[id] !== null) exIds.push(id);
+            });
+          }
+        });
+
+        // Calcular ranking por ejercicio
+        const cols = [];
+        const exerciseLeaders = {};
+        exIds.forEach(id => {
+          const list = rec.athletes.map(a => ({
+            n: a.name,
+            grupo: a.grupo || '',
+            es_profe: !!a.es_profe,
+            v: parseNum(a.results ? a.results[id] : undefined)
+          })).filter(x => x.n && !isNaN(x.v));
+          list.sort((a, b) => b.v - a.v);
+          list.forEach((x, k) => {
+            x.r = (k && list[k - 1].v === x.v) ? list[k - 1].r : k + 1;
+          });
+          cols.push({ id, h: exMap.get(id) || id, list });
+          exerciseLeaders[id] = list.length > 0 ? list[0].v : 0;
+        });
+
+        // Calcular clasificación general
+        const glist = rec.athletes.map(a => {
+          const reps = cols.map(c => {
+            const entry = c.list.find(x => x.n === a.name);
+            return entry ? { v: entry.v, r: entry.r } : null;
+          });
+          let pts = 0;
+          if (typeof criteria.calcAthleteScore === 'function') {
+            pts = criteria.calcAthleteScore(reps, cols, rec.athletes.length);
+          } else if (typeof criteria.calcExercisePoints === 'function') {
+            cols.forEach((c, idx) => {
+              const entry = reps[idx];
+              if (entry) pts += criteria.calcExercisePoints(entry, c, rec.athletes.length, cols.length);
+            });
+          }
+          return { n: a.name, pts, reps };
+        }).filter(x => x.reps.some(r => r !== null && !isNaN(r.v)));
+
+        glist.sort((a, b) => b.pts - a.pts);
+        glist.forEach((x, k) => {
+          x.r = (k && Math.abs(glist[k - 1].pts - x.pts) < 0.001) ? glist[k - 1].r : k + 1;
+        });
+
+        // Guardar cada atleta
+        rec.athletes.forEach(ath => {
+          if (!ath.name) return;
+          if (!allAthletesMap.has(ath.name)) {
+            allAthletesMap.set(ath.name, {
+              name: ath.name,
+              es_profe: !!ath.es_profe,
+              grupo: ath.grupo || '',
+              timeline: []
+            });
+          }
+          const item = allAthletesMap.get(ath.name);
+          if (ath.es_profe !== undefined) item.es_profe = !!ath.es_profe;
+          if (ath.grupo) item.grupo = ath.grupo;
+
+          const ranks = {};
+          cols.forEach(c => {
+            const found = c.list.find(x => x.n === ath.name);
+            if (found) ranks[c.id] = found.r;
+          });
+
+          const gEntry = glist.find(x => x.n === ath.name);
+
+          item.timeline.push({
+            periodId: pId,
+            periodName: pName,
+            date: ath.fecha || pId,
+            grupo: ath.grupo || '',
+            es_profe: !!ath.es_profe,
+            results: ath.results || {},
+            ranks: ranks,
+            exerciseLeaders: exerciseLeaders,
+            score: gEntry ? gEntry.pts : 0,
+            rank: gEntry ? gEntry.r : null,
+            totalAthletesInPeriod: rec.athletes.length
+          });
+        });
+      });
+
+      updateModalAthleteDropdown();
+    }
+
+    function updateModalAthleteDropdown() {
+      const menu = $('modalAthleteMenu');
+      const select = $('modalAthleteSelect');
+      if (!menu && !select) return;
+
+      if (menu) menu.innerHTML = '';
+      if (select) select.innerHTML = '';
+
+      const athletesList = Array.from(allAthletesMap.keys()).sort((a, b) => a.localeCompare(b));
+      athletesList.forEach(name => {
+        if (select) {
+          const opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = name;
+          select.appendChild(opt);
+        }
+        if (menu) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'custom-select-option' + (name === activeAthleteName ? ' active' : '');
+          btn.dataset.value = name;
+          btn.textContent = name;
+          btn.addEventListener('click', () => {
+            menu.classList.remove('show');
+            if ($('modalAthleteBtn')) $('modalAthleteBtn').setAttribute('aria-expanded', 'false');
+            openAthleteModal(name);
+          });
+          menu.appendChild(btn);
+        }
+      });
+    }
+
+    function openAthleteModal(athleteName) {
+      if (allAthletesMap.size === 0) {
+        buildAthletesIndex();
+      }
+
+      if (!allAthletesMap.has(athleteName)) {
+        console.warn(`Atleta ${athleteName} no encontrado en el índice.`);
+        return;
+      }
+
+      activeAthleteName = athleteName;
+      if ($('modalAthleteVal')) $('modalAthleteVal').textContent = athleteName;
+      if ($('modalAthleteSelect')) $('modalAthleteSelect').value = athleteName;
+
+      renderAthleteModal(athleteName);
+
+      const modal = $('athleteModal');
+      if (modal && !modal.open) {
+        modal.showModal();
+      }
+    }
+
+    function renderAthleteModal(athleteName) {
+      const athlete = allAthletesMap.get(athleteName);
+      if (!athlete) return;
+
+      const timeline = athlete.timeline || [];
+      const latestEval = timeline.length > 0 ? timeline[timeline.length - 1] : null;
+      const prevEval = timeline.length > 1 ? timeline[timeline.length - 2] : null;
+
+      // Header Meta
+      if ($('athleteModalTitle')) $('athleteModalTitle').textContent = athlete.name;
+      if ($('modalAthleteAvatar')) $('modalAthleteAvatar').textContent = athlete.name.charAt(0).toUpperCase();
+
+      const roleBadge = $('modalRoleBadge');
+      if (roleBadge) {
+        if (athlete.es_profe) {
+          roleBadge.style.display = 'inline-block';
+          roleBadge.textContent = 'PROFE';
+        } else {
+          roleBadge.style.display = 'none';
+        }
+      }
+
+      const grpBadge = $('modalGroupBadge');
+      if (grpBadge) {
+        const gTxt = latestEval && latestEval.grupo ? formatGroup(latestEval.grupo) : (athlete.grupo ? formatGroup(athlete.grupo) : '-');
+        grpBadge.textContent = `Turno: ${gTxt}`;
+      }
+
+      const evalsBadge = $('modalEvalsBadge');
+      if (evalsBadge) {
+        evalsBadge.textContent = `${timeline.length} ${timeline.length === 1 ? 'evaluación' : 'evaluaciones'}`;
+      }
+
+      // Dropdown active state
+      if ($('modalAthleteMenu')) {
+        Array.from($('modalAthleteMenu').children).forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.value === athleteName);
+        });
+      }
+
+      // Catalog of exercises
+      const exDefs = (exercisesConfig && exercisesConfig.exercises) ? exercisesConfig.exercises : [];
+
+      // 1. KPI Cards Grid
+      const kpiGrid = $('modalKpiGrid');
+      if (kpiGrid) {
+        kpiGrid.innerHTML = '';
+        exDefs.forEach((e, idx) => {
+          const exId = e.id;
+          const exName = e.name;
+          const color = getExerciseColor(exId, idx);
+
+          // All historical reps for this exercise
+          const allReps = timeline
+            .map(t => parseNum(t.results ? t.results[exId] : undefined))
+            .filter(v => !isNaN(v));
+
+          const maxHistorical = allReps.length > 0 ? Math.max(...allReps) : 0;
+          const currentVal = latestEval && latestEval.results && latestEval.results[exId] !== undefined ? parseNum(latestEval.results[exId]) : NaN;
+          const prevVal = prevEval && prevEval.results && prevEval.results[exId] !== undefined ? parseNum(prevEval.results[exId]) : NaN;
+
+          const isPr = !isNaN(currentVal) && currentVal >= maxHistorical && currentVal > 0;
+
+          let deltaHtml = '';
+          if (timeline.length > 1 && !isNaN(currentVal) && !isNaN(prevVal)) {
+            const diff = +(currentVal - prevVal).toFixed(1);
+            const pct = prevVal > 0 ? ((diff / prevVal) * 100).toFixed(1) : null;
+            if (diff > 0) {
+              deltaHtml = `<span class="kpi-delta-pos">▲ +${diff} reps ${pct ? `(+${pct}%)` : ''}</span>`;
+            } else if (diff < 0) {
+              deltaHtml = `<span class="kpi-delta-neg">▼ ${diff} reps ${pct ? `(${pct}%)` : ''}</span>`;
+            } else {
+              deltaHtml = `<span class="kpi-delta-zero">= Sin variación</span>`;
+            }
+          } else if (timeline.length === 1) {
+            deltaHtml = `<span class="kpi-record-text">Marca inicial de referencia</span>`;
+          } else {
+            deltaHtml = `<span class="kpi-record-text">Sin datos comparativos</span>`;
+          }
+
+          const card = document.createElement('div');
+          card.className = 'kpi-card';
+          card.style.borderLeft = `3px solid ${color}`;
+          card.innerHTML = `
+            <div class="kpi-card-header">
+              <span class="kpi-exercise-name">
+                ${getExerciseIconSvg(exName, color)}
+                <span>${esc(exName)}</span>
+              </span>
+              ${isPr ? '<span class="kpi-pr-badge">⭐ PR</span>' : ''}
+            </div>
+            <div class="kpi-value-row">
+              <span class="kpi-value" style="color: ${color};">${!isNaN(currentVal) ? esc(currentVal) : '-'}</span>
+              <span class="kpi-unit">reps</span>
+            </div>
+            <div class="kpi-delta-row">
+              ${deltaHtml}
+              <span class="kpi-record-text">Récord: ${maxHistorical > 0 ? maxHistorical : '-'}</span>
+            </div>
+          `;
+          kpiGrid.appendChild(card);
+        });
+      }
+
+      // 2. Charts
+      renderEvolutionChart(athlete);
+      renderRadarChart(athlete);
+
+      // 3. History Table
+      const tbody = $('athleteHistoryTableBody');
+      if (tbody) {
+        tbody.innerHTML = '';
+        // Sort reverse chronological (newest on top)
+        const reversedTimeline = [...timeline].reverse();
+        reversedTimeline.forEach(t => {
+          const tr = document.createElement('tr');
+
+          const cellsEx = exDefs.map(e => {
+            const val = parseNum(t.results ? t.results[e.id] : undefined);
+            if (isNaN(val)) return '<td>-</td>';
+            const rk = t.ranks && t.ranks[e.id] ? `<span class="history-rank-badge">#${t.ranks[e.id]}º</span>` : '';
+            return `<td><span class="history-reps-val">${esc(val)}</span> ${rk}</td>`;
+          }).join('');
+
+          const rawCrit = window.SCORING_CRITERIA || {};
+          const criteria = rawCrit[currentGmode] || rawCrit.geom || rawCrit.pos || { formatScore: pts => String(Math.round(pts)) };
+          const ptsFormatted = criteria.formatScore ? criteria.formatScore(t.score) : String(Math.round(t.score));
+
+          let rankBadge = '-';
+          if (t.rank) {
+            if (t.rank === 1) rankBadge = '🥇 1º';
+            else if (t.rank === 2) rankBadge = '🥈 2º';
+            else if (t.rank === 3) rankBadge = '🥉 3º';
+            else rankBadge = `${t.rank}º`;
+          }
+
+          tr.innerHTML = `
+            <td><strong>${esc(t.periodName)}</strong></td>
+            <td>${esc(t.date || '-')}</td>
+            <td><span class="badge-tag">${esc(formatGroup(t.grupo) || '-')}</span></td>
+            ${cellsEx}
+            <td><strong style="color: #f5c542;">${esc(ptsFormatted)}</strong></td>
+            <td><strong>${rankBadge}</strong></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    function renderEvolutionChart(athlete) {
+      if (typeof Chart === 'undefined') {
+        const wrap = $('athleteEvolutionCanvas') ? $('athleteEvolutionCanvas').parentElement : null;
+        if (wrap) wrap.innerHTML = '<div class="status-msg">Librería de gráficos no disponible.</div>';
+        return;
+      }
+
+      const canvas = $('athleteEvolutionCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      if (evolutionChartInstance) {
+        evolutionChartInstance.destroy();
+        evolutionChartInstance = null;
+      }
+
+      const timeline = athlete.timeline || [];
+      const labels = timeline.map(t => t.periodName);
+
+      const exDefs = (exercisesConfig && exercisesConfig.exercises) ? exercisesConfig.exercises : [];
+      const datasets = [];
+
+      if (activeChartFilter === 'all') {
+        exDefs.forEach((e, idx) => {
+          const color = getExerciseColor(e.id, idx);
+          const dataPoints = timeline.map(t => {
+            const v = parseNum(t.results ? t.results[e.id] : undefined);
+            return isNaN(v) ? null : v;
+          });
+
+          datasets.push({
+            label: e.name,
+            data: dataPoints,
+            borderColor: color,
+            backgroundColor: color,
+            pointBackgroundColor: color,
+            pointBorderColor: '#171a22',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            tension: 0.35,
+            spanGaps: true
+          });
+        });
+      } else if (activeChartFilter === 'points') {
+        const dataPoints = timeline.map(t => +t.score.toFixed(1));
+        datasets.push({
+          label: 'Puntos Generales',
+          data: dataPoints,
+          borderColor: '#f5c542',
+          backgroundColor: 'rgba(245, 197, 66, 0.15)',
+          fill: true,
+          pointBackgroundColor: '#f5c542',
+          pointBorderColor: '#171a22',
+          pointBorderWidth: 2,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          tension: 0.35
+        });
+      } else {
+        const foundEx = exDefs.find(e => e.id === activeChartFilter);
+        const exName = foundEx ? foundEx.name : activeChartFilter;
+        const color = getExerciseColor(activeChartFilter);
+        const dataPoints = timeline.map(t => {
+          const v = parseNum(t.results ? t.results[activeChartFilter] : undefined);
+          return isNaN(v) ? null : v;
+        });
+
+        const r = parseInt(color.slice(1, 3), 16);
+        const g = parseInt(color.slice(3, 5), 16);
+        const b = parseInt(color.slice(5, 7), 16);
+
+        datasets.push({
+          label: exName,
+          data: dataPoints,
+          borderColor: color,
+          backgroundColor: `rgba(${r}, ${g}, ${b}, 0.18)`,
+          fill: true,
+          pointBackgroundColor: color,
+          pointBorderColor: '#171a22',
+          pointBorderWidth: 2,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          tension: 0.35
+        });
+      }
+
+      const footerNote = $('chartFooterNote');
+      if (footerNote) {
+        if (timeline.length === 1) {
+          footerNote.textContent = '1 evaluación registrada. La curva de progreso se trazará con futuros períodos evaluados.';
+        } else {
+          footerNote.textContent = `${timeline.length} evaluaciones registradas a lo largo del tiempo.`;
+        }
+      }
+
+      evolutionChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              display: activeChartFilter === 'all',
+              position: 'top',
+              labels: {
+                color: '#eef0f4',
+                font: { size: 11, weight: '700', family: 'system-ui, "Segoe UI", Arial, sans-serif' },
+                usePointStyle: true,
+                pointStyle: 'circle',
+                boxWidth: 8
+              }
+            },
+            tooltip: {
+              backgroundColor: '#171a22',
+              titleColor: '#fff',
+              bodyColor: '#eef0f4',
+              borderColor: '#3a4050',
+              borderWidth: 1,
+              padding: 10,
+              boxPadding: 4,
+              usePointStyle: true,
+              cornerRadius: 8,
+              callbacks: {
+                label: function(context) {
+                  const val = context.parsed.y;
+                  if (activeChartFilter === 'points') {
+                    return ` ${context.dataset.label}: ${val} pts`;
+                  }
+                  return ` ${context.dataset.label}: ${val} reps`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#9aa1b0', font: { weight: '600' } }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(255, 255, 255, 0.06)' },
+              ticks: { color: '#9aa1b0', font: { weight: '600' } }
+            }
+          }
+        }
+      });
+    }
+
+    function renderRadarChart(athlete) {
+      if (typeof Chart === 'undefined') return;
+
+      const canvas = $('athleteRadarCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      if (radarChartInstance) {
+        radarChartInstance.destroy();
+        radarChartInstance = null;
+      }
+
+      const timeline = athlete.timeline || [];
+      if (!timeline.length) return;
+
+      const latestEval = timeline[timeline.length - 1];
+      const firstEval = timeline.length > 1 ? timeline[0] : null;
+
+      const exDefs = (exercisesConfig && exercisesConfig.exercises) ? exercisesConfig.exercises : [];
+      const labels = exDefs.map(e => e.name);
+
+      const latestData = exDefs.map(e => {
+        const val = parseNum(latestEval.results ? latestEval.results[e.id] : undefined);
+        const leader = latestEval.exerciseLeaders ? (latestEval.exerciseLeaders[e.id] || 0) : 0;
+        if (isNaN(val) || val <= 0 || leader <= 0) return 0;
+        return Math.min(100, Math.round((val / leader) * 100));
+      });
+
+      const datasets = [
+        {
+          label: `${latestEval.periodName} (Actual)`,
+          data: latestData,
+          borderColor: '#ff8a2a',
+          backgroundColor: 'rgba(255, 138, 42, 0.24)',
+          pointBackgroundColor: '#ff8a2a',
+          pointBorderColor: '#141720',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 2.2
+        }
+      ];
+
+      if (firstEval && firstEval !== latestEval) {
+        const firstData = exDefs.map(e => {
+          const val = parseNum(firstEval.results ? firstEval.results[e.id] : undefined);
+          const leader = firstEval.exerciseLeaders ? (firstEval.exerciseLeaders[e.id] || 0) : 0;
+          if (isNaN(val) || val <= 0 || leader <= 0) return 0;
+          return Math.min(100, Math.round((val / leader) * 100));
+        });
+
+        datasets.push({
+          label: `${firstEval.periodName} (Inicial)`,
+          data: firstData,
+          borderColor: '#818cf8',
+          backgroundColor: 'rgba(129, 140, 248, 0.12)',
+          pointBackgroundColor: '#818cf8',
+          pointBorderColor: '#141720',
+          pointBorderWidth: 1.5,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          borderWidth: 1.8,
+          borderDash: [4, 4]
+        });
+      }
+
+      radarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: labels,
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              angleLines: { color: 'rgba(255, 255, 255, 0.08)' },
+              grid: { color: 'rgba(255, 255, 255, 0.08)' },
+              pointLabels: {
+                color: '#eef0f4',
+                font: { size: 11.5, weight: '700', family: 'system-ui, "Segoe UI", Arial, sans-serif' }
+              },
+              ticks: {
+                color: '#9aa1b0',
+                backdropColor: 'transparent',
+                font: { size: 9 },
+                stepSize: 25
+              },
+              min: 0,
+              suggestedMax: 100
+            }
+          },
+          plugins: {
+            legend: {
+              display: datasets.length > 1,
+              position: 'top',
+              labels: {
+                color: '#eef0f4',
+                font: { size: 10.5, weight: '700' },
+                boxWidth: 10
+              }
+            },
+            tooltip: {
+              backgroundColor: '#171a22',
+              titleColor: '#fff',
+              bodyColor: '#eef0f4',
+              borderColor: '#3a4050',
+              borderWidth: 1,
+              callbacks: {
+                label: function(context) {
+                  const pct = context.raw;
+                  const eIdx = context.dataIndex;
+                  const ex = exDefs[eIdx];
+                  const isLatest = context.datasetIndex === 0;
+                  const targetEval = isLatest ? latestEval : firstEval;
+                  const reps = targetEval && targetEval.results ? targetEval.results[ex.id] : '-';
+                  return ` ${context.dataset.label}: ${reps} reps (${pct}% del récord)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
     async function loadPeriodData(period) {
       currentPeriod = period;
       $('prev').innerHTML = `
@@ -1173,13 +2407,17 @@
         const res = await fetch(`data/registros/${period}.json`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         currentRecord = await res.json();
+        allPeriodsCache[period] = currentRecord;
         updateGroupFilter(currentRecord.athletes);
+        buildAthletesIndex();
         render();
       } catch (err) {
         console.warn(`Error al obtener data/registros/${period}.json via fetch:`, err);
         if (period === "2026-10" || period === "2026-10-19") {
           currentRecord = FALLBACK_RECORD;
+          allPeriodsCache[period] = currentRecord;
           updateGroupFilter(currentRecord.athletes);
+          buildAthletesIndex();
           render();
         } else {
           $('prev').innerHTML = `<div class="status-msg error">No se pudo cargar el archivo data/registros/${esc(period)}.json (${esc(err.message)})</div>`;
@@ -1278,12 +2516,24 @@
 
       selectPeriod(defaultPeriod, defaultName);
 
+      // Precargar histórico completo de períodos en segundo plano
+      fetchAllPeriodsData().catch(err => console.warn('Error precargando histórico:', err));
+
       // Listeners
       $('profeCheck').addEventListener('change', render);
       $('groupBadgeCheck').addEventListener('change', render);
 
       // Listeners para interactividad dentro del SVG
       $('prev').addEventListener('click', e => {
+        const athleteItem = e.target.closest('[data-athlete]');
+        if (athleteItem) {
+          const athleteName = athleteItem.dataset.athlete;
+          if (athleteName) {
+            openAthleteModal(athleteName);
+          }
+          return;
+        }
+
         const modeBtn = e.target.closest('[data-mode]');
         if (modeBtn) {
           const newMode = modeBtn.dataset.mode;
@@ -1314,6 +2564,63 @@
         }
       });
 
+      // Botón superior para abrir modal de evolución
+      if ($('openAthleteModalBtn')) {
+        $('openAthleteModalBtn').addEventListener('click', () => {
+          let target = activeAthleteName;
+          if (!target) {
+            if (currentRecord && currentRecord.athletes && currentRecord.athletes.length > 0) {
+              target = currentRecord.athletes[0].name;
+            } else if (allAthletesMap.size > 0) {
+              target = allAthletesMap.keys().next().value;
+            }
+          }
+          if (target) {
+            openAthleteModal(target);
+          }
+        });
+      }
+
+      // Botón cerrar modal
+      if ($('closeAthleteModalBtn')) {
+        $('closeAthleteModalBtn').addEventListener('click', () => {
+          $('athleteModal').close();
+        });
+      }
+
+      // Fallback light dismiss para dialog
+      const athleteModal = $('athleteModal');
+      if (athleteModal && !('closedBy' in HTMLDialogElement.prototype)) {
+        athleteModal.addEventListener('click', (event) => {
+          if (event.target !== athleteModal) return;
+          const rect = athleteModal.getBoundingClientRect();
+          const isDialogContent = (
+            rect.top <= event.clientY &&
+            event.clientY <= rect.top + rect.height &&
+            rect.left <= event.clientX &&
+            event.clientX <= rect.left + rect.width
+          );
+          if (!isDialogContent) athleteModal.close();
+        });
+      }
+
+      // Listeners para los chips del gráfico de evolución
+      const chipContainer = $('chartFilterChips');
+      if (chipContainer) {
+        chipContainer.addEventListener('click', e => {
+          const btn = e.target.closest('.chip');
+          if (!btn) return;
+          const filter = btn.dataset.filter;
+          if (filter && filter !== activeChartFilter) {
+            activeChartFilter = filter;
+            Array.from(chipContainer.children).forEach(c => c.classList.toggle('active', c === btn));
+            if (activeAthleteName && allAthletesMap.has(activeAthleteName)) {
+              renderEvolutionChart(allAthletesMap.get(activeAthleteName));
+            }
+          }
+        });
+      }
+
       // Dropdown toggle system
       function setupDropdown(btnId, menuId) {
         const btn = $(btnId);
@@ -1338,6 +2645,7 @@
       setupDropdown('periodBtn', 'periodMenu');
       setupDropdown('groupBtn', 'groupMenu');
       setupDropdown('exportBtn', 'exportMenu');
+      setupDropdown('modalAthleteBtn', 'modalAthleteMenu');
 
       document.addEventListener('click', () => {
         document.querySelectorAll('.custom-select-menu.show, .export-menu.show').forEach(m => {
