@@ -361,11 +361,11 @@
       padding: 16px
     }
 
-    .prev svg {
+    .prev > svg {
       display: block;
       width: 100%;
       height: auto;
-      border-radius: 12px
+      border-radius: 12px;
     }
 
     .svg-mode-btn {
@@ -1543,45 +1543,177 @@
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 14px;
-      padding: 16px;
+      padding: 14px 14px 16px;
       display: flex;
       flex-direction: column;
       gap: 12px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     }
 
+    .mobile-exercise-card.is-collapsed {
+      padding: 12px 14px;
+      gap: 0;
+    }
+
     .mobile-ex-card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      padding: 2px 0;
     }
 
-    .mobile-ex-card-title {
+    .mobile-ex-card-header:hover,
+    .mobile-ex-card-header:active {
+      opacity: 0.9;
+    }
+
+    .mobile-ex-header-left {
       display: flex;
       align-items: center;
       gap: 8px;
+      min-width: 0;
+      flex: 1;
     }
 
-    .mobile-ex-card-title h3 {
-      margin: 0;
-      font-size: 15.5px;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: -0.2px;
+    .mobile-ex-icon {
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
 
     .mobile-ex-icon svg {
+      width: 20px !important;
+      height: 20px !important;
+      max-width: 20px !important;
+      max-height: 20px !important;
       display: block;
+      flex-shrink: 0;
+    }
+
+    .mobile-ex-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: -0.2px;
     }
 
     .mobile-ex-count {
       font-size: 11px;
       color: var(--mute);
-      font-weight: 600;
-      background: rgba(255, 255, 255, 0.05);
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.06);
       padding: 2px 7px;
       border-radius: 6px;
+      flex-shrink: 0;
+      line-height: 1.2;
+    }
+
+    .mobile-ex-header-right {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .mobile-ex-collapsed-lead {
+      font-size: 12px;
+      font-weight: 600;
+      color: #cbd5e1;
+      white-space: nowrap;
+    }
+
+    .mobile-ex-collapsed-lead .lead-reps {
+      font-weight: 800;
+      color: var(--acc);
+    }
+
+    .mobile-ex-chevron-wrap {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s ease;
+    }
+
+    .mobile-ex-card-header:hover .mobile-ex-chevron-wrap,
+    .mobile-ex-card-header:active .mobile-ex-chevron-wrap {
+      background: rgba(255, 138, 42, 0.15);
+    }
+
+    .mobile-ex-chevron {
+      width: 16px !important;
+      height: 16px !important;
+      max-width: 16px !important;
+      max-height: 16px !important;
+      stroke: var(--mute);
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.22s ease, stroke 0.15s ease;
+      transform: rotate(180deg);
+      display: block;
+      flex-shrink: 0;
+    }
+
+    .mobile-ex-chevron.is-collapsed {
+      transform: rotate(0deg);
+      stroke: var(--acc);
+    }
+
+    .mobile-ex-controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4px;
+      margin-top: 2px;
+      margin-bottom: -2px;
+    }
+
+    .mobile-ex-summary-txt {
+      font-size: 13px;
+      font-weight: 800;
+      color: #9aa1b0;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .btn-toggle-all-ex {
+      background: #141720;
+      border: 1px solid var(--line);
+      color: var(--mute);
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 5px 11px;
+      border-radius: 7px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .btn-toggle-all-ex:hover,
+    .btn-toggle-all-ex:active {
+      border-color: var(--acc);
+      color: var(--acc);
+      background: rgba(255, 138, 42, 0.08);
     }
 
     .mobile-ex-rows-list {
@@ -2368,6 +2500,7 @@
     let activeMobileExerciseTab = 'all';
     let mobileViewMode = 'responsive'; // 'responsive' | 'poster'
     let mobileExExpanded = {};
+    let mobileExCollapsed = {};
     let mobileGenExpanded = false;
 
     function getProcessedLeaderboardData(recordData, exercisesData, periodStr, groupFilter) {
@@ -2914,73 +3047,98 @@
 
       // 1. Tarjetas de ejercicios
       if (activeMobileExerciseTab !== 'general') {
-        html += `<div class="mobile-exercises-grid">`;
-
         const visibleCols = (activeMobileExerciseTab === 'all')
           ? cols
           : cols.filter(c => c.id === activeMobileExerciseTab);
 
+        const areAllCollapsed = visibleCols.every(c => !!mobileExCollapsed[c.id]);
+
+        if (visibleCols.length > 1) {
+          html += `
+            <div class="mobile-ex-controls-bar">
+              <span class="mobile-ex-summary-txt">${visibleCols.length} ejercicios evaluados</span>
+              <button type="button" class="btn-toggle-all-ex" data-action="toggle-all-collapse" data-all-state="${areAllCollapsed ? 'collapsed' : 'expanded'}">
+                ${areAllCollapsed ? '▼ Expandir todos' : '▲ Colapsar todos'}
+              </button>
+            </div>
+          `;
+        }
+
+        html += `<div class="mobile-exercises-grid">`;
+
         visibleCols.forEach((col) => {
           const colIdx = cols.findIndex(c => c.id === col.id);
           const colColor = COLORS[(colIdx >= 0 ? colIdx : 0) % COLORS.length];
+          const isCollapsed = (activeMobileExerciseTab === 'all') && !!mobileExCollapsed[col.id];
           const isColExpanded = !!mobileExExpanded[col.id];
           const displayList = isColExpanded ? col.list : col.list.slice(0, ROW_LIMIT);
           const hasMore = col.list.length > ROW_LIMIT;
+          const topAthlete = col.list[0];
 
           html += `
-            <div class="mobile-exercise-card" style="border-top: 3px solid ${colColor};">
-              <div class="mobile-ex-card-header">
-                <div class="mobile-ex-card-title">
+            <div class="mobile-exercise-card ${isCollapsed ? 'is-collapsed' : ''}" style="border-top: 3px solid ${colColor};">
+              <div class="mobile-ex-card-header" data-mob-collapse-ex="${esc(col.id)}" role="button" tabindex="0" aria-expanded="${isCollapsed ? 'false' : 'true'}" title="${isCollapsed ? 'Desplegar ejercicio' : 'Colapsar ejercicio'}">
+                <div class="mobile-ex-header-left">
                   <span class="mobile-ex-icon">${getExerciseIconSvg(col.h, colColor)}</span>
-                  <h3>${esc(col.h)}</h3>
+                  <h3 class="mobile-ex-title">${esc(col.h)}</h3>
+                  <span class="mobile-ex-count">${col.list.length}</span>
                 </div>
-                <span class="mobile-ex-count">${col.list.length} atletas</span>
-              </div>
-
-              <div class="mobile-ex-rows-list">
-          `;
-
-          displayList.forEach(p => {
-            const isPodium = p.r <= 3;
-            let rankBadge = '';
-            if (isPodium) {
-              rankBadge = `<span class="mob-medal-circle" style="background:${MEDAL[p.r]}; color:#1a1005;">${p.r}</span>`;
-            } else {
-              rankBadge = `<span class="mob-rank-num">${p.r}º</span>`;
-            }
-
-            const profeBadge = p.es_profe ? `<span class="badge-profe">PROFE</span>` : '';
-            const groupBadge = (includeGroupBadges && p.grupo) ? `<span class="badge-group">${esc(formatGroup(p.grupo))}</span>` : '';
-
-            html += `
-              <div class="mobile-athlete-row ${isPodium ? 'top-podium' : ''}" data-athlete="${esc(p.n)}" role="button" tabindex="0">
-                <div class="mobile-athlete-row-left">
-                  ${rankBadge}
-                  <div class="mobile-athlete-row-name-group">
-                    <span class="mobile-athlete-name">${esc(p.n)}</span>
-                    ${profeBadge}
-                    ${groupBadge}
+                <div class="mobile-ex-header-right">
+                  ${isCollapsed && topAthlete ? `<span class="mobile-ex-collapsed-lead">🥇 ${esc(topAthlete.n)} <span class="lead-reps">${+topAthlete.v.toFixed(1)}</span></span>` : ''}
+                  <div class="mobile-ex-chevron-wrap">
+                    <svg class="mobile-ex-chevron ${isCollapsed ? 'is-collapsed' : ''}" width="16" height="16" viewBox="0 0 24 24">
+                      <path d="M6 9l6 6 6-6"/>
+                    </svg>
                   </div>
                 </div>
-                <div class="mobile-athlete-row-right">
-                  <span class="mobile-athlete-reps" style="color:${colColor};">${+p.v.toFixed(1)}</span>
-                  <span class="mobile-athlete-reps-unit">reps</span>
-                </div>
               </div>
-            `;
-          });
+          `;
 
-          html += `</div>`; // .mobile-ex-rows-list
+          if (!isCollapsed) {
+            html += `<div class="mobile-ex-rows-list">`;
 
-          if (hasMore) {
-            const btnText = isColExpanded
-              ? '▲ MOSTRAR TOP 10'
-              : `▼ VER TODOS (${col.list.length} ATLETAS)`;
-            html += `
-              <button type="button" class="btn-mob-expand" data-mob-expand-ex="${esc(col.id)}">
-                ${esc(btnText)}
-              </button>
-            `;
+            displayList.forEach(p => {
+              const isPodium = p.r <= 3;
+              let rankBadge = '';
+              if (isPodium) {
+                rankBadge = `<span class="mob-medal-circle" style="background:${MEDAL[p.r]}; color:#1a1005;">${p.r}</span>`;
+              } else {
+                rankBadge = `<span class="mob-rank-num">${p.r}º</span>`;
+              }
+
+              const profeBadge = p.es_profe ? `<span class="badge-profe">PROFE</span>` : '';
+              const groupBadge = (includeGroupBadges && p.grupo) ? `<span class="badge-group">${esc(formatGroup(p.grupo))}</span>` : '';
+
+              html += `
+                <div class="mobile-athlete-row ${isPodium ? 'top-podium' : ''}" data-athlete="${esc(p.n)}" role="button" tabindex="0">
+                  <div class="mobile-athlete-row-left">
+                    ${rankBadge}
+                    <div class="mobile-athlete-row-name-group">
+                      <span class="mobile-athlete-name">${esc(p.n)}</span>
+                      ${profeBadge}
+                      ${groupBadge}
+                    </div>
+                  </div>
+                  <div class="mobile-athlete-row-right">
+                    <span class="mobile-athlete-reps" style="color:${colColor};">${+p.v.toFixed(1)}</span>
+                    <span class="mobile-athlete-reps-unit">reps</span>
+                  </div>
+                </div>
+              `;
+            });
+
+            html += `</div>`; // .mobile-ex-rows-list
+
+            if (hasMore) {
+              const btnText = isColExpanded
+                ? '▲ MOSTRAR TOP 10'
+                : `▼ VER TODOS (${col.list.length} ATLETAS)`;
+              html += `
+                <button type="button" class="btn-mob-expand" data-mob-expand-ex="${esc(col.id)}">
+                  ${esc(btnText)}
+                </button>
+              `;
+            }
           }
 
           html += `</div>`; // .mobile-exercise-card
@@ -4207,6 +4365,36 @@
         const mobExpandGenBtn = e.target.closest('[data-mob-expand-gen]');
         if (mobExpandGenBtn) {
           mobileGenExpanded = !mobileGenExpanded;
+          render();
+          return;
+        }
+
+        const collapseHeader = e.target.closest('[data-mob-collapse-ex]');
+        if (collapseHeader) {
+          const exId = collapseHeader.dataset.mobCollapseEx;
+          if (exId) {
+            mobileExCollapsed[exId] = !mobileExCollapsed[exId];
+            render();
+            return;
+          }
+        }
+
+        const toggleAllExBtn = e.target.closest('[data-action="toggle-all-collapse"]');
+        if (toggleAllExBtn) {
+          const shouldCollapse = toggleAllExBtn.dataset.allState !== 'collapsed';
+          const currentRecordCols = (exercisesConfig && exercisesConfig.exercises) ? exercisesConfig.exercises : [];
+          currentRecordCols.forEach(eObj => {
+            mobileExCollapsed[eObj.id] = shouldCollapse;
+          });
+          if (currentRecord && currentRecord.athletes) {
+            currentRecord.athletes.forEach(a => {
+              if (a.results) {
+                Object.keys(a.results).forEach(k => {
+                  mobileExCollapsed[k] = shouldCollapse;
+                });
+              }
+            });
+          }
           render();
           return;
         }
