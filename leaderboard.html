@@ -44,10 +44,9 @@
 
     .header {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 14px;
     }
 
     h1 {
@@ -55,9 +54,10 @@
       margin: 0;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       font-weight: 800;
       letter-spacing: -0.5px;
+      white-space: nowrap;
     }
 
     h1 span {
@@ -74,25 +74,41 @@
     .header-controls {
       display: flex;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .header-filters {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      flex-shrink: 0;
     }
 
     .header-item {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 5px;
+      height: 34px;
     }
 
     .header-label {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       color: var(--mute);
       text-transform: uppercase;
-      letter-spacing: 0.6px;
+      letter-spacing: 0.4px;
       white-space: nowrap;
       line-height: 1;
-      transform: translateY(-0.5px);
     }
 
     /* Custom Dropdowns */
@@ -106,17 +122,17 @@
       color: var(--tx);
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 0 12px;
+      padding: 0 9px;
       height: 34px;
       box-sizing: border-box;
       font: inherit;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 6px;
       line-height: 1;
       user-select: none;
       transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
@@ -242,8 +258,8 @@
     .toggle-label {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      font-size: 13px;
+      gap: 6px;
+      font-size: 12px;
       font-weight: 500;
       color: var(--tx);
       cursor: pointer;
@@ -251,10 +267,11 @@
       background: #171a22;
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 0 12px;
+      padding: 0 9px;
       height: 34px;
       box-sizing: border-box;
       line-height: 1;
+      white-space: nowrap;
       transition: border-color .15s ease, background-color .15s ease;
     }
 
@@ -284,17 +301,18 @@
       color: #1a1005;
       border: 1px solid var(--acc);
       border-radius: 8px;
-      padding: 0 13px;
+      padding: 0 10px;
       height: 34px;
       box-sizing: border-box;
       font: inherit;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       line-height: 1;
+      white-space: nowrap;
       transition: background .15s ease, border-color .15s ease;
     }
 
@@ -398,16 +416,24 @@
       }
     }
 
-    @media(max-width:750px) {
-      .header {
+
+    @media(max-width: 740px) {
+      .header-controls {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 14px;
+        align-items: stretch;
+        gap: 10px;
       }
 
-      .header-controls {
+      .header-filters {
         width: 100%;
-        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: flex-end;
+        margin-left: 0;
       }
     }
     /* Athlete Modal & Evolution Styles */
@@ -416,15 +442,17 @@
       color: var(--tx);
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 0 13px;
+      padding: 0 10px;
       height: 34px;
+      box-sizing: border-box;
       font: inherit;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      white-space: nowrap;
       transition: all 0.2s ease;
       user-select: none;
     }
@@ -863,70 +891,72 @@
       <h1>🏆 <span>CPW</span> LEADERBOARD</h1>
 
       <div class="header-controls">
-        <div class="header-item">
-          <span class="header-label">Período:</span>
-          <div class="custom-select" id="periodCustomSelect">
-            <button type="button" class="custom-select-btn" id="periodBtn" aria-haspopup="listbox" aria-expanded="false" title="Seleccionar período">
-              <span class="custom-select-val" id="periodVal">Cargando...</span>
-              <svg class="chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            <div class="custom-select-menu" id="periodMenu" role="listbox"></div>
+        <div class="header-filters">
+          <div class="header-item">
+            <span class="header-label">Período:</span>
+            <div class="custom-select" id="periodCustomSelect">
+              <button type="button" class="custom-select-btn" id="periodBtn" aria-haspopup="listbox" aria-expanded="false" title="Seleccionar período">
+                <span class="custom-select-val" id="periodVal">Cargando...</span>
+                <svg class="chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div class="custom-select-menu" id="periodMenu" role="listbox"></div>
+            </div>
+            <select id="periodSelect" style="display:none;"></select>
           </div>
-          <select id="periodSelect" style="display:none;"></select>
+
+          <div class="header-item">
+            <span class="header-label">Grupo:</span>
+            <div class="custom-select" id="groupCustomSelect">
+              <button type="button" class="custom-select-btn" id="groupBtn" aria-haspopup="listbox" aria-expanded="false" title="Seleccionar grupo">
+                <span class="custom-select-val" id="groupVal">Todos los grupos</span>
+                <svg class="chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div class="custom-select-menu" id="groupMenu" role="listbox"></div>
+            </div>
+            <select id="groupSelect" style="display:none;"></select>
+          </div>
+
+          <label class="toggle-label" title="Mostrar u ocultar profesores">
+            <input type="checkbox" id="profeCheck" checked>
+            <span>Profesores</span>
+          </label>
+
+          <label class="toggle-label" title="Mostrar u ocultar grupos">
+            <input type="checkbox" id="groupBadgeCheck">
+            <span>Mostrar grupos</span>
+          </label>
         </div>
 
-        <div class="header-item">
-          <span class="header-label">Grupo:</span>
-          <div class="custom-select" id="groupCustomSelect">
-            <button type="button" class="custom-select-btn" id="groupBtn" aria-haspopup="listbox" aria-expanded="false" title="Seleccionar grupo">
-              <span class="custom-select-val" id="groupVal">Todos los grupos</span>
-              <svg class="chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            <div class="custom-select-menu" id="groupMenu" role="listbox"></div>
-          </div>
-          <select id="groupSelect" style="display:none;"></select>
-        </div>
-
-        <label class="toggle-label" title="Mostrar u ocultar profesores">
-          <input type="checkbox" id="profeCheck" checked>
-          <span>Profesores</span>
-        </label>
-
-        <label class="toggle-label" title="Mostrar u ocultar grupos">
-          <input type="checkbox" id="groupBadgeCheck">
-          <span>Mostrar grupos</span>
-        </label>
-
-        <div class="header-item">
+        <div class="header-actions">
           <button type="button" class="btn-athlete-evolution" id="openAthleteModalBtn" title="Ver evolución y gráficas individuales por atleta">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 20V10M12 20V4M6 20v-6"/>
             </svg>
             <span>Evolución Atleta</span>
           </button>
-        </div>
 
-        <div class="export-dropdown">
-          <button class="btn-export" id="exportBtn" type="button" aria-haspopup="true" aria-expanded="false"
-            title="Exportar leaderboard">
-            <svg viewBox="0 0 24 24">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
-            </svg>
-            <span>Exportar</span>
-          </button>
-          <div class="export-menu" id="exportMenu">
-            <button type="button" id="pdfBtn">
-              <span>Documento</span>
-              <span class="ext">PDF</span>
+          <div class="export-dropdown">
+            <button class="btn-export" id="exportBtn" type="button" aria-haspopup="true" aria-expanded="false"
+              title="Exportar leaderboard">
+              <svg viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+              </svg>
+              <span>Exportar</span>
             </button>
-            <button type="button" id="pngBtn">
-              <span>Imagen</span>
-              <span class="ext">PNG</span>
-            </button>
-            <button type="button" id="svgBtn">
-              <span>Vector</span>
-              <span class="ext">SVG</span>
-            </button>
+            <div class="export-menu" id="exportMenu">
+              <button type="button" id="pdfBtn">
+                <span>Documento</span>
+                <span class="ext">PDF</span>
+              </button>
+              <button type="button" id="pngBtn">
+                <span>Imagen</span>
+                <span class="ext">PNG</span>
+              </button>
+              <button type="button" id="svgBtn">
+                <span>Vector</span>
+                <span class="ext">SVG</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
