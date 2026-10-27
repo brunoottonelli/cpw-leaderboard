@@ -1473,7 +1473,8 @@
       box-sizing: border-box;
       width: 100%;
       position: relative;
-      overflow: hidden;
+      overflow: visible;
+      z-index: 50;
     }
 
     .compare-hero-card::before {
@@ -1483,7 +1484,9 @@
       left: 0;
       width: 50%;
       height: 3px;
+      border-top-left-radius: 18px;
       background: linear-gradient(90deg, transparent, #ff8a2a);
+      pointer-events: none;
     }
 
     .compare-hero-card::after {
@@ -1493,7 +1496,9 @@
       right: 0;
       width: 50%;
       height: 3px;
-      background: linear-gradient(270deg, transparent, #38bdf8);
+      border-top-right-radius: 18px;
+      background: linear-gradient(270deg, transparent, #818cf8);
+      pointer-events: none;
     }
 
     .compare-fighter {
@@ -1501,6 +1506,12 @@
       flex-direction: column;
       gap: 14px;
       min-width: 0;
+      position: relative;
+    }
+
+    .compare-fighter.is-dropdown-open,
+    .compare-fighter:has(.compare-custom-select.is-open) {
+      z-index: 100;
     }
 
     .compare-fighter-b {
@@ -1532,12 +1543,16 @@
     }
 
     .compare-fighter-b .compare-label {
-      color: #38bdf8;
+      color: #818cf8;
     }
 
     .compare-custom-select {
       width: 100%;
       position: relative;
+    }
+
+    .compare-custom-select.is-open {
+      z-index: 120;
     }
 
     .compare-select-btn {
@@ -1566,7 +1581,7 @@
 
     .compare-fighter-b .compare-select-btn:hover,
     .compare-fighter-b .compare-custom-select.is-open .compare-select-btn {
-      border-color: #38bdf8;
+      border-color: #818cf8;
     }
 
     .compare-select-menu {
@@ -1574,18 +1589,17 @@
       top: calc(100% + 6px);
       left: 0;
       width: 100%;
-      min-width: 200px;
-      max-height: 240px;
-      overflow-y: auto;
+      min-width: 220px;
+      max-height: 290px;
+      overflow: hidden;
       background: #171a22;
       border: 1px solid var(--line);
-      border-radius: 10px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
-      padding: 6px;
+      border-radius: 12px;
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.85);
+      padding: 0;
       display: none;
       flex-direction: column;
-      gap: 3px;
-      z-index: 150;
+      z-index: 250;
       box-sizing: border-box;
     }
 
@@ -1596,6 +1610,94 @@
 
     .compare-select-menu.show {
       display: flex;
+    }
+
+    /* Cuadro de búsqueda fijo estilo Excel */
+    .compare-search-box {
+      position: sticky;
+      top: 0;
+      padding: 8px 10px;
+      background: #12151b;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      z-index: 5;
+      flex-shrink: 0;
+      box-sizing: border-box;
+    }
+
+    .compare-search-icon {
+      color: var(--mute);
+      flex-shrink: 0;
+    }
+
+    .compare-search-input {
+      flex: 1;
+      min-width: 0;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 8px;
+      outline: none;
+      transition: border-color 0.15s ease, background 0.15s ease;
+      box-sizing: border-box;
+    }
+
+    .compare-fighter-a .compare-search-input:focus {
+      border-color: #ff8a2a;
+      background: rgba(255, 138, 42, 0.06);
+    }
+
+    .compare-fighter-b .compare-search-input:focus {
+      border-color: #818cf8;
+      background: rgba(129, 140, 248, 0.06);
+    }
+
+    .compare-search-input::placeholder {
+      color: var(--mute);
+      font-size: 11.5px;
+    }
+
+    .compare-search-clear {
+      background: transparent;
+      border: none;
+      color: var(--mute);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.12s ease;
+    }
+
+    .compare-search-clear:hover {
+      color: #fff;
+    }
+
+    /* Lista scrollable de opciones debajo de la búsqueda */
+    .compare-options-scroll {
+      overflow-y: auto;
+      max-height: 230px;
+      padding: 5px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex: 1;
+      box-sizing: border-box;
+    }
+
+    .compare-options-empty {
+      padding: 16px 10px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--mute);
+      font-style: italic;
     }
 
     .compare-select-option {
@@ -1627,8 +1729,28 @@
     }
 
     .compare-fighter-b .compare-select-option.selected {
-      background: rgba(56, 189, 248, 0.15);
-      color: #38bdf8;
+      background: rgba(129, 140, 248, 0.15);
+      color: #818cf8;
+    }
+
+    .compare-select-option.is-opponent,
+    .compare-select-option:disabled {
+      opacity: 0.38;
+      cursor: not-allowed;
+      pointer-events: none;
+      background: transparent !important;
+    }
+
+    .compare-select-option .opponent-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: var(--mute);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
     }
 
     .compare-fighter-profile {
@@ -1639,6 +1761,72 @@
 
     .compare-fighter-b .compare-fighter-profile {
       flex-direction: row-reverse;
+    }
+
+    .fighter-avatar-wrap {
+      position: relative;
+      display: inline-flex;
+      flex-shrink: 0;
+      width: 52px;
+      height: 52px;
+    }
+
+    .fighter-crown {
+      position: absolute;
+      top: -14px;
+      left: -12px;
+      font-size: 28px;
+      line-height: 1;
+      transform: rotate(-22deg);
+      transform-origin: center bottom;
+      z-index: 10;
+      pointer-events: none;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.65));
+      display: none;
+      user-select: none;
+    }
+
+    .fighter-crown.show {
+      display: block;
+      animation: crownPopA 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .compare-fighter-b .fighter-crown {
+      left: auto;
+      right: -12px;
+      transform: rotate(22deg);
+    }
+
+    .compare-fighter-b .fighter-crown.show {
+      animation: crownPopB 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes crownPopA {
+      0% {
+        transform: scale(0.3) rotate(-40deg);
+        opacity: 0;
+      }
+      70% {
+        transform: scale(1.15) rotate(-15deg);
+      }
+      100% {
+        transform: scale(1) rotate(-22deg);
+        opacity: 1;
+      }
+    }
+
+    @keyframes crownPopB {
+      0% {
+        transform: scale(0.3) rotate(40deg);
+        opacity: 0;
+      }
+      70% {
+        transform: scale(1.15) rotate(15deg);
+      }
+      100% {
+        transform: scale(1) rotate(22deg);
+        opacity: 1;
+      }
     }
 
     .fighter-avatar {
@@ -1652,6 +1840,15 @@
       font-weight: 900;
       color: #fff;
       flex-shrink: 0;
+      transition: box-shadow 0.25s ease, transform 0.25s ease;
+    }
+
+    .fighter-avatar-wrap.is-winner .fighter-avatar-a {
+      box-shadow: 0 0 22px rgba(255, 138, 42, 0.55);
+    }
+
+    .fighter-avatar-wrap.is-winner .fighter-avatar-b {
+      box-shadow: 0 0 22px rgba(129, 140, 248, 0.55);
     }
 
     .fighter-avatar-a {
@@ -1661,9 +1858,9 @@
     }
 
     .fighter-avatar-b {
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(56, 189, 248, 0.05));
-      border: 2px solid #38bdf8;
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.2);
+      background: linear-gradient(135deg, rgba(129, 140, 248, 0.25), rgba(129, 140, 248, 0.05));
+      border: 2px solid #818cf8;
+      box-shadow: 0 0 16px rgba(129, 140, 248, 0.2);
     }
 
     .fighter-info {
@@ -1807,8 +2004,8 @@
     }
 
     .legend-dot.dot-b {
-      background: #38bdf8;
-      box-shadow: 0 0 6px rgba(56, 189, 248, 0.6);
+      background: #818cf8;
+      box-shadow: 0 0 6px rgba(129, 140, 248, 0.6);
     }
 
     .compare-radar-canvas-wrap {
@@ -1861,7 +2058,7 @@
     }
 
     .compare-exercise-item.winner-b {
-      border-right: 3px solid #38bdf8;
+      border-right: 3px solid #818cf8;
     }
 
     .compare-ex-top {
@@ -1891,9 +2088,9 @@
     }
 
     .compare-ex-delta.win-b {
-      background: rgba(56, 189, 248, 0.16);
-      color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      background: rgba(129, 140, 248, 0.16);
+      color: #818cf8;
+      border: 1px solid rgba(129, 140, 248, 0.3);
     }
 
     .compare-ex-delta.draw {
@@ -1930,7 +2127,7 @@
     }
 
     .compare-val.val-b {
-      color: #38bdf8;
+      color: #818cf8;
       justify-content: flex-end;
     }
 
@@ -1955,7 +2152,7 @@
 
     .compare-bar-fill-b {
       height: 100%;
-      background: #38bdf8;
+      background: #818cf8;
       transition: width 0.4s ease;
     }
 
@@ -2135,43 +2332,184 @@
         box-shadow: none;
       }
 
-      /* Comparador Móvil */
+      /* Comparador Móvil: Duelo Cara a Cara */
       .compare-hero-card {
-        grid-template-columns: 1fr;
-        gap: 16px;
-        padding: 16px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+          "score score"
+          "fighterA fighterB";
+        gap: 12px 14px;
+        padding: 14px 12px;
         border-radius: 14px;
+        overflow: visible;
       }
-      .compare-fighter-b {
-        align-items: flex-start;
-        text-align: left;
+      .compare-hero-card::before {
+        border-top-left-radius: 14px;
       }
-      .compare-fighter-b .compare-selector-wrap {
-        align-items: flex-start;
+      .compare-hero-card::after {
+        border-top-right-radius: 14px;
       }
-      .compare-fighter-b .compare-fighter-profile {
-        flex-direction: row;
-      }
-      .compare-fighter-b .fighter-name-row {
-        justify-content: flex-start;
-      }
-      .compare-fighter-b .compare-select-menu {
-        left: 0;
-        right: auto;
-      }
+
+      /* Marcador Superior Integrado */
       .compare-score-badge {
-        order: -1;
-        flex-direction: row;
-        justify-content: space-between;
+        grid-area: score;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
         width: 100%;
-        padding: 10px 14px;
-        background: #101319;
-        border-radius: 12px;
-        border: 1px solid var(--line);
+        padding: 0 0 10px 0;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         box-sizing: border-box;
       }
+      .compare-vs-pill {
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 1.2px;
+        padding: 2px 8px;
+        border-radius: 999px;
+      }
       .compare-score-numbers {
+        font-size: 28px;
+        line-height: 1;
+        letter-spacing: 0.5px;
+      }
+      .compare-winner-label {
+        font-size: 10.5px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+      }
+
+      /* Columnas Cara a Cara (Atleta 1 y Atleta 2) */
+      .compare-fighter {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 6px;
+        min-width: 0;
+        width: 100%;
+      }
+      .compare-fighter-a {
+        grid-area: fighterA;
+      }
+      .compare-fighter-b {
+        grid-area: fighterB;
+        align-items: center;
+        text-align: center;
+      }
+
+      /* Aplanar wrappers para ordenar Avatar -> Selector -> Meta */
+      .compare-selector-wrap {
+        display: contents;
+      }
+      .compare-fighter-profile {
+        display: contents;
+      }
+
+      .compare-label {
+        order: 1;
+        font-size: 9.5px;
+        font-weight: 800;
+        letter-spacing: 0.6px;
+      }
+
+      .fighter-avatar-wrap {
+        order: 2;
+        margin: 2px auto 4px auto;
+        width: 48px;
+        height: 48px;
+      }
+      .fighter-avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 22px;
+        border-radius: 12px;
+      }
+
+      .fighter-crown {
+        top: -12px;
+        left: -10px;
         font-size: 24px;
+      }
+      .compare-fighter-b .fighter-crown {
+        left: auto;
+        right: -10px;
+        transform: rotate(20deg);
+      }
+      .compare-fighter-b .fighter-crown.show {
+        animation: crownPopB 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      .compare-custom-select {
+        order: 3;
+        width: 100%;
+        position: relative;
+      }
+      .compare-select-btn {
+        height: 32px;
+        padding: 0 8px;
+        font-size: 12px;
+        border-radius: 8px;
+      }
+      .compare-select-btn .custom-select-val {
+        font-size: 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        text-align: left;
+      }
+
+      .compare-fighter-a .compare-select-menu {
+        left: 0;
+        right: auto;
+        min-width: 180px;
+        max-width: 240px;
+      }
+      .compare-fighter-b .compare-select-menu {
+        left: auto;
+        right: 0;
+        min-width: 180px;
+        max-width: 240px;
+      }
+
+      .fighter-info {
+        order: 4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 2px;
+        width: 100%;
+      }
+      .fighter-name-row {
+        justify-content: center;
+        align-items: center;
+        gap: 4px;
+        margin-top: 1px;
+      }
+      .compare-fighter-b .fighter-name-row {
+        justify-content: center;
+      }
+
+      /* El botón de selección ya muestra el nombre, por lo que ocultamos el título duplicado */
+      .compare-hero-card .fighter-name {
+        display: none;
+      }
+
+      .badge-rank {
+        font-size: 10.5px;
+        padding: 1px 6px;
+      }
+      .fighter-meta {
+        font-size: 10.5px;
+        line-height: 1.25;
+        text-align: center;
       }
       .compare-content-grid {
         grid-template-columns: 1fr;
@@ -2948,8 +3286,15 @@
       </button>
 
       <button type="button" class="btn-nav-compare" id="directoryCompareBtn" title="Comparar atletas mano a mano">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/>
+          <line x1="13" y1="19" x2="19" y2="13"/>
+          <line x1="16" y1="16" x2="20" y2="20"/>
+          <line x1="19" y1="21" x2="21" y2="19"/>
+          <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/>
+          <line x1="5" y1="14" x2="9" y2="18"/>
+          <line x1="7" y1="17" x2="4" y2="20"/>
+          <line x1="3" y1="21" x2="5" y2="19"/>
         </svg>
         <span>Comparador</span>
       </button>
@@ -2989,8 +3334,15 @@
 
       <div class="view-nav-right">
         <button type="button" class="btn-nav-compare" id="pageProfileCompareBtn" title="Comparar este atleta con otro">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/>
+            <line x1="13" y1="19" x2="19" y2="13"/>
+            <line x1="16" y1="16" x2="20" y2="20"/>
+            <line x1="19" y1="21" x2="21" y2="19"/>
+            <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/>
+            <line x1="5" y1="14" x2="9" y2="18"/>
+            <line x1="7" y1="17" x2="4" y2="20"/>
+            <line x1="3" y1="21" x2="5" y2="19"/>
           </svg>
           <span>Comparar</span>
         </button>
@@ -3065,12 +3417,25 @@
               <span class="custom-select-val" id="compareValA">Seleccionar</span>
               <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
-            <div class="custom-select-menu compare-select-menu" id="compareMenuA"></div>
+            <div class="custom-select-menu compare-select-menu" id="compareMenuA">
+              <div class="compare-search-box">
+                <svg class="compare-search-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" class="compare-search-input" id="compareSearchInputA" placeholder="Buscar atleta..." autocomplete="off">
+                <button type="button" class="compare-search-clear" id="compareSearchClearA" style="display:none;" title="Limpiar búsqueda">✕</button>
+              </div>
+              <div class="compare-options-scroll" id="compareOptionsScrollA"></div>
+            </div>
           </div>
         </div>
 
         <div class="compare-fighter-profile" id="fighterProfileA">
-          <div class="fighter-avatar fighter-avatar-a" id="fighterAvatarA">?</div>
+          <div class="fighter-avatar-wrap" id="fighterAvatarWrapA">
+            <span class="fighter-crown" id="fighterCrownA" title="Ganador del mano a mano">👑</span>
+            <div class="fighter-avatar fighter-avatar-a" id="fighterAvatarA">?</div>
+          </div>
           <div class="fighter-info">
             <div class="fighter-name-row">
               <h3 class="fighter-name" id="fighterNameA">Atleta 1</h3>
@@ -3097,12 +3462,25 @@
               <span class="custom-select-val" id="compareValB">Seleccionar</span>
               <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
-            <div class="custom-select-menu compare-select-menu" id="compareMenuB"></div>
+            <div class="custom-select-menu compare-select-menu" id="compareMenuB">
+              <div class="compare-search-box">
+                <svg class="compare-search-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" class="compare-search-input" id="compareSearchInputB" placeholder="Buscar atleta..." autocomplete="off">
+                <button type="button" class="compare-search-clear" id="compareSearchClearB" style="display:none;" title="Limpiar búsqueda">✕</button>
+              </div>
+              <div class="compare-options-scroll" id="compareOptionsScrollB"></div>
+            </div>
           </div>
         </div>
 
         <div class="compare-fighter-profile" id="fighterProfileB">
-          <div class="fighter-avatar fighter-avatar-b" id="fighterAvatarB">?</div>
+          <div class="fighter-avatar-wrap" id="fighterAvatarWrapB">
+            <span class="fighter-crown" id="fighterCrownB" title="Ganador del mano a mano">👑</span>
+            <div class="fighter-avatar fighter-avatar-b" id="fighterAvatarB">?</div>
+          </div>
           <div class="fighter-info">
             <div class="fighter-name-row">
               <h3 class="fighter-name" id="fighterNameB">Atleta 2</h3>
@@ -3148,7 +3526,7 @@
       <!-- Desglose por Ejercicio -->
       <div class="compare-breakdown-card">
         <div class="compare-breakdown-header">
-          <span class="chart-badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);">Enfrentamiento</span>
+          <span class="chart-badge" style="background: rgba(129, 140, 248, 0.15); color: #818cf8; border-color: rgba(129, 140, 248, 0.3);">Enfrentamiento</span>
           <h3 class="chart-title">Métricas Ejercicio por Ejercicio</h3>
         </div>
         <div class="compare-exercises-list" id="compareExercisesList"></div>
@@ -3176,8 +3554,15 @@
 
         <div class="modal-header-actions">
           <button type="button" class="modal-expand-btn" id="modalCompareBtn" title="Comparar con otro atleta">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/>
+              <line x1="13" y1="19" x2="19" y2="13"/>
+              <line x1="16" y1="16" x2="20" y2="20"/>
+              <line x1="19" y1="21" x2="21" y2="19"/>
+              <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/>
+              <line x1="5" y1="14" x2="9" y2="18"/>
+              <line x1="7" y1="17" x2="4" y2="20"/>
+              <line x1="3" y1="21" x2="5" y2="19"/>
             </svg>
             <span>Comparar</span>
           </button>
@@ -4567,8 +4952,11 @@
         const paramB = params.get('b');
         const modeParam = params.get('mode');
 
-        if (paramA) compareAthleteA = findAthleteCaseInsensitive(paramA) || compareAthleteA;
-        if (paramB) compareAthleteB = findAthleteCaseInsensitive(paramB) || compareAthleteB;
+        compareAthleteA = paramA ? (findAthleteCaseInsensitive(paramA) || null) : null;
+        compareAthleteB = paramB ? (findAthleteCaseInsensitive(paramB) || null) : null;
+        if (compareAthleteA && compareAthleteB && compareAthleteA === compareAthleteB) {
+          compareAthleteB = null;
+        }
         if (modeParam && (modeParam === 'prs' || modeParam === 'latest')) compareMode = modeParam;
 
         showView('athlete-compare', null, profileNavOrigin || 'leaderboard', false);
@@ -4694,16 +5082,10 @@
         if (viewAthleteProfile) viewAthleteProfile.style.display = 'none';
         if (viewAthleteCompare) viewAthleteCompare.style.display = 'grid';
 
-        const athletesList = getDirectoryAthletesList();
-        if (athletesList.length > 0) {
-          if (athleteName && allAthletesMap.has(athleteName)) {
-            compareAthleteA = athleteName;
-          } else if (!compareAthleteA || !allAthletesMap.has(compareAthleteA)) {
-            compareAthleteA = athletesList[0] ? athletesList[0].name : '';
-          }
-          if (!compareAthleteB || !allAthletesMap.has(compareAthleteB) || compareAthleteB === compareAthleteA) {
-            const alternative = athletesList.find(x => x.name !== compareAthleteA);
-            compareAthleteB = alternative ? alternative.name : compareAthleteA;
+        if (athleteName && allAthletesMap.has(athleteName)) {
+          compareAthleteA = athleteName;
+          if (compareAthleteB === compareAthleteA) {
+            compareAthleteB = null;
           }
         }
 
@@ -4724,7 +5106,8 @@
         if (compareAthleteA) params.set('a', compareAthleteA);
         if (compareAthleteB) params.set('b', compareAthleteB);
         if (compareMode && compareMode !== 'prs') params.set('mode', compareMode);
-        const newHash = `#/comparar?${params.toString()}`;
+        const q = params.toString();
+        const newHash = q ? `#/comparar?${q}` : '#/comparar';
         if (updateHash && window.location.hash !== newHash) {
           history.pushState(null, '', newHash);
         }
@@ -5275,7 +5658,7 @@
       const latestEval = timeline[timeline.length - 1];
       const firstEval = timeline.length > 1 ? timeline[0] : null;
 
-      const RADAR_ORDER = ['fondos', 'dominadas_supinas', 'lagartijas', 'dominadas_pronas'];
+      const RADAR_ORDER = ['dominadas_pronas', 'fondos', 'lagartijas', 'dominadas_supinas'];
       const exDefsRaw = (exercisesConfig && exercisesConfig.exercises) ? exercisesConfig.exercises : [];
       const radarExDefs = [];
       RADAR_ORDER.forEach(id => {
@@ -5436,7 +5819,7 @@
         compareRadarChartInstance = null;
       }
 
-      const RADAR_ORDER = ['fondos', 'dominadas_supinas', 'lagartijas', 'dominadas_pronas'];
+      const RADAR_ORDER = ['dominadas_pronas', 'fondos', 'lagartijas', 'dominadas_supinas'];
       const exDefsRaw = (exercisesConfig && exercisesConfig.exercises) ? exercisesConfig.exercises : [];
       const radarExDefs = [];
       RADAR_ORDER.forEach(id => {
@@ -5492,9 +5875,9 @@
             {
               label: nameB,
               data: dataB,
-              borderColor: '#38bdf8',
-              backgroundColor: 'rgba(56, 189, 248, 0.22)',
-              pointBackgroundColor: '#38bdf8',
+              borderColor: '#818cf8',
+              backgroundColor: 'rgba(129, 140, 248, 0.22)',
+              pointBackgroundColor: '#818cf8',
               pointBorderColor: '#141720',
               pointBorderWidth: 2,
               pointRadius: 4.5,
@@ -5541,9 +5924,9 @@
                   const pct = context.raw;
                   const eIdx = context.dataIndex;
                   const ex = radarExDefs[eIdx];
-                  const score = (context.datasetIndex === 0)
-                    ? getAthleteExerciseScore(athleteA, ex.id, mode)
-                    : getAthleteExerciseScore(athleteB, ex.id, mode);
+                  const athlete = (context.datasetIndex === 0) ? athleteA : athleteB;
+                  if (!athlete) return ` ${context.dataset.label}: sin seleccionar`;
+                  const score = getAthleteExerciseScore(athlete, ex.id, mode);
                   const reps = score.val !== null ? `${score.val} reps` : '- reps';
                   return ` ${context.dataset.label}: ${reps} (${pct}% del récord)`;
                 }
@@ -5563,9 +5946,9 @@
 
       if (!athlete) {
         if (avatar) avatar.textContent = '?';
-        if (name) name.textContent = `Atleta ${slot}`;
+        if (name) name.textContent = slot === 'A' ? 'Atleta 1' : 'Atleta 2';
         if (rank) rank.style.display = 'none';
-        if (meta) meta.textContent = 'Turno: -';
+        if (meta) meta.textContent = slot === 'A' ? 'Selecciona atleta local' : 'Selecciona contrincante';
         if (valBtn) valBtn.textContent = 'Seleccionar';
         return;
       }
@@ -5595,18 +5978,65 @@
       }
     }
 
+    function filterCompareOptions(slot, query) {
+      const scrollContainer = $(`compareOptionsScroll${slot}`);
+      const clearBtn = $(`compareSearchClear${slot}`);
+      if (!scrollContainer) return;
+
+      const norm = str => (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+      const q = norm(query);
+
+      if (clearBtn) {
+        clearBtn.style.display = q.length > 0 ? 'inline-flex' : 'none';
+      }
+
+      const options = scrollContainer.querySelectorAll('.compare-select-option');
+      let visibleCount = 0;
+      options.forEach(opt => {
+        const athleteName = opt.dataset.athlete || '';
+        const matches = norm(athleteName).includes(q);
+        opt.style.display = matches ? 'flex' : 'none';
+        if (matches) visibleCount++;
+      });
+
+      let emptyMsg = scrollContainer.querySelector('.compare-options-empty');
+      if (visibleCount === 0) {
+        if (!emptyMsg) {
+          emptyMsg = document.createElement('div');
+          emptyMsg.className = 'compare-options-empty';
+          emptyMsg.textContent = 'No se encontraron atletas';
+          scrollContainer.appendChild(emptyMsg);
+        }
+        emptyMsg.style.display = 'block';
+      } else if (emptyMsg) {
+        emptyMsg.style.display = 'none';
+      }
+    }
+
     function updateCompareDropdowns() {
       const athletes = getDirectoryAthletesList();
       ['A', 'B'].forEach(slot => {
-        const menu = $(`compareMenu${slot}`);
-        if (!menu) return;
+        const scrollContainer = $(`compareOptionsScroll${slot}`);
+        if (!scrollContainer) return;
         const currentName = slot === 'A' ? compareAthleteA : compareAthleteB;
+        const opponentName = slot === 'A' ? compareAthleteB : compareAthleteA;
 
-        menu.innerHTML = athletes.map(a => {
-          const isSelected = (a.name === currentName);
+        scrollContainer.innerHTML = athletes.map(a => {
+          const isSelected = Boolean(currentName && a.name === currentName);
+          const isOpponent = Boolean(opponentName && a.name === opponentName);
           const timeline = a.timeline || [];
           const latest = timeline.length > 0 ? timeline[timeline.length - 1] : null;
           const rankTxt = latest && latest.rank ? `#${latest.rank}` : '';
+
+          if (isOpponent) {
+            return `
+              <button type="button" class="compare-select-option is-opponent" data-slot="${slot}" data-athlete="${esc(a.name)}" disabled title="Ya seleccionado en el otro puesto">
+                <span>${esc(a.name)}</span>
+                <span class="opponent-badge">Rival</span>
+              </button>
+            `;
+          }
+
           return `
             <button type="button" class="compare-select-option ${isSelected ? 'selected' : ''}" data-slot="${slot}" data-athlete="${esc(a.name)}">
               <span>${esc(a.name)}</span>
@@ -5614,6 +6044,11 @@
             </button>
           `;
         }).join('');
+
+        const input = $(`compareSearchInput${slot}`);
+        if (input && input.value) {
+          filterCompareOptions(slot, input.value);
+        }
       });
     }
 
@@ -5628,11 +6063,11 @@
 
       // 2. Fighter Cards
       updateFighterCard('A', athleteA, '#ff8a2a');
-      updateFighterCard('B', athleteB, '#38bdf8');
+      updateFighterCard('B', athleteB, '#818cf8');
 
       // 3. Head-to-Head & Scoreboard
       const exDefsRaw = (exercisesConfig && exercisesConfig.exercises) ? exercisesConfig.exercises : [];
-      const RADAR_ORDER = ['fondos', 'dominadas_supinas', 'lagartijas', 'dominadas_pronas'];
+      const RADAR_ORDER = ['dominadas_pronas', 'fondos', 'lagartijas', 'dominadas_supinas'];
       const exercises = [];
       RADAR_ORDER.forEach(id => {
         const found = exDefsRaw.find(e => e.id === id);
@@ -5644,6 +6079,7 @@
 
       let winsA = 0;
       let winsB = 0;
+      const hasBothAthletes = Boolean(athleteA && athleteB);
 
       const exerciseRowsHtml = exercises.map(ex => {
         const scoreA = getAthleteExerciseScore(athleteA, ex.id, compareMode);
@@ -5653,44 +6089,60 @@
         const valB = scoreB.val;
 
         let deltaClass = 'draw';
-        let deltaText = 'Empate';
+        let deltaText = '-';
         let winner = null;
+        let pctA = 0;
+        let pctB = 0;
 
-        if (valA !== null && valB !== null) {
-          if (valA > valB) {
+        if (hasBothAthletes) {
+          if (valA !== null && valB !== null) {
+            if (valA > valB) {
+              winsA++;
+              winner = 'A';
+              deltaClass = 'win-a';
+              const diff = +(valA - valB).toFixed(1);
+              deltaText = `+${diff} reps (${athleteA.name})`;
+            } else if (valB > valA) {
+              winsB++;
+              winner = 'B';
+              deltaClass = 'win-b';
+              const diff = +(valB - valA).toFixed(1);
+              deltaText = `+${diff} reps (${athleteB.name})`;
+            } else {
+              deltaClass = 'draw';
+              deltaText = 'Empate';
+            }
+          } else if (valA !== null && valB === null) {
             winsA++;
             winner = 'A';
             deltaClass = 'win-a';
-            const diff = +(valA - valB).toFixed(1);
-            deltaText = `+${diff} reps (${athleteA ? athleteA.name : 'A'})`;
-          } else if (valB > valA) {
+            deltaText = `+${valA} reps (${athleteA.name})`;
+          } else if (valB !== null && valA === null) {
             winsB++;
             winner = 'B';
             deltaClass = 'win-b';
-            const diff = +(valB - valA).toFixed(1);
-            deltaText = `+${diff} reps (${athleteB ? athleteB.name : 'B'})`;
+            deltaText = `+${valB} reps (${athleteB.name})`;
+          } else {
+            deltaClass = 'draw';
+            deltaText = 'Sin datos';
           }
-        } else if (valA !== null && valB === null) {
-          winsA++;
-          winner = 'A';
-          deltaClass = 'win-a';
-          deltaText = `+${valA} reps (${athleteA ? athleteA.name : 'A'})`;
-        } else if (valB !== null && valA === null) {
-          winsB++;
-          winner = 'B';
-          deltaClass = 'win-b';
-          deltaText = `+${valB} reps (${athleteB ? athleteB.name : 'B'})`;
-        }
 
-        let pctA = 50;
-        let pctB = 50;
-        if (valA !== null && valB !== null && (valA + valB) > 0) {
-          pctA = Math.round((valA / (valA + valB)) * 100);
-          pctB = 100 - pctA;
-        } else if (valA !== null && valA > 0) {
-          pctA = 100; pctB = 0;
-        } else if (valB !== null && valB > 0) {
-          pctA = 0; pctB = 100;
+          if (valA !== null && valB !== null && (valA + valB) > 0) {
+            pctA = Math.round((valA / (valA + valB)) * 100);
+            pctB = 100 - pctA;
+          } else if (valA !== null && valA > 0) {
+            pctA = 100; pctB = 0;
+          } else if (valB !== null && valB > 0) {
+            pctA = 0; pctB = 100;
+          } else {
+            pctA = 50; pctB = 50;
+          }
+        } else {
+          if (athleteA && valA !== null) {
+            pctA = 100; pctB = 0;
+          } else if (athleteB && valB !== null) {
+            pctA = 0; pctB = 100;
+          }
         }
 
         return `
@@ -5705,7 +6157,7 @@
                 <span>${scoreA.label}</span>
                 <span class="val-unit">reps</span>
               </div>
-              <div class="compare-bar-track" title="${athleteA ? athleteA.name : 'A'}: ${pctA}% vs ${athleteB ? athleteB.name : 'B'}: ${pctB}%">
+              <div class="compare-bar-track" title="${hasBothAthletes ? `${athleteA.name}: ${pctA}% vs ${athleteB.name}: ${pctB}%` : ''}">
                 <div class="compare-bar-fill-a" style="width: ${pctA}%;"></div>
                 <div class="compare-bar-fill-b" style="width: ${pctB}%;"></div>
               </div>
@@ -5722,21 +6174,61 @@
       const exList = $('compareExercisesList');
       if (exList) exList.innerHTML = exerciseRowsHtml;
 
-      // 4. Scoreboard & Verdict
+      // 4. Scoreboard, Verdict & Winner Crowns
       const scoreboard = $('compareScoreboard');
-      if (scoreboard) scoreboard.textContent = `${winsA} - ${winsB}`;
-
+      const crownA = $('fighterCrownA');
+      const crownB = $('fighterCrownB');
+      const wrapA = $('fighterAvatarWrapA');
+      const wrapB = $('fighterAvatarWrapB');
       const verdict = $('compareScoreVerdict');
-      if (verdict) {
-        if (winsA > winsB) {
-          verdict.textContent = `${athleteA ? athleteA.name : 'Atleta 1'} tiene la ventaja`;
-          verdict.style.color = '#ff8a2a';
-        } else if (winsB > winsA) {
-          verdict.textContent = `${athleteB ? athleteB.name : 'Atleta 2'} tiene la ventaja`;
-          verdict.style.color = '#38bdf8';
-        } else {
-          verdict.textContent = 'Empate técnico';
+
+      if (!hasBothAthletes) {
+        if (scoreboard) scoreboard.textContent = '0 - 0';
+        if (crownA) { crownA.classList.remove('show'); crownA.style.display = 'none'; }
+        if (wrapA) wrapA.classList.remove('is-winner');
+        if (crownB) { crownB.classList.remove('show'); crownB.style.display = 'none'; }
+        if (wrapB) wrapB.classList.remove('is-winner');
+        if (verdict) {
+          if (!athleteA && !athleteB) {
+            verdict.textContent = 'Selecciona dos atletas';
+          } else if (!athleteA) {
+            verdict.textContent = 'Selecciona al Atleta 1';
+          } else {
+            verdict.textContent = 'Selecciona al contrincante';
+          }
           verdict.style.color = 'var(--mute)';
+        }
+      } else {
+        if (scoreboard) scoreboard.textContent = `${winsA} - ${winsB}`;
+
+        if (winsA > winsB) {
+          if (crownA) { crownA.classList.add('show'); crownA.style.display = 'block'; }
+          if (wrapA) wrapA.classList.add('is-winner');
+          if (crownB) { crownB.classList.remove('show'); crownB.style.display = 'none'; }
+          if (wrapB) wrapB.classList.remove('is-winner');
+        } else if (winsB > winsA) {
+          if (crownA) { crownA.classList.remove('show'); crownA.style.display = 'none'; }
+          if (wrapA) wrapA.classList.remove('is-winner');
+          if (crownB) { crownB.classList.add('show'); crownB.style.display = 'block'; }
+          if (wrapB) wrapB.classList.add('is-winner');
+        } else {
+          if (crownA) { crownA.classList.remove('show'); crownA.style.display = 'none'; }
+          if (wrapA) wrapA.classList.remove('is-winner');
+          if (crownB) { crownB.classList.remove('show'); crownB.style.display = 'none'; }
+          if (wrapB) wrapB.classList.remove('is-winner');
+        }
+
+        if (verdict) {
+          if (winsA > winsB) {
+            verdict.textContent = `${athleteA.name} tiene la ventaja`;
+            verdict.style.color = '#ff8a2a';
+          } else if (winsB > winsA) {
+            verdict.textContent = `${athleteB.name} tiene la ventaja`;
+            verdict.style.color = '#818cf8';
+          } else {
+            verdict.textContent = 'Empate técnico';
+            verdict.style.color = 'var(--mute)';
+          }
         }
       }
 
@@ -5775,8 +6267,16 @@
     }
 
     function shareComparison() {
+      if (!compareAthleteA || !compareAthleteB) {
+        showToast('Selecciona ambos atletas para compartir el mano a mano');
+        return;
+      }
       const athleteA = allAthletesMap.get(compareAthleteA);
       const athleteB = allAthletesMap.get(compareAthleteB);
+      if (!athleteA || !athleteB) {
+        showToast('Selecciona ambos atletas para compartir el mano a mano');
+        return;
+      }
       const nameA = athleteA ? athleteA.name : 'Atleta 1';
       const nameB = athleteB ? athleteB.name : 'Atleta 2';
       const url = window.location.href;
@@ -5813,10 +6313,26 @@
           if (parentBtn && parentBtn.setAttribute) parentBtn.setAttribute('aria-expanded', 'false');
           if (m.parentElement) m.parentElement.classList.remove('is-open');
         });
+        document.querySelectorAll('.compare-fighter.is-dropdown-open').forEach(f => {
+          f.classList.remove('is-dropdown-open');
+        });
+
         if (!isOpen) {
           menu.classList.add('show');
           btn.setAttribute('aria-expanded', 'true');
           if (menu.parentElement) menu.parentElement.classList.add('is-open');
+          const fighter = menu.closest('.compare-fighter');
+          if (fighter) fighter.classList.add('is-dropdown-open');
+
+          const slot = menuId === 'compareMenuA' ? 'A' : (menuId === 'compareMenuB' ? 'B' : null);
+          if (slot) {
+            const input = $(`compareSearchInput${slot}`);
+            if (input) {
+              input.value = '';
+              filterCompareOptions(slot, '');
+              setTimeout(() => input.focus(), 60);
+            }
+          }
         }
       });
     }
@@ -5838,14 +6354,67 @@
       const shareBtn = $('compareShareBtn');
       if (shareBtn) shareBtn.addEventListener('click', shareComparison);
 
-      // Dropdown selection
+      // Dropdown selection & Excel-like search events
       ['A', 'B'].forEach(slot => {
         const menu = $(`compareMenu${slot}`);
+        const input = $(`compareSearchInput${slot}`);
+        const clearBtn = $(`compareSearchClear${slot}`);
+        const searchBox = menu ? menu.querySelector('.compare-search-box') : null;
+
+        if (searchBox) {
+          searchBox.addEventListener('click', e => {
+            e.stopPropagation();
+          });
+        }
+
+        if (input) {
+          input.addEventListener('input', e => {
+            filterCompareOptions(slot, e.target.value);
+          });
+
+          input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              const scrollContainer = $(`compareOptionsScroll${slot}`);
+              if (scrollContainer) {
+                const firstVisible = Array.from(scrollContainer.querySelectorAll('.compare-select-option'))
+                  .find(opt => opt.style.display !== 'none' && !opt.disabled && !opt.classList.contains('is-opponent'));
+                if (firstVisible) {
+                  firstVisible.click();
+                }
+              }
+            } else if (e.key === 'Escape') {
+              if (menu) {
+                menu.classList.remove('show');
+                const parentBtn = menu.previousElementSibling;
+                if (parentBtn && parentBtn.setAttribute) parentBtn.setAttribute('aria-expanded', 'false');
+                if (menu.parentElement) menu.parentElement.classList.remove('is-open');
+                const fighter = menu.closest('.compare-fighter');
+                if (fighter) fighter.classList.remove('is-dropdown-open');
+              }
+            }
+          });
+        }
+
+        if (clearBtn) {
+          clearBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            if (input) {
+              input.value = '';
+              filterCompareOptions(slot, '');
+              input.focus();
+            }
+          });
+        }
+
         if (menu) {
           menu.addEventListener('click', e => {
             const opt = e.target.closest('.compare-select-option');
-            if (!opt) return;
+            if (!opt || opt.disabled || opt.classList.contains('is-opponent')) return;
             const targetAthlete = opt.dataset.athlete;
+            const opponent = (slot === 'A') ? compareAthleteB : compareAthleteA;
+            if (targetAthlete === opponent) return;
+
             if (slot === 'A') {
               compareAthleteA = targetAthlete;
             } else {
@@ -5855,6 +6424,13 @@
             const parentBtn = menu.previousElementSibling;
             if (parentBtn && parentBtn.setAttribute) parentBtn.setAttribute('aria-expanded', 'false');
             if (menu.parentElement) menu.parentElement.classList.remove('is-open');
+            const fighter = menu.closest('.compare-fighter');
+            if (fighter) fighter.classList.remove('is-dropdown-open');
+
+            if (input) {
+              input.value = '';
+              filterCompareOptions(slot, '');
+            }
 
             renderCompareView();
 
@@ -5862,7 +6438,8 @@
             if (compareAthleteA) params.set('a', compareAthleteA);
             if (compareAthleteB) params.set('b', compareAthleteB);
             if (compareMode && compareMode !== 'prs') params.set('mode', compareMode);
-            history.replaceState(null, '', `#/comparar?${params.toString()}`);
+            const q = params.toString();
+            history.replaceState(null, '', q ? `#/comparar?${q}` : '#/comparar');
           });
         }
       });
@@ -5882,7 +6459,8 @@
             if (compareAthleteA) params.set('a', compareAthleteA);
             if (compareAthleteB) params.set('b', compareAthleteB);
             if (compareMode && compareMode !== 'prs') params.set('mode', compareMode);
-            history.replaceState(null, '', `#/comparar?${params.toString()}`);
+            const q = params.toString();
+            history.replaceState(null, '', q ? `#/comparar?${q}` : '#/comparar');
           }
         });
       }
@@ -5892,6 +6470,7 @@
       if (profCompareBtn) {
         profCompareBtn.addEventListener('click', () => {
           compareAthleteA = activeAthleteName;
+          compareAthleteB = null;
           showView('athlete-compare', activeAthleteName, 'athlete-profile');
         });
       }
@@ -5900,6 +6479,8 @@
       const dirCompareBtn = $('directoryCompareBtn');
       if (dirCompareBtn) {
         dirCompareBtn.addEventListener('click', () => {
+          compareAthleteA = null;
+          compareAthleteB = null;
           showView('athlete-compare', null, 'athletes-list');
         });
       }
@@ -5909,6 +6490,7 @@
       if (modalCompareBtn) {
         modalCompareBtn.addEventListener('click', () => {
           compareAthleteA = activeAthleteName;
+          compareAthleteB = null;
           const modal = $('athleteModal');
           if (modal) modal.close();
           showView('athlete-compare', activeAthleteName, 'leaderboard');
@@ -6335,6 +6917,9 @@
           const parentBtn = m.previousElementSibling;
           if (parentBtn && parentBtn.setAttribute) parentBtn.setAttribute('aria-expanded', 'false');
           if (m.parentElement) m.parentElement.classList.remove('is-open');
+        });
+        document.querySelectorAll('.compare-fighter.is-dropdown-open').forEach(f => {
+          f.classList.remove('is-dropdown-open');
         });
       });
 
