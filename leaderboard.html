@@ -341,10 +341,13 @@
       cursor: pointer;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 5px;
       line-height: 1;
       white-space: nowrap;
       transition: background .15s ease, border-color .15s ease;
+      min-width: 100px;
+      width: 100%;
     }
 
     .btn-export:hover {
@@ -544,6 +547,7 @@
       .header-actions .export-dropdown,
       .header-actions .btn-export {
         width: 100%;
+        min-width: 0;
         height: 40px;
         display: flex;
         align-items: center;
@@ -581,14 +585,17 @@
       box-sizing: border-box;
       font: inherit;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      gap: 5px;
+      line-height: 1;
       white-space: nowrap;
       transition: all 0.2s ease;
       user-select: none;
+      min-width: 100px;
     }
     .btn-athlete-evolution:hover {
       background: #202430;
@@ -596,7 +603,19 @@
       color: #fff;
     }
     .btn-athlete-evolution svg {
+      width: 15px;
+      height: 15px;
+      fill: none;
       stroke: var(--acc);
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+    .btn-athlete-evolution span {
+      line-height: 1;
+      display: inline-block;
+      transform: translateY(-0.5px);
     }
 
     .svg-athlete-item {
@@ -1071,8 +1090,10 @@
     .view-nav-bar {
       display: flex;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: space-between;
+      gap: 12px;
       margin-bottom: -4px;
+      width: 100%;
     }
 
     .btn-nav-back {
@@ -1089,6 +1110,7 @@
       cursor: pointer;
       transition: all 0.15s ease;
       text-decoration: none;
+      flex-shrink: 0;
     }
 
     .btn-nav-back:hover {
@@ -1100,6 +1122,7 @@
 
     .btn-nav-back svg {
       transition: transform 0.15s ease;
+      flex-shrink: 0;
     }
 
     .btn-nav-back:hover svg {
@@ -1135,9 +1158,6 @@
       padding: 20px 24px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
       width: 100%;
       min-width: 0;
       box-sizing: border-box;
@@ -1153,6 +1173,7 @@
       padding: 3px 5px;
       user-select: none;
       flex-shrink: 0;
+      margin-left: auto;
     }
 
     .btn-pager-nav {
@@ -1424,6 +1445,20 @@
         grid-template-columns: 1fr;
         gap: 12px;
       }
+      .view-nav-bar {
+        margin-bottom: -2px;
+        gap: 8px;
+      }
+      .btn-nav-back {
+        padding: 7px 12px;
+        font-size: 12.5px;
+        gap: 7px;
+        border-radius: 9px;
+      }
+      .btn-nav-back svg {
+        width: 16px;
+        height: 16px;
+      }
       .profile-page-card {
         padding: 14px;
         border-radius: 13px;
@@ -1506,10 +1541,6 @@
       .history-table td {
         padding: 8px 10px;
         font-size: 12px;
-      }
-      .btn-nav-back {
-        padding: 8px 13px;
-        font-size: 12.5px;
       }
       .card.prev {
         padding: 0;
@@ -2279,6 +2310,20 @@
         </svg>
         <span id="pageProfileBackLabel">Volver al Leaderboard</span>
       </button>
+
+      <div class="athlete-pager-nav" id="pageAthletePagerNav" style="display:none;">
+        <button type="button" class="btn-pager-nav" id="pagePrevAthleteBtn" aria-label="Atleta anterior" title="Atleta anterior">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <span class="pager-counter" id="pageAthletePagerCounter">1 / 9</span>
+        <button type="button" class="btn-pager-nav" id="pageNextAthleteBtn" aria-label="Siguiente atleta" title="Siguiente atleta">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <div class="profile-page-card">
@@ -2295,20 +2340,6 @@
             <span class="badge-tag" id="pageEvalsBadge">0 evaluaciones</span>
           </div>
         </div>
-      </div>
-
-      <div class="athlete-pager-nav" id="pageAthletePagerNav" style="display:none;">
-        <button type="button" class="btn-pager-nav" id="pagePrevAthleteBtn" aria-label="Atleta anterior" title="Atleta anterior">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-        </button>
-        <span class="pager-counter" id="pageAthletePagerCounter">1 / 9</span>
-        <button type="button" class="btn-pager-nav" id="pageNextAthleteBtn" aria-label="Siguiente atleta" title="Siguiente atleta">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </button>
       </div>
     </div>
 
